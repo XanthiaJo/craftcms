@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>{{ entry.title }} - Spontaneous Miscellaneous</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Open+Sans:wght@400;600;700&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f7f4ef;
+            --surface: #ffffff;
+            --text: #333333;
+            --heading: #111111;
+            --accent: #ca9b52;
+            --border: #e8e2d8;
+            --content-max: 860px;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            color: var(--text);
+            background: var(--bg);
+            font-family: "Open Sans", sans-serif;
+            line-height: 1.7;
+        }
+        a { color: var(--accent); text-decoration: none; }
+        .container {
+            width: min(var(--content-max), 100% - 32px);
+            margin: 0 auto;
+        }
+        .site-header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 18px 0;
+        }
+        .brand {
+            margin: 0;
+            color: var(--heading);
+            font-family: "Dancing Script", cursive;
+            font-size: 42px;
+            line-height: 1;
+        }
+        main {
+            margin: 32px auto 60px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 28px;
+        }
+        h1 {
+            margin: 0 0 10px;
+            color: var(--heading);
+            font-family: "Playfair Display", serif;
+            font-size: clamp(30px, 4vw, 42px);
+            font-weight: 400;
+            line-height: 1.25;
+        }
+        .meta {
+            margin: 0 0 22px;
+            color: #8a8a8a;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .content {
+            font-size: 16px;
+        }
+        .content :first-child { margin-top: 0; }
+        .link-buttons {
+            margin-top: 18px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .link-button {
+            display: inline-block;
+            padding: 10px 14px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: #333;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .link-button:hover {
+            background: var(--accent);
+            opacity: 1;
+        }
+        .back-link {
+            margin-top: 28px;
+            display: inline-block;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+        }
+    </style>
+</head>
+<body>
+<header class="site-header">
+    <div class="container">
+        <p class="brand">Spontaneous Miscellaneous</p>
+    </div>
+</header>
+
+<div class="container">
+    <main>
+        <h1>{{ entry.title }}</h1>
+        <p class="meta">{{ entry.postDate|date('F j, Y') }}</p>
+        <div class="content">
+            {% if entry.body %}
+                {{ entry.body|nl2br }}
+            {% endif %}
+        </div>
+        {% if attribute(entry, 'resourceLinks') is defined and entry.resourceLinks|length %}
+            <div class="link-buttons">
+                {% for row in entry.resourceLinks %}
+                    {% set url = row.url ?? row.col2 ?? null %}
+                    {% set label = row.label ?? row.col1 ?? 'Open Link' %}
+                    {% if url %}
+                        <a class="link-button" href="{{ url }}" target="_blank" rel="noopener">{{ label }}</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+        <a class="back-link" href="/posts">Back to Completed Projects</a>
+    </main>
+</div>
+</body>
+</html>
