@@ -25,7 +25,6 @@ jobs:
           username: ${{ secrets.PROD_USER }}
           key: ${{ secrets.PROD_SSH_KEY }}
           port: ${{ secrets.PROD_PORT }}
-          passphrase: ${{ secrets.PROD_SSH_PASSPHRASE }}
           script_stop: true
           script: |
             set -euo pipefail
