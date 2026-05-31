@@ -30,6 +30,63 @@
             width: min(var(--content-max), 100% - 32px);
             margin: 0 auto;
         }
+        .page-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 280px;
+            gap: 28px;
+            align-items: start;
+        }
+        .content-column {
+            min-width: 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 28px;
+        }
+        .side-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 22px;
+            position: sticky;
+            top: 24px;
+        }
+        .side-panel-title {
+            margin: 0 0 12px;
+            color: var(--heading);
+            font-family: "Playfair Display", serif;
+            font-size: 28px;
+            font-weight: 400;
+            line-height: 1.2;
+        }
+        .side-panel-intro {
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .side-panel-sections {
+            margin-top: 18px;
+            display: grid;
+            gap: 14px;
+        }
+
+        .side-panel-section {
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .side-panel-section-title {
+            margin: 0 0 8px;
+            color: var(--heading);
+            font-family: "Playfair Display", serif;
+            font-size: 18px;
+            font-weight: 400;
+        }
+
+        .side-panel-text {
+            font-size: 14px;
+            line-height: 1.7;
+        }
         .site-header {
             background: var(--surface);
             border-bottom: 1px solid var(--border);
@@ -44,10 +101,6 @@
         }
         main {
             margin: 32px auto 60px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 28px;
         }
         h1 {
             margin: 0 0 10px;
@@ -96,6 +149,17 @@
             font-weight: 700;
             letter-spacing: 0.4px;
         }
+        @media (max-width: 900px) {
+            .page-layout {
+                grid-template-columns: 1fr;
+            }
+            .side-panel {
+                position: static;
+            }
+            .content-column {
+                padding: 22px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -106,26 +170,38 @@
 </header>
 
 <div class="container">
-    <main>
-        <h1>{{ entry.title }}</h1>
-        <p class="meta">{{ entry.postDate|date('F j, Y') }}</p>
-        <div class="content">
-            {% if entry.body %}
-                {{ entry.body|nl2br }}
-            {% endif %}
-        </div>
-        {% if attribute(entry, 'resourceLinks') is defined and entry.resourceLinks|length %}
-            <div class="link-buttons">
-                {% for row in entry.resourceLinks %}
-                    {% set url = row.url ?? row.col2 ?? null %}
-                    {% set label = row.label ?? row.col1 ?? 'Open Link' %}
-                    {% if url %}
-                        <a class="link-button" href="{{ url }}" target="_blank" rel="noopener">{{ label }}</a>
-                    {% endif %}
-                {% endfor %}
+    <main class="page-layout">
+        <div class="content-column">
+            <h1>{{ entry.title }}</h1>
+            <p class="meta">{{ entry.postDate|date('F j, Y') }}</p>
+            <div class="content">
+                {% if entry.body %}
+                    {{ entry.body|nl2br }}
+                {% endif %}
             </div>
-        {% endif %}
-        <a class="back-link" href="/posts">Back to Completed Projects</a>
+            {% if attribute(entry, 'resourceLinks') is defined and entry.resourceLinks|length %}
+                <div class="link-buttons">
+                    {% for row in entry.resourceLinks %}
+                        {% set url = row.url ?? row.col2 ?? null %}
+                        {% set label = row.label ?? row.col1 ?? 'Open Link' %}
+                        {% if url %}
+                            <a class="link-button" href="{{ url }}" target="_blank" rel="noopener">{{ label }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <a class="back-link" href="/posts">Back to Completed Projects</a>
+        </div>
+
+        {% include '_partials/sidebar.twig' with {
+            title: 'Project details',
+            intro: 'This panel will eventually hold categories, tags, and dates for the current post.',
+            sections: [
+                { title: 'Categories', text: 'Coming soon' },
+                { title: 'Tags', text: 'Coming soon' },
+                { title: 'Date', text: entry.postDate|date('F j, Y') }
+            ]
+        } only %}
     </main>
 </div>
 </body>

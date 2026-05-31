@@ -1,0 +1,24 @@
+<aside class="side-panel" aria-label="{{ title|default('Sidebar') }}">
+    {% if title %}
+        <h2 class="side-panel-title">{{ title }}</h2>
+    {% endif %}
+
+    {% if intro %}
+        <div class="side-panel-intro">{{ intro }}</div>
+    {% endif %}
+
+    {% if sections is defined and sections|length %}
+        <div class="side-panel-sections">
+            {% for section in sections %}
+                <div class="side-panel-section">
+                    {% if section.title %}
+                        <h3 class="side-panel-section-title">{{ section.title }}</h3>
+                    {% endif %}
+                    {% if section.text %}
+                        <div class="side-panel-text">{{ section.text }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</aside>
