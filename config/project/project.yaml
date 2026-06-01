@@ -1,12 +1,27 @@
-dateModified: 1780235942
+dateModified: 1780258394
 email:
   fromEmail: gothic-chav@hotmail.co.uk
   fromName: 'Box of Dragons'
   transportType: craft\mail\transportadapters\Sendmail
+fs:
+  Uploads:
+    hasUrls: true
+    name: uploads
+    settings:
+      path: '@webroot/uploads'
+    type: craft\fs\Local
+    url: '@web/uploads'
 meta:
   __names__:
     2dbde0bb-7009-42ef-a06b-d3e854039012: 'Public Schema' # Public Schema
+    7e05d885-8a22-4531-b57e-12f3e9d7f469: Posts # Posts
+    56b64bf1-40b8-4808-a076-f845aced2527: 'Post Images' # Post Images
+    76c53e19-a060-468b-9dcb-6f2874cdcde4: 'Resource Links' # Resource Links
     501afdad-7ccc-463d-9bba-7fae94a5d8c3: 'Box of Dragons' # Box of Dragons
+    29579835-63db-4481-b347-52f1852e0eb9: 'Featured Image' # Featured Image
+    af6550e1-b206-4dcc-a2ff-a847082b77bc: Body # Body
+    c2347409-b4ee-421d-8079-9c9ae09e7a1d: Post # Post
+    d7835db0-9bc7-4ee6-8ad8-acd09625daf0: Post # Post
     fe57eae0-97a1-40b3-bf35-42f69f3d1203: 'Box of Dragons' # Box of Dragons
 system:
   edition: solo
