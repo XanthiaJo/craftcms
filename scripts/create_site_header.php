@@ -121,14 +121,4 @@ $headerLayout = saveLayout([
 $siteHeader->setFieldLayout($headerLayout);
 $globalsService->saveSet($siteHeader);
 
-$siteHeader = $globalsService->getSetByHandle('siteHeader');
-if ($siteHeader) {
-    $siteHeader->setFieldValue('siteName', 'Spontaneous Miscellaneous');
-    $siteHeader->setFieldValue('siteNavigation', [
-        ['label' => 'Home', 'url' => '/'],
-        ['label' => 'Completed Projects', 'url' => '/posts'],
-    ]);
-    Craft::$app->getElements()->saveElement($siteHeader, true, true, false);
-}
-
 echo "Site header content model created.\n";

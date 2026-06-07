@@ -205,31 +205,4 @@ $homeLayout = saveLayout([
 $homeSet->setFieldLayout($homeLayout);
 $globalsService->saveSet($homeSet);
 
-$homeSet = $globalsService->getSetByHandle('home');
-if ($homeSet) {
-    $homeSet->setFieldValue('homeHeading', 'Needing new Homes');
-    $homeSet->setFieldValue(
-        'homeIntro',
-        'Here is my collection of makes and odds bits for sale. I am a crafter, not a social media marketer. If you would like further details about anything, feel free to get in touch directly.'
-    );
-    $existingCards = $homeSet->homeCards ?? null;
-    if (!$existingCards || !$existingCards->count()) {
-        $homeSet->setFieldValue('homeCards', [
-            [
-                'type' => 'homeCard',
-                'title' => 'Completed Projects',
-                'homeCardText' => 'Work that has already found a home.',
-                'homeCardLink' => '/posts',
-            ],
-            [
-                'type' => 'homeCard',
-                'title' => 'Working One thing at a Time (ha!)',
-                'homeCardText' => 'Most of my work that I have kept, sold, or gifted.',
-                'homeCardLink' => '/posts',
-            ],
-        ]);
-    }
-    Craft::$app->getElements()->saveElement($homeSet, true, true, false);
-}
-
 echo "Home content model created.\n";
