@@ -43,12 +43,6 @@ jobs:
             echo "Syncing project configuration..."
             php craft project-config/sync --interactive=0
 
-            echo "Creating site header content..."
-            php scripts/create_site_header.php
-
-            echo "Creating home page content..."
-            php scripts/create_home_content.php
-
             echo "Clearing compiled templates and caches..."
             php craft clear-caches/all --interactive=0 || true
 
