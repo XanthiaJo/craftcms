@@ -14,7 +14,9 @@
                     {% if section.title %}
                         <h3 class="side-panel-section-title">{{ section.title }}</h3>
                     {% endif %}
-                    {% if section.text %}
+                    {% if section.html is defined and section.html %}
+                        <div class="side-panel-text">{{ section.html|raw }}</div>
+                    {% elseif section.text %}
                         <div class="side-panel-text">{{ section.text }}</div>
                     {% endif %}
                 </div>

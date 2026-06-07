@@ -3,7 +3,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>{{ entry.title }} - Spontaneous Miscellaneous</title>
+    {% set siteHeader = craft.app.globals.getSetByHandle('siteHeader') %}
+    {% set siteName = siteHeader and siteHeader.siteName ? siteHeader.siteName : '' %}
+    <title>{{ entry.title }} - {{ siteName }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Open+Sans:wght@400;600;700&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
@@ -42,6 +44,16 @@
             border: 1px solid var(--border);
             border-radius: 6px;
             padding: 28px;
+        }
+        .post-feature-image {
+            display: block;
+            width: 100%;
+            margin: 0 0 22px;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: #f2eee8;
         }
         .side-panel {
             background: var(--surface);
@@ -87,10 +99,30 @@
             font-size: 14px;
             line-height: 1.7;
         }
+        .taxonomy-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            gap: 8px;
+        }
+        .taxonomy-list a {
+            color: var(--heading);
+        }
+        .taxonomy-list .count {
+            color: #8a8a8a;
+        }
         .site-header {
             background: var(--surface);
             border-bottom: 1px solid var(--border);
             padding: 18px 0;
+        }
+        .header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            min-height: 52px;
         }
         .brand {
             margin: 0;
@@ -98,6 +130,21 @@
             font-family: "Dancing Script", cursive;
             font-size: 42px;
             line-height: 1;
+        }
+        .main-nav {
+            display: flex;
+            gap: 22px;
+            align-items: center;
+        }
+        .main-nav a {
+            color: #222;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .main-nav a.active {
+            color: var(--accent);
         }
         main {
             margin: 32px auto 60px;
@@ -117,10 +164,37 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
+        .post-categories,
+        .post-tags {
+            margin: 0 0 14px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8a8a8a;
+        }
+        .post-categories a,
+        .post-tags a {
+            color: var(--accent);
+        }
         .content {
             font-size: 16px;
         }
         .content :first-child { margin-top: 0; }
+        .post-gallery {
+            margin-top: 24px;
+            display: grid;
+            gap: 14px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .post-gallery-image {
+            display: block;
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: #f2eee8;
+        }
         .link-buttons {
             margin-top: 18px;
             display: flex;
@@ -159,31 +233,81 @@
             .content-column {
                 padding: 22px;
             }
+            .post-gallery {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-<header class="site-header">
-    <div class="container">
-        <p class="brand">Spontaneous Miscellaneous</p>
-    </div>
-</header>
+{% include '_partials/site-header.twig' %}
+{% set postsIndexUrl = '/posts' %}
 
 <div class="container">
     <main class="page-layout">
         <div class="content-column">
+            {% set featuredImage = entry.featuredImage ? entry.featuredImage.one() : null %}
+            {% if featuredImage %}
+                <img class="post-feature-image" src="{{ featuredImage.url }}" alt="{{ featuredImage.title ?: entry.title }}">
+            {% endif %}
             <h1>{{ entry.title }}</h1>
             <p class="meta">{{ entry.postDate|date('F j, Y') }}</p>
+            {% set rawEntryProjectTypes = attribute(entry, 'projectTypes') is defined and entry.projectTypes ? entry.projectTypes.all() : [] %}
+            {% set entryProjectTypes = [] %}
+            {% for projectType in rawEntryProjectTypes %}
+                {% set entryProjectTypes = entryProjectTypes|merge([projectType]) %}
+            {% endfor %}
+            {% set rawEntryDesignSource = attribute(entry, 'designSource') is defined and entry.designSource ? entry.designSource.all() : [] %}
+            {% set entryDesignSource = rawEntryDesignSource[0] ?? null %}
+            {% set rawEntryCategories = attribute(entry, 'postCategories') is defined and entry.postCategories ? entry.postCategories.all() : [] %}
+            {% set entryCategories = [] %}
+            {% for category in rawEntryCategories %}
+                {% if not (category.title matches '/^\\d{4}$/') %}
+                    {% set entryCategories = entryCategories|merge([category]) %}
+                {% endif %}
+            {% endfor %}
+            {% if entryCategories|length %}
+                <div class="post-categories">
+                    {% for category in entryCategories %}
+                        <a href="{{ postsIndexUrl }}?category[]={{ category.slug|url_encode }}">{{ category.title }}</a>{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% set entryTags = attribute(entry, 'postTags') is defined and entry.postTags ? entry.postTags.all() : [] %}
+            {% if entryTags|length %}
+                <div class="post-tags">
+                    {% for tag in entryTags %}
+                        <a href="{{ postsIndexUrl }}?tag[]={{ tag.slug|url_encode }}">{{ tag.title }}</a>{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
             <div class="content">
                 {% if entry.body %}
                     {{ entry.body|nl2br }}
                 {% endif %}
             </div>
+            {% set galleryImages = attribute(entry, 'postImages') is defined and entry.postImages ? entry.postImages.all() : [] %}
+            {% set allGalleryImages = [] %}
+            {% if featuredImage %}
+                {% set allGalleryImages = allGalleryImages|merge([featuredImage]) %}
+            {% endif %}
+            {% if galleryImages|length %}
+                {% set allGalleryImages = allGalleryImages|merge(galleryImages) %}
+            {% endif %}
+            {% if allGalleryImages|length %}
+                <div class="post-gallery" aria-label="Post image gallery">
+                    {% for galleryImage in allGalleryImages %}
+                        <a href="{{ galleryImage.url }}" target="_blank" rel="noopener">
+                            <img class="post-gallery-image" src="{{ galleryImage.url }}" alt="{{ galleryImage.title ?: entry.title }}">
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
             {% if attribute(entry, 'resourceLinks') is defined and entry.resourceLinks|length %}
                 <div class="link-buttons">
                     {% for row in entry.resourceLinks %}
                         {% set url = row.url ?? row.col2 ?? null %}
-                        {% set label = row.label ?? row.col1 ?? 'Open Link' %}
+                        {% set label = row.label ?? row.col1 ?? '' %}
                         {% if url %}
                             <a class="link-button" href="{{ url }}" target="_blank" rel="noopener">{{ label }}</a>
                         {% endif %}
@@ -193,13 +317,58 @@
             <a class="back-link" href="/posts">Back to Completed Projects</a>
         </div>
 
+        {% set categoriesSidebarHtml %}
+            {% if entryCategories|length %}
+                <ul class="taxonomy-list">
+                    {% for category in entryCategories %}
+                        <li class="cat-item"><a href="{{ postsIndexUrl }}?category[]={{ category.slug|url_encode }}">{{ category.title }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <ul class="taxonomy-list"><li class="cat-item-none">No categories</li></ul>
+            {% endif %}
+        {% endset %}
+        {% set projectTypesSidebarHtml %}
+            {% if entryProjectTypes|length %}
+                <ul class="taxonomy-list">
+                    {% for projectType in entryProjectTypes %}
+                        <li class="cat-item"><a href="{{ postsIndexUrl }}?projectType[]={{ projectType.slug|url_encode }}">{{ projectType.title }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <ul class="taxonomy-list"><li class="cat-item-none">No project types</li></ul>
+            {% endif %}
+        {% endset %}
+        {% set designSourceSidebarHtml %}
+            {% if entryDesignSource %}
+                <ul class="taxonomy-list">
+                    <li class="cat-item"><a href="{{ postsIndexUrl }}?designSource[]={{ entryDesignSource.slug|url_encode }}">{{ entryDesignSource.title }}</a></li>
+                </ul>
+            {% else %}
+                <ul class="taxonomy-list"><li class="cat-item-none">No design source</li></ul>
+            {% endif %}
+        {% endset %}
+        {% set tagsSidebarHtml %}
+            {% if entryTags|length %}
+                <ul class="taxonomy-list">
+                    {% for tag in entryTags %}
+                        <li class="cat-item"><a href="{{ postsIndexUrl }}?tag[]={{ tag.slug|url_encode }}">{{ tag.title }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <ul class="taxonomy-list"><li class="cat-item-none">No tags</li></ul>
+            {% endif %}
+        {% endset %}
+
         {% include '_partials/sidebar.twig' with {
             title: 'Project details',
-            intro: 'This panel will eventually hold categories, tags, and dates for the current post.',
+            intro: 'Project type, categories, and tags for this post.',
             sections: [
-                { title: 'Categories', text: 'Coming soon' },
-                { title: 'Tags', text: 'Coming soon' },
-                { title: 'Date', text: entry.postDate|date('F j, Y') }
+                { title: 'Design Source', html: designSourceSidebarHtml },
+                { title: 'Project Type', html: projectTypesSidebarHtml },
+                { title: 'Categories', html: categoriesSidebarHtml },
+                { title: 'Tags', html: tagsSidebarHtml },
+                { title: 'Year', text: entry.postDate|date('Y') }
             ]
         } only %}
     </main>
