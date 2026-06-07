@@ -2,7 +2,7 @@ allowLineBreaksInTitles: false
 color: null
 description: null
 fieldLayouts:
-  7d6707a0-d972-444a-9246-993f7088feb7:
+  536a24e2-784e-4b9e-b5fb-03be4a218d74:
     cardThumbAlignment: end
     generatedFields:
       -
@@ -19,7 +19,7 @@ fieldLayouts:
             autocomplete: false
             autocorrect: true
             class: null
-            dateAdded: '2026-05-31T18:52:51+00:00'
+            dateAdded: '2026-06-07T19:00:40+00:00'
             disabled: false
             elementCondition: null
             id: null
@@ -38,7 +38,7 @@ fieldLayouts:
             tip: null
             title: null
             type: craft\fieldlayoutelements\entries\EntryTitleField
-            uid: 57d9dcfb-7c8e-4aa3-b03c-5c52be84a1c1
+            uid: 44d15bba-6471-4030-ae8a-339994eb6fd0
             userCondition: null
             warning: null
             width: 100
@@ -87,6 +87,86 @@ fieldLayouts:
             tip: null
             type: craft\fieldlayoutelements\CustomField
             uid: 2fd8e9bb-727c-4a34-ae0b-d1cda3812cb6
+            userCondition: null
+            warning: null
+            width: 100
+          -
+            dateAdded: '2026-06-01T16:02:03+00:00'
+            editCondition: null
+            elementCondition: null
+            elementEditCondition: null
+            fieldUid: 895989d9-cefc-4582-bbad-6736c0c471b8 # Post Images
+            handle: null
+            instructions: null
+            label: null
+            required: false
+            tip: null
+            type: craft\fieldlayoutelements\CustomField
+            uid: 2a14ea64-cfdb-484d-a052-3a738e5f5869
+            userCondition: null
+            warning: null
+            width: 100
+          -
+            dateAdded: '2026-06-07T18:06:08+00:00'
+            editCondition: null
+            elementCondition: null
+            elementEditCondition: null
+            fieldUid: c8ae7352-3ab5-47e7-b586-a001fbe07430 # Project Types
+            handle: null
+            instructions: null
+            label: null
+            required: false
+            tip: null
+            type: craft\fieldlayoutelements\CustomField
+            uid: 804830c6-96da-4912-9671-8caa32eb58ad
+            userCondition: null
+            warning: null
+            width: 100
+          -
+            dateAdded: '2026-06-07T12:00:00+00:00'
+            editCondition: null
+            elementCondition: null
+            elementEditCondition: null
+            fieldUid: 52d25c97-f091-4cfb-84f6-e2529d60f743 # Post Categories
+            handle: null
+            instructions: null
+            label: Categories
+            required: false
+            tip: null
+            type: craft\fieldlayoutelements\CustomField
+            uid: 4db1153e-57dc-45d1-8d5c-4f88c7d8f2ba
+            userCondition: null
+            warning: null
+            width: 100
+          -
+            dateAdded: '2026-06-07T12:00:01+00:00'
+            editCondition: null
+            elementCondition: null
+            elementEditCondition: null
+            fieldUid: 5cfa4a6e-5fa2-43f3-a646-d35ea81d5d63 # Post Tags
+            handle: null
+            instructions: null
+            label: Tags
+            required: false
+            tip: null
+            type: craft\fieldlayoutelements\CustomField
+            uid: 736f190c-e3e7-4dfb-a456-f9bdd5558308
+            userCondition: null
+            warning: null
+            width: 100
+          -
+            dateAdded: '2026-06-07T19:00:40+00:00'
+            editCondition: null
+            elementCondition: null
+            elementEditCondition: null
+            fieldUid: dd7373ee-b1ce-4c8d-815d-03cfaed9bd88 # Design Source
+            handle: null
+            instructions: null
+            label: 'Design Source'
+            required: false
+            tip: null
+            type: craft\fieldlayoutelements\CustomField
+            uid: d1d2c1b4-217a-4698-ba0e-a5c47b8bcb3f
             userCondition: null
             warning: null
             width: 100

@@ -59,7 +59,7 @@ fs: Uploads
 handle: postImages
 name: 'Post Images'
 sortOrder: 1
-subpath: 'posts/{canonicalId}'
+subpath: posts
 titleTranslationKeyFormat: null
 titleTranslationMethod: site
 transformFs: ''
