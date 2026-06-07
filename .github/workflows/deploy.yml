@@ -40,6 +40,9 @@ jobs:
             echo "Running Craft updates..."
             php craft up --interactive=0
 
+            echo "Syncing project configuration..."
+            php craft project-config/sync --interactive=0
+
             echo "Clearing compiled templates and caches..."
             php craft clear-caches/all --interactive=0 || true
 
