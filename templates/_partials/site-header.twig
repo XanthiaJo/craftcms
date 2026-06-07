@@ -1,0 +1,20 @@
+{% set siteHeader = siteHeader is defined ? siteHeader : craft.app.globals.getSetByHandle('siteHeader') %}
+{% set siteName = siteName is defined ? siteName : (siteHeader and siteHeader.siteName ? siteHeader.siteName : '') %}
+{% set headerNav = siteHeader and siteHeader.siteNavigation ? siteHeader.siteNavigation : [] %}
+{% set currentPath = craft.app.request.pathInfo ? '/' ~ craft.app.request.pathInfo|trim('/') : '/' %}
+
+<header class="site-header">
+    <div class="container header-row">
+        <h1 class="brand">{{ siteName }}</h1>
+{% if headerNav|length %}
+    <nav class="main-nav" aria-label="Main navigation">
+        {% for item in headerNav %}
+            {% set itemLabel = item.label ?? item.col1 ?? '' %}
+            {% set itemUrl = item.url ?? item.col2 ?? '' %}
+            {% set isActive = itemUrl == '/' ? currentPath == '/' : currentPath == itemUrl or currentPath starts with itemUrl ~ '/' %}
+            <a href="{{ itemUrl }}" class="{{ isActive ? 'active' : '' }}">{{ itemLabel }}</a>
+        {% endfor %}
+    </nav>
+{% endif %}
+    </div>
+</header>
