@@ -43,6 +43,9 @@ jobs:
             echo "Syncing project configuration..."
             php craft project-config/sync --interactive=0
 
+            echo "Temporarily enabling admin changes..."
+            export CRAFT_ALLOW_ADMIN_CHANGES=true
+
             echo "Creating site header content..."
             php scripts/create_site_header.php
 
