@@ -52,6 +52,9 @@ jobs:
             echo "Creating home page content..."
             php scripts/create_home_content.php
 
+            echo "Fixing asset folder structure..."
+            php scripts/fix_asset_folders.php
+
             echo "Clearing compiled templates and caches..."
             php craft clear-caches/all --interactive=0 || true
 
