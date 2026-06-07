@@ -1,7 +1,7 @@
 columnSuffix: null
-handle: featuredImage
+handle: postImages
 instructions: null
-name: 'Featured Image'
+name: 'Post Images'
 searchable: false
 settings:
   allowSelfRelations: false

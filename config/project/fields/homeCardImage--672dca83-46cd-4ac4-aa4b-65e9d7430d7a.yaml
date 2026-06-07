@@ -1,7 +1,7 @@
 columnSuffix: null
-handle: featuredImage
+handle: homeCardImage
 instructions: null
-name: 'Featured Image'
+name: 'Home Card Image'
 searchable: false
 settings:
   allowSelfRelations: false
@@ -10,8 +10,8 @@ settings:
   allowedKinds: null
   branchLimit: null
   defaultPlacement: end
-  defaultUploadLocationSource: 'volume:56b64bf1-40b8-4808-a076-f845aced2527' # Post Images
-  defaultUploadLocationSubpath: '{canonicalId}'
+  defaultUploadLocationSource: 'volume:c502d161-c8da-41a1-be35-09304ce9b1ff' # Misc Images
+  defaultUploadLocationSubpath: null
   maintainHierarchy: false
   maxRelations: null
   minRelations: null

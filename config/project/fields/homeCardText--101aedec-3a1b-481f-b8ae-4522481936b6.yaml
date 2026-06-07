@@ -1,0 +1,16 @@
+columnSuffix: null
+handle: homeCardText
+instructions: 'Short description for the card.'
+name: 'Home Card Text'
+searchable: false
+settings:
+  byteLimit: null
+  charLimit: null
+  code: false
+  initialRows: 3
+  multiline: true
+  placeholder: null
+  uiMode: normal
+translationKeyFormat: null
+translationMethod: none
+type: craft\fields\PlainText
