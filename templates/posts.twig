@@ -14,95 +14,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Open+Sans:wght@400;600;700&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/site.css">
     <style>
-        :root {
-            --bg: #f7f4ef;
-            --surface: #ffffff;
-            --text: #333333;
-            --heading: #111111;
-            --accent: #ca9b52;
-            --border: #e8e2d8;
-            --content-max: 1140px;
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            margin: 0;
-            color: var(--text);
-            background: var(--bg);
-            font-family: "Open Sans", sans-serif;
-            line-height: 1.6;
-        }
-
-        a { color: var(--accent); text-decoration: none; }
-        a:hover { opacity: 0.85; }
-
-        .container {
-            width: min(var(--content-max), 100% - 48px);
-            margin: 0 auto;
-        }
-
-        .site-header {
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        .header-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            min-height: 72px;
-            gap: 24px;
-        }
-
-        .brand {
-            margin: 0;
-            color: var(--heading);
-            font-family: "Dancing Script", cursive;
-            font-size: clamp(30px, 4vw, 48px);
-            line-height: 1;
-            white-space: nowrap;
-        }
-
-        .main-nav {
-            display: flex;
-            gap: 26px;
-            align-items: center;
-        }
-
-        .main-nav a {
-            color: #222;
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .main-nav a.active {
-            color: var(--accent);
-        }
-
-        .page-title-wrap {
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            padding: 42px 0;
-            margin-bottom: 38px;
-        }
-
-        .page-title {
-            margin: 0;
-            font-family: "Playfair Display", serif;
-            color: var(--heading);
-            font-size: clamp(30px, 5vw, 44px);
-            font-weight: 400;
-            text-align: center;
-            letter-spacing: 0.5px;
-        }
-
         .projects {
             padding-bottom: 68px;
         }
@@ -118,171 +31,21 @@
             min-width: 0;
         }
 
-        .side-panel {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 22px;
-            position: sticky;
-            top: 96px;
-        }
-
-        .side-panel-title {
-            margin: 0 0 12px;
-            color: var(--heading);
-            font-family: "Playfair Display", serif;
-            font-size: 28px;
-            font-weight: 400;
-            line-height: 1.2;
-        }
-
-        .side-panel-intro {
-            font-size: 14px;
-            line-height: 1.7;
-        }
-
-        .side-panel-sections {
-            margin-top: 18px;
-            display: grid;
-            gap: 14px;
-        }
-
-        .side-panel-section {
-            padding-top: 12px;
-            border-top: 1px solid var(--border);
-        }
-
-        .side-panel-section-title {
-            margin: 0 0 8px;
-            color: var(--heading);
-            font-family: "Playfair Display", serif;
-            font-size: 18px;
-            font-weight: 400;
-        }
-
-        .side-panel-text {
-            font-size: 14px;
-            line-height: 1.7;
-        }
-
-        .taxonomy-list {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            display: grid;
-            gap: 8px;
-        }
-
-        .taxonomy-option {
-            display: flex;
-            align-items: baseline;
-            gap: 8px;
-            color: var(--heading);
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        .taxonomy-option input {
-            margin: 0;
-            accent-color: var(--accent);
-        }
-
-        .taxonomy-option-label {
-            color: var(--heading);
-        }
-
-        .side-panel-actions {
-            margin-top: 18px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .side-panel-button,
-        .side-panel-reset {
-            display: inline-block;
-            padding: 10px 14px;
-            border-radius: 4px;
-            border: 1px solid var(--border);
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .side-panel-button {
-            background: #333;
-            color: #fff;
-            cursor: pointer;
-        }
-
-        .side-panel-button:hover {
-            background: var(--accent);
-        }
-
-        .side-panel-reset {
-            background: transparent;
-            color: var(--heading);
-        }
-
-        .taxonomy-list .count {
-            color: #8a8a8a;
-        }
-
         .grid {
             list-style: none;
             margin: 0;
             padding: 0;
             display: grid;
             gap: 26px;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         }
 
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+        .posts-panel {
+            position: sticky;
+            top: 96px;
         }
 
-        .thumb {
-            width: 100%;
-            aspect-ratio: 4 / 3;
-            object-fit: cover;
-            display: block;
-        }
-
-        .card-content {
-            padding: 18px 18px 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            flex: 1;
-        }
-
-        .card-categories {
-            font-size: 12px;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            line-height: 1.5;
-        }
-
-        .card-type-chip {
-            display: inline-block;
-            align-self: flex-start;
-            padding: 5px 10px;
-            border-radius: 999px;
-            background: #f2eee8;
-            color: var(--heading);
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
+        /* Chip colour modifiers (posts-specific) */
         .card-type-chip--coding {
             background: #d9e7f2;
             color: #22415f;
@@ -296,19 +59,6 @@
         .card-type-chip--modeling {
             background: #e7e2f4;
             color: #4d3d75;
-        }
-
-        .card-design-source-chip {
-            display: inline-block;
-            align-self: flex-start;
-            padding: 5px 10px;
-            border-radius: 999px;
-            background: #e8efe6;
-            color: #2f5a3b;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
         }
 
         .card-design-source-chip--original {
@@ -331,68 +81,13 @@
             color: #1565c0;
         }
 
-        .card-categories a {
-            color: var(--accent);
-        }
-
-        .card-title {
-            margin: 0;
-            font-family: "Playfair Display", serif;
-            font-size: 25px;
-            font-weight: 400;
-            line-height: 1.3;
-            color: var(--heading);
-        }
-
-        .meta {
-            margin-top: auto;
-            font-size: 12px;
-            color: #8a8a8a;
-            text-transform: uppercase;
-            letter-spacing: 1.1px;
-        }
-
-        .site-footer {
-            border-top: 1px solid var(--border);
-            background: #f2eee8;
-            padding: 22px 0;
-        }
-
-        .footer-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 14px;
-            font-size: 13px;
-        }
-
-        .footer-socials {
-            display: flex;
-            gap: 14px;
-        }
-
-        .footer-socials a {
-            color: #333;
-            font-weight: 600;
-        }
-
         @media (max-width: 980px) {
             .content-with-sidebar {
                 grid-template-columns: 1fr;
             }
 
-            .side-panel {
+            .posts-panel {
                 position: static;
-            }
-
-            .grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-        }
-
-        @media (max-width: 740px) {
-            .container {
-                width: min(var(--content-max), 100% - 28px);
             }
 
             .main-nav {
@@ -402,15 +97,6 @@
             .main-nav a {
                 font-size: 12px;
                 letter-spacing: 0.6px;
-            }
-
-            .grid {
-                grid-template-columns: 1fr;
-            }
-
-            .footer-row {
-                flex-direction: column;
-                align-items: flex-start;
             }
         }
     </style>
@@ -533,7 +219,7 @@
 </section>
 
 <main class="projects">
-    <div class="container content-with-sidebar">
+    <div class="content-wrap content-with-sidebar">
         <div class="content-main">
             <ul class="grid" aria-label="Completed project list">
                 {% for entry in entries %}
@@ -591,7 +277,7 @@
                             {% endif %}
                         {% endfor %}
                         {% if entryCategories|length %}
-                            <div class="card-categories">
+                            <div class="tag-text">
                                 {% for category in entryCategories %}
                                     <a href="{{ postsIndexUrl }}?category[]={{ category.slug|url_encode }}">{{ category.title }}</a>{% if not loop.last %}, {% endif %}
                                 {% endfor %}
@@ -625,93 +311,93 @@
             {% endif %}
         {% endfor %}
         {% set archiveTags = craft.app.tags.getTagGroupByHandle('postTags') ? craft.tags.group('postTags').orderBy('title asc').all() : [] %}
-        <aside class="side-panel">
-            <h2 class="side-panel-title">Browse by</h2>
-            <div class="side-panel-intro">{{ projectsArchiveSidebarIntro }}</div>
+        <aside class="panel posts-panel">
+            <h2 class="panel-title">Browse by</h2>
+            <div class="panel-intro">{{ projectsArchiveSidebarIntro }}</div>
             <form method="get" action="{{ postsIndexUrl }}">
-                <div class="side-panel-sections">
-                    <section class="side-panel-section">
-                        <h3 class="side-panel-section-title">Project Type</h3>
+                <div class="panel-sections">
+                    <section class="panel-section">
+                        <h3 class="panel-section-title">Project Type</h3>
                         {% if archiveProjectTypes|length %}
-                            <ul class="taxonomy-list">
+                            <ul class="filter-list">
                                 {% for projectType in archiveProjectTypes %}
                                     {% set projectTypeCount = (postIdsByProjectTypeSlug[projectType.slug] ?? [])|length %}
                                     <li>
-                                        <label class="taxonomy-option">
+                                        <label class="filter-row">
                                             <input type="checkbox" name="projectType[]" value="{{ projectType.slug }}" {% if projectType.slug in selectedProjectTypeSlugs %}checked{% endif %}>
-                                            <span class="taxonomy-option-label" style="padding-left: {{ ((projectType.level ?? 1) - 1) * 14 }}px">{{ projectType.title }}</span>
+                                            <span class="filter-label" style="padding-left: {{ ((projectType.level ?? 1) - 1) * 14 }}px">{{ projectType.title }}</span>
                                             <span class="count">({{ projectTypeCount }})</span>
                                         </label>
                                     </li>
                                 {% endfor %}
                             </ul>
                         {% else %}
-                            <div class="side-panel-text">No project types</div>
+                            <div class="panel-text">No project types</div>
                         {% endif %}
                     </section>
-                    <section class="side-panel-section">
-                        <h3 class="side-panel-section-title">Categories</h3>
+                    <section class="panel-section">
+                        <h3 class="panel-section-title">Categories</h3>
                         {% if topicalCategories|length %}
-                            <ul class="taxonomy-list">
+                            <ul class="filter-list">
                                 {% for category in topicalCategories %}
                                     {% set categoryCount = craft.entries.section('posts').type('post').relatedTo(category).count() %}
                                     <li>
-                                        <label class="taxonomy-option">
+                                        <label class="filter-row">
                                             <input type="checkbox" name="category[]" value="{{ category.slug }}" {% if category.slug in selectedCategorySlugs %}checked{% endif %}>
-                                            <span class="taxonomy-option-label">{{ category.title }}</span>
+                                            <span class="filter-label">{{ category.title }}</span>
                                             <span class="count">({{ categoryCount }})</span>
                                         </label>
                                     </li>
                                 {% endfor %}
                             </ul>
                         {% else %}
-                            <div class="side-panel-text">No categories</div>
+                            <div class="panel-text">No categories</div>
                         {% endif %}
                     </section>
-                    <section class="side-panel-section">
-                        <h3 class="side-panel-section-title">Tags</h3>
+                    <section class="panel-section">
+                        <h3 class="panel-section-title">Tags</h3>
                         {% if archiveTags|length %}
-                            <ul class="taxonomy-list">
+                            <ul class="filter-list">
                                 {% for tag in archiveTags %}
                                     {% set tagCount = craft.entries.section('posts').type('post').relatedTo(tag).count() %}
                                     <li>
-                                        <label class="taxonomy-option">
+                                        <label class="filter-row">
                                             <input type="checkbox" name="tag[]" value="{{ tag.slug }}" {% if tag.slug in selectedTagSlugs %}checked{% endif %}>
-                                            <span class="taxonomy-option-label">{{ tag.title }}</span>
+                                            <span class="filter-label">{{ tag.title }}</span>
                                             <span class="count">({{ tagCount }})</span>
                                         </label>
                                     </li>
                                 {% endfor %}
                             </ul>
                         {% else %}
-                            <div class="side-panel-text">No tags</div>
+                            <div class="panel-text">No tags</div>
                         {% endif %}
                     </section>
-                    <section class="side-panel-section">
-                        <h3 class="side-panel-section-title">Year</h3>
+                    <section class="panel-section">
+                        <h3 class="panel-section-title">Year</h3>
                         {% if archiveYears|length %}
-                            <ul class="taxonomy-list">
+                            <ul class="filter-list">
                                 {% for archiveYear in archiveYears %}
                                     {% set nextArchiveYear = archiveYear + 1 %}
                                     {% set yearCount = craft.entries.section('posts').type('post').postDate(['and', '>= ' ~ archiveYear ~ '-01-01', '< ' ~ nextArchiveYear ~ '-01-01']).count() %}
                                     <li>
-                                        <label class="taxonomy-option">
+                                        <label class="filter-row">
                                             <input type="checkbox" name="year[]" value="{{ archiveYear }}" {% if archiveYear in selectedYears %}checked{% endif %}>
-                                            <span class="taxonomy-option-label">{{ archiveYear }}</span>
+                                            <span class="filter-label">{{ archiveYear }}</span>
                                             <span class="count">({{ yearCount }})</span>
                                         </label>
                                     </li>
                                 {% endfor %}
                             </ul>
                         {% else %}
-                            <div class="side-panel-text">No years</div>
+                            <div class="panel-text">No years</div>
                         {% endif %}
                     </section>
                 </div>
-                <div class="side-panel-actions">
-                    <button class="side-panel-button" type="submit">Apply filters</button>
+                <div class="panel-actions">
+                    <button class="btn btn-primary" type="submit" style="display: none;">Apply filters</button>
                     {% if hasActiveFilters %}
-                        <a class="side-panel-reset" href="{{ postsIndexUrl }}">Clear filters</a>
+                        <a class="btn btn-secondary" href="{{ postsIndexUrl }}">Clear filters</a>
                     {% endif %}
                 </div>
             </form>
@@ -719,16 +405,20 @@
     </div>
 </main>
 
-<footer class="site-footer">
-    <div class="container footer-row">
-        <div class="footer-socials">
-            <a href="#">Facebook</a>
-            <a href="#">X</a>
-            <a href="#">Instagram</a>
-            <a href="#">Pinterest</a>
-        </div>
-    </div>
-</footer>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form[action="{{ postsIndexUrl }}"]');
+        const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+        
+        checkboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('change', function() {
+                form.submit();
+            });
+        });
+    });
+</script>
+
+{% include '_partials/site-footer.twig' %}
 
 </body>
 </html>
