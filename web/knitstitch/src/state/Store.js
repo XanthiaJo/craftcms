@@ -1,5 +1,4 @@
 // Store.js - Central reactive state (replaces ViewModelBase)
-// TODO: Implement reactive store with subscribe, set, get methods
 
 class Store {
   constructor() {
@@ -42,12 +41,33 @@ class Store {
     return () => this.listeners.delete(fn);
   }
 
+  _notify(path, value) {
+    for (const fn of this.listeners) {
+      fn(path, value, this.state);
+    }
+  }
+
   set(path, value) {
-    // TODO: Implement deep-set, then notify all listeners
+    const keys = path.split('.');
+    let target = this.state;
+    for (let i = 0; i < keys.length - 1; i++) {
+      target = target[keys[i]];
+    }
+    const last = keys[keys.length - 1];
+    if (target[last] !== value) {
+      target[last] = value;
+      this._notify(path, value);
+    }
   }
 
   get(path) {
-    // TODO: Implement deep-get
+    const keys = path.split('.');
+    let target = this.state;
+    for (const key of keys) {
+      if (target == null) return undefined;
+      target = target[key];
+    }
+    return target;
   }
 }
 

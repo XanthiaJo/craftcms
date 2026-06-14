@@ -1,7 +1,20 @@
-// SketchPoint.js - Port of SketchPoint
-// TODO: Port from Legacy/Models/Sketch/SketchPoint.cs
-// Remove INotifyPropertyChanged; use plain JS class
-
 export class SketchPoint {
-  // TODO: Implement SketchPoint with id, x, y, isSelected, canvas-offset helpers
+  constructor(id, x, y) {
+    this.id = id;
+    this.x = x;
+    this.y = y;
+    this.isSelected = false;
+  }
+
+  get dotX() {
+    return this.x - 3;
+  }
+
+  get dotY() {
+    return this.y - 3;
+  }
+
+  toString() {
+    return `P${this.id} (${this.x.toFixed(1)}, ${this.y.toFixed(1)})`;
+  }
 }

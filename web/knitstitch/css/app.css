@@ -316,6 +316,59 @@
   margin-top: 4px;
 }
 
+#dim-edit-overlay {
+  position: fixed;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--wpf-border) !important;
+  border-radius: 6px !important;
+  background: var(--wpf-panel) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12) !important;
+  color: var(--wpf-text) !important;
+}
+
+#dim-edit-overlay .dim-edit-overlay__label,
+#dim-edit-overlay .dim-edit-overlay__hint {
+  font-size: 11px;
+  color: #666;
+}
+
+#dim-edit-overlay .dim-edit-overlay__controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#dim-edit-overlay .dim-edit-overlay__input {
+  width: 72px;
+  padding: 2px 4px;
+  font-size: 12px;
+  background: #fff !important;
+  color: var(--wpf-text) !important;
+  border: 1px solid var(--wpf-border) !important;
+  border-radius: 3px !important;
+  font-family: inherit;
+}
+
+#dim-edit-overlay .dim-edit-overlay__button {
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 3px !important;
+  cursor: pointer;
+  font-weight: 700;
+  background: #d9d0c2 !important;
+  color: #533f20 !important;
+}
+
+#dim-edit-overlay .dim-edit-overlay__button--primary {
+  background: var(--wpf-accent) !important;
+  color: white !important;
+}
+
 /* Select */
 select {
   padding: 5px 8px;
@@ -355,4 +408,3 @@ hr {
   border-top: 1px solid var(--wpf-border);
   margin: 8px 0;
 }
-

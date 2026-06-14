@@ -1,6 +1,10 @@
 // vite.config.js
 export default {
   base: '/',  // Assets served from /dist/
+  test: {
+    environment: 'node',
+    include: ['tests/**/*.test.js'],
+  },
   build: {
     outDir: '../dist',  // Output to web/dist (public root)
     emptyOutDir: true,

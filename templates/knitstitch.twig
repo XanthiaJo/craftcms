@@ -20,18 +20,20 @@
 
     {# Ribbon workspace bar #}
     <div class="ribbon-bar">
-      <button class="workspace-btn active" onclick="setWorkspace('grid')" data-workspace="grid">
-        <span class="icon">&#x25A6;</span>
-        <span class="label">Grid</span>
-      </button>
-      <button class="workspace-btn" onclick="setWorkspace('sketch')" data-workspace="sketch">
-        <span class="icon">&#x270F;</span>
-        <span class="label">Sketch</span>
-      </button>
-      <button class="workspace-btn" onclick="setWorkspace('overlay')" data-workspace="overlay">
-        <span class="icon">&#x1F5BC;</span>
-        <span class="label">Overlay</span>
-      </button>
+      <div class="ribbon-modes">
+        <button class="workspace-btn active" onclick="setWorkspace('grid')" data-workspace="grid">
+          <span class="icon">&#x25A6;</span>
+          <span class="label">Grid</span>
+        </button>
+        <button class="workspace-btn" onclick="setWorkspace('sketch')" data-workspace="sketch">
+          <span class="icon">&#x270F;</span>
+          <span class="label">Sketch</span>
+        </button>
+        <button class="workspace-btn" onclick="setWorkspace('overlay')" data-workspace="overlay">
+          <span class="icon">&#x1F5BC;</span>
+          <span class="label">Overlay</span>
+        </button>
+      </div>
     </div>
 
     {# Main workspace #}
@@ -40,16 +42,7 @@
       {# Left: Canvas area #}
       <div class="canvas-area">
         <div class="canvas-wrapper">
-          <div class="canvas-content">
-            {# Placeholder grid #}
-            <div class="grid-placeholder" id="grid-canvas">
-              {% for row in 1..30 %}
-                {% for col in 1..30 %}
-                  <div class="grid-cell{{ random(0, 1) == 1 ? ' filled' : '' }}"></div>
-                {% endfor %}
-              {% endfor %}
-            </div>
-          </div>
+          <div class="canvas-content" id="konva-stage"></div>
         </div>
       </div>
 
@@ -63,11 +56,11 @@
             <div class="group-body">
               <div class="form-row">
                 <label>Stitches:</label>
-                <input type="number" value="20">
+                <input type="number" id="gauge-stitches" value="20">
               </div>
               <div class="form-row">
                 <label>Rows:</label>
-                <input type="number" value="28">
+                <input type="number" id="gauge-rows" value="28">
               </div>
             </div>
           </div>
@@ -77,16 +70,16 @@
             <div class="group-body">
               <div class="form-row">
                 <label>Columns:</label>
-                <input type="number" value="30">
+                <input type="number" id="grid-cols" value="30">
               </div>
               <div class="form-row">
                 <label>Rows:</label>
-                <input type="number" value="30">
+                <input type="number" id="grid-rows" value="30">
               </div>
-              <div class="info-text" style="margin-top:8px;">
+              <div class="info-text" style="margin-top:8px;" id="grid-info">
                 <strong>Grid: 30 x 30 cells</strong> (900 total cells)
               </div>
-              <div class="info-text">
+              <div class="info-text" id="cell-size-info">
                 Cell size: 20px wide x 28px high
               </div>
             </div>
@@ -95,9 +88,9 @@
           <div class="group-box">
             <div class="group-header">Finished Size</div>
             <div class="group-body">
-              <p>Width: -- in</p>
-              <p>Height: -- in</p>
-              <button class="btn btn-primary" style="margin-top:8px;">Recalculate</button>
+              <p id="finished-width">Width: -- in</p>
+              <p id="finished-height">Height: -- in</p>
+              <button class="btn btn-primary" id="btn-recalculate" style="margin-top:8px;">Recalculate</button>
             </div>
           </div>
         </div>
@@ -109,16 +102,25 @@
             <div class="group-body">
               <div class="form-row">
                 <label>Line colour:</label>
-                <select>
-                  <option class="color-option"><span class="color-swatch" style="background:#E63946;"></span> Red</option>
-                  <option class="color-option"><span class="color-swatch" style="background:#2A9D8F;"></span> Teal</option>
-                  <option class="color-option"><span class="color-swatch" style="background:#E9C46A;"></span> Yellow</option>
+                <select id="sketch-color">
+                  <option value="#E63946" class="color-option"><span class="color-swatch" style="background:#E63946;"></span> Red</option>
+                  <option value="#FF6B35" class="color-option"><span class="color-swatch" style="background:#FF6B35;"></span> Orange</option>
+                  <option value="#F4C430" class="color-option"><span class="color-swatch" style="background:#F4C430;"></span> Yellow</option>
+                  <option value="#2D9E4F" class="color-option"><span class="color-swatch" style="background:#2D9E4F;"></span> Green</option>
+                  <option value="#0A8A8A" class="color-option"><span class="color-swatch" style="background:#0A8A8A;"></span> Teal</option>
+                  <option value="#1D70B8" class="color-option"><span class="color-swatch" style="background:#1D70B8;"></span> Blue</option>
+                  <option value="#6A3D9A" class="color-option"><span class="color-swatch" style="background:#6A3D9A;"></span> Purple</option>
+                  <option value="#E75480" class="color-option"><span class="color-swatch" style="background:#E75480;"></span> Pink</option>
+                  <option value="#1A1A1A" class="color-option"><span class="color-swatch" style="background:#1A1A1A;"></span> Black</option>
+                  <option value="#555555" class="color-option"><span class="color-swatch" style="background:#555555;"></span> Dark grey</option>
+                  <option value="#999999" class="color-option"><span class="color-swatch" style="background:#999999;"></span> Grey</option>
+                  <option value="#F5F5F5" class="color-option"><span class="color-swatch" style="background:#F5F5F5;"></span> White</option>
                 </select>
               </div>
               <div class="form-row" style="margin-top:8px;">
                 <label>Thickness:</label>
                 <div class="slider-row">
-                  <input type="range" min="1" max="10" value="2">
+                  <input type="range" id="sketch-thickness" min="1" max="10" value="2">
                 </div>
               </div>
               <div class="checkbox-row">
@@ -126,8 +128,9 @@
                 <label for="previewMatch">Preview matches line colour</label>
               </div>
               <div style="display:flex;gap:8px;margin-top:8px;">
-                <button class="btn btn-sm">Undo</button>
-                <button class="btn btn-sm">Clear</button>
+                <button class="btn btn-sm" id="sketch-undo">Undo</button>
+                <button class="btn btn-sm" id="sketch-clear">Clear</button>
+                <button class="btn btn-sm" id="sketch-delete">Delete</button>
               </div>
               <p class="info-text">Click to place points, chain lines. Snap ring = existing point. Right-click or Esc to cancel.</p>
             </div>
@@ -138,11 +141,12 @@
             <div class="group-body">
               <p style="font-size:12px;font-weight:600;margin-bottom:6px;">Shape tools:</p>
               <div class="toggle-group">
-                <button class="toggle-btn active">Line</button>
+                <button class="toggle-btn" id="tool-line">Line</button>
                 <button class="toggle-btn" disabled>Circle</button>
                 <button class="toggle-btn" disabled>Rectangle</button>
                 <button class="toggle-btn" disabled>Triangle</button>
               </div>
+              <button class="toggle-btn" id="tool-select" style="display:none;">Select</button>
               <p class="hint-text">Basic geometric shapes for sketching. (Coming soon)</p>
             </div>
           </div>
@@ -152,14 +156,14 @@
             <div class="group-body">
               <p style="font-size:12px;font-weight:600;margin-bottom:6px;">Apply constraint:</p>
               <div class="toggle-group">
-                <button class="toggle-btn">Dimension</button>
+                <button class="toggle-btn" id="tool-dimension">Dimension</button>
                 <button class="toggle-btn" disabled>H/V</button>
                 <button class="toggle-btn" disabled>Coincident</button>
                 <button class="toggle-btn" disabled>Tangent</button>
                 <button class="toggle-btn" disabled>Equal</button>
                 <button class="toggle-btn" disabled>Parallel</button>
-                <button class="toggle-btn active">Perpendicular</button>
-                <button class="toggle-btn">Midpoint</button>
+                <button class="toggle-btn" id="tool-perpendicular">Perpendicular</button>
+                <button class="toggle-btn" id="tool-midpoint">Midpoint</button>
               </div>
               <p class="hint-text">Constraints enforce geometric relationships between sketch entities.</p>
             </div>
@@ -168,10 +172,7 @@
           <div class="group-box">
             <div class="group-header">Objects</div>
             <div class="group-body">
-              <ul class="object-list">
-                <li><span>&#9473;</span> Line 1</li>
-                <li><span>&#9679;</span> Point (coincident)</li>
-                <li><span>&#9473;</span> Line 2</li>
+              <ul class="object-list" id="sketch-object-list">
               </ul>
             </div>
           </div>
@@ -183,17 +184,18 @@
             <div class="group-header">Image Overlay</div>
             <div class="group-body">
               <div class="form-row">
-                <input type="text" placeholder="No image selected" readonly style="flex:1;">
-                <button class="btn btn-sm">Browse</button>
-                <button class="btn btn-sm">Clear</button>
+                <input type="text" id="overlay-path" placeholder="No image selected" readonly style="flex:1;">
+                <button class="btn btn-sm" id="overlay-browse">Browse</button>
+                <button class="btn btn-sm" id="overlay-clear">Clear</button>
+                <input type="file" id="overlay-file" accept="image/*" style="display:none;">
               </div>
               <div class="checkbox-row">
-                <input type="checkbox" id="showOverlay">
-                <label for="showOverlay">Show overlay</label>
+                <input type="checkbox" id="overlay-show">
+                <label for="overlay-show">Show overlay</label>
               </div>
               <div class="slider-row" style="margin-top:6px;">
                 <label style="min-width:auto;">Opacity</label>
-                <input type="range" min="0" max="100" value="50">
+                <input type="range" id="overlay-opacity" min="0" max="100" value="50">
               </div>
             </div>
           </div>
