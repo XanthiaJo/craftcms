@@ -416,8 +416,6 @@ Generated local artifacts should stay untracked:
 - `config/license.key`
 - `web/knitstitch/coverage/`
 - `web/knitstitch/vite.config.js.timestamp-*.mjs`
-- `tests/e2e/node_modules/`
-- `tests/e2e/test-results/`
 - root `package-lock.json`
 
 ### Store State Shape
@@ -488,46 +486,6 @@ npm test           # Vitest unit tests
 - `SketchLayer` clears and redraws all shapes on every store change that touches sketch state
 - Snap radius is 12 px (`SNAP_RADIUS`), angle snap threshold is 10° from H/V axes (`SNAP_ANGLE_DEG`)
 - Cell pixel size (`cellWidthPx` / `cellHeightPx`) is set equal to the gauge numbers (stitches/rows per 4 in) — this is a deliberate simplification for proportional rendering, not a 1:1 px=stitch mapping
-
-## End-to-End Tests (Playwright)
-
-Browser tests for the posts archive live at:
-
-- [tests/e2e/posts.spec.js](</E:/Coding Projects/craftcms/tests/e2e/posts.spec.js>)
-- [tests/e2e/playwright.config.js](</E:/Coding Projects/craftcms/tests/e2e/playwright.config.js>)
-- [tests/e2e/package.json](</E:/Coding Projects/craftcms/tests/e2e/package.json>)
-
-### Setup
-
-Run from `tests/e2e/`:
-
-```bash
-npm install
-npx playwright install chromium
-```
-
-Generated Playwright output stays local and ignored:
-
-- `tests/e2e/node_modules/`
-- `tests/e2e/test-results/`
-
-### Run
-
-```bash
-npm test              # headless
-npm run test:headed   # with browser visible
-npm run test:ui       # Playwright interactive UI
-```
-
-Requires DDEV to be running (`ddev start`) before executing tests — the base URL is `https://craftcms.ddev.site`.
-
-### What is covered
-
-- **Images** — at least one thumbnail exists; every `img.thumb` has a non-empty `src`; every image loads without a broken-image error (`naturalWidth > 0`); thumbnail links point to `/posts/…`
-- **Titles** — every card has a non-empty `.card-title a`; no card shows `Untitled entry` or the import-missing fallback; title links point to `/posts/…`
-- **Project-type chips** — at least one `.card-type-chip` is visible; every chip has non-empty text and a colour modifier class (`card-type-chip--<slug>`)
-- **Design-source chips** — when present, every `[class*="card-design-source-chip"]` has non-empty text and matches one of the four known modifier classes (`original`, `pattern`, `model`, `reference`); tests skip gracefully when no design-source relations exist yet
-- **Filter preservation** — checking a project-type filter checkbox submits the form, URL stays on `/posts?…`, filtered cards still render thumbnails and titles
 
 ## Browser-Level Verification
 

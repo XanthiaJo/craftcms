@@ -45,4 +45,3 @@ npm run build
 
 - `web/dist/main.js` and `web/dist/main.css` are the built outputs consumed by `templates/knitstitch.twig`
 - `coverage/` and Vite timestamp files are generated locally and should stay untracked
-- `../tests/e2e/` contains the Playwright archive checks for the wider Craft CMS site
