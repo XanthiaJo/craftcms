@@ -57,9 +57,9 @@
         }
 
         .header-row {
-            display: flex;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
             align-items: center;
-            justify-content: space-between;
             min-height: 72px;
             gap: 24px;
         }
@@ -71,12 +71,16 @@
             line-height: 1;
             margin: 0;
             white-space: nowrap;
+            justify-self: start;
         }
 
         .main-nav {
             display: flex;
-            gap: 26px;
             align-items: center;
+            justify-self: center;
+            justify-content: center;
+            gap: 26px;
+            min-width: 0;
         }
 
         .main-nav a {
@@ -89,6 +93,48 @@
 
         .main-nav a.active {
             color: var(--accent);
+        }
+
+        .header-project-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-self: end;
+        }
+
+        .project-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: #faf8f5;
+            color: var(--text);
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .project-link:hover {
+            background: #efe7dc;
+            opacity: 1;
+        }
+
+        .project-link svg {
+            width: 16px;
+            height: 16px;
+            display: block;
+            fill: currentColor;
+        }
+
+        .project-link--github {
+            color: #24292f;
+        }
+
+        .project-link--gitlab {
+            color: #fc6d26;
         }
 
         .hero {
@@ -241,20 +287,30 @@
             }
 
             .header-row {
+                display: flex;
+                flex-wrap: wrap;
                 min-height: 64px;
             }
 
             .brand {
                 font-size: 34px;
+                width: 100%;
             }
 
             .main-nav {
+                width: 100%;
+                justify-content: flex-start;
                 gap: 14px;
             }
 
             .main-nav a {
                 font-size: 12px;
                 letter-spacing: 0.6px;
+            }
+
+            .header-project-links {
+                width: 100%;
+                justify-content: flex-start;
             }
 
             .hero {
