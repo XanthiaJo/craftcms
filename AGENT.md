@@ -371,6 +371,164 @@ If this drifts again, use this order:
 12. Import extra WordPress gallery images if needed: `ddev php scripts/import_wp_post_galleries.php`
 13. If archive cards still lack images after relation repair, verify the template-level asset-folder fallback in [templates/posts.twig](</E:/Coding Projects/craftcms/templates/posts.twig>) and [templates/_entries/post.twig](</E:/Coding Projects/craftcms/templates/_entries/post.twig>)
 
+## KnitStitch Grid
+
+KnitStitch Grid is a Konva.js web conversion of the original KnitStichGrid WPF desktop app. It lives inside the Craft CMS site as a self-contained front-end sub-project.
+
+### URL and Template
+
+- URL: `/knitstitch` (served by Craft routing)
+- Template: [templates/knitstitch.twig](</E:/Coding Projects/craftcms/templates/knitstitch.twig>)
+- The template uses the shared site header/footer and page-subheader partials from [templates/_partials/](</E:/Coding Projects/craftcms/templates/_partials/>)
+
+### Source Project
+
+The JS/CSS source lives at:
+
+- [web/knitstitch/](</E:/Coding Projects/craftcms/web/knitstitch/>)
+  - `package.json` — `npm` project; Vite bundler, Vitest test runner, Konva.js dependency
+  - `vite.config.js` — builds `src/main.js` to `../dist/main.js` and `../dist/main.css` (i.e. `web/dist/`)
+  - `src/main.js` — app bootstrap: stage setup, sidebar wiring, store subscriptions
+  - `src/state/Store.js` — central reactive store (path-based get/set/subscribe)
+  - `src/models/` — plain data classes: `GaugeSettings`, `PatternDimensions`, `Point`, `SketchColorOption`, `SketchConstraint`, `SketchDimension`, `SketchLine`, `SketchPoint`
+  - `src/services/GridService.js` — `rebuildPreviewCells`, `togglePreviewCell`, `fitGridToCanvas`, `updateCellSizing`
+  - `src/services/SketchService.js` — line-draw tool, snap, undo/clear, selection, angle-snap, constraint sub-modes
+  - `src/services/FinishedSizeCalculator.js` — converts gauge + grid cell counts to finished inches
+  - `src/services/ConstraintSolver.js` — stub constraint solver
+  - `src/konva/AppStage.js` — creates Konva stage, mounts GridLayer/OverlayLayer/SketchLayer, handles resize
+  - `src/konva/GridLayer.js` — off-screen canvas raster render of the stitch grid; click-to-toggle cells
+  - `src/konva/SketchLayer.js` — Konva lines/points/preview/snap-ring render; forwards mouse events to SketchService
+  - `src/konva/OverlayLayer.js` — image overlay layer with opacity control
+  - `css/app.css` — app-specific styles (imported by `src/main.js`, bundled into `web/dist/main.css`)
+  - `tests/` — Vitest unit tests for `FinishedSizeCalculator`, `GridService`, `SketchService`, `Store`
+
+### Build Output
+
+Built output is in:
+
+- [web/dist/main.js](</E:/Coding Projects/craftcms/web/dist/main.js>) — bundled Konva + app JS
+- [web/dist/main.css](</E:/Coding Projects/craftcms/web/dist/main.css>) — bundled app CSS
+
+Both are loaded by the Twig template via `<script type="module" src="/dist/main.js">` and `<link rel="stylesheet" href="/dist/main.css">`.
+
+Generated local artifacts should stay untracked:
+
+- `config/license.key`
+- `web/knitstitch/coverage/`
+- `web/knitstitch/vite.config.js.timestamp-*.mjs`
+- `tests/e2e/node_modules/`
+- `tests/e2e/test-results/`
+- root `package-lock.json`
+
+### Store State Shape
+
+```
+{
+  gridColumns: 30,
+  gridRows: 30,
+  cellWidthPx: 20,
+  cellHeightPx: 28,
+  previewCells: [{ isFilled: bool }, ...],
+  stitchesPer4Inches: 20,
+  rowsPer4Inches: 28,
+  finishedWidth: 0,
+  finishedHeight: 0,
+  overlayImageSrc: null,
+  overlayOpacity: 0.5,
+  overlayVisible: false,
+  sketch: {
+    isActive: false,
+    activeTool: 'Select',        // 'Select' | 'Line' | 'Dimension' | 'Constraint'
+    constraintSubMode: null,     // 'Perpendicular' | 'Midpoint'
+    strokeColor: '#E63946',
+    strokeThickness: 2,
+    lines: [],
+    points: [],
+    dimensions: [],
+    constraints: [],
+    objects: [],
+    previewLine: null,
+    snapCandidate: null,
+  }
+}
+```
+
+### Workspaces
+
+The UI has three ribbon-bar workspaces that swap the right-hand sidebar panel:
+
+- **Grid** — gauge inputs (stitches/rows per 4 in), grid cell dimensions, finished-size readout, Recalculate button
+- **Sketch** — freehand line tool, color/thickness, undo/clear, shape tools (circle/rect/triangle disabled/coming soon), constraint buttons, objects list
+- **Overlay** — image file picker, show/hide toggle, opacity slider
+
+Workspace switching is handled by `setWorkspace(ws)` in the template, extended in `main.js` to toggle `sketchService.isActive`.
+
+### Layer Z-Order
+
+- `0` GridLayer — stitch grid (click to fill/unfill cells)
+- `1` OverlayLayer — reference image overlay
+- `2` SketchLayer — freehand sketch on top
+
+### Build and Dev Commands
+
+Run from `web/knitstitch/`:
+
+```bash
+npm install        # install deps
+npm run dev        # Vite dev server
+npm run build      # output to web/dist/
+npm test           # Vitest unit tests
+```
+
+### Known Architecture Notes
+
+- `Store.set` uses dotted path notation (`sketch.lines`, `overlayVisible`, etc.)
+- `Store.subscribe` returns an unsubscribe function; all layers/services hold a reference and call it in `destroy()`
+- `GridLayer` renders via an off-screen `<canvas>` element promoted to a `Konva.Image` node to avoid one Konva shape per cell
+- `SketchLayer` clears and redraws all shapes on every store change that touches sketch state
+- Snap radius is 12 px (`SNAP_RADIUS`), angle snap threshold is 10° from H/V axes (`SNAP_ANGLE_DEG`)
+- Cell pixel size (`cellWidthPx` / `cellHeightPx`) is set equal to the gauge numbers (stitches/rows per 4 in) — this is a deliberate simplification for proportional rendering, not a 1:1 px=stitch mapping
+
+## End-to-End Tests (Playwright)
+
+Browser tests for the posts archive live at:
+
+- [tests/e2e/posts.spec.js](</E:/Coding Projects/craftcms/tests/e2e/posts.spec.js>)
+- [tests/e2e/playwright.config.js](</E:/Coding Projects/craftcms/tests/e2e/playwright.config.js>)
+- [tests/e2e/package.json](</E:/Coding Projects/craftcms/tests/e2e/package.json>)
+
+### Setup
+
+Run from `tests/e2e/`:
+
+```bash
+npm install
+npx playwright install chromium
+```
+
+Generated Playwright output stays local and ignored:
+
+- `tests/e2e/node_modules/`
+- `tests/e2e/test-results/`
+
+### Run
+
+```bash
+npm test              # headless
+npm run test:headed   # with browser visible
+npm run test:ui       # Playwright interactive UI
+```
+
+Requires DDEV to be running (`ddev start`) before executing tests — the base URL is `https://craftcms.ddev.site`.
+
+### What is covered
+
+- **Images** — at least one thumbnail exists; every `img.thumb` has a non-empty `src`; every image loads without a broken-image error (`naturalWidth > 0`); thumbnail links point to `/posts/…`
+- **Titles** — every card has a non-empty `.card-title a`; no card shows `Untitled entry` or the import-missing fallback; title links point to `/posts/…`
+- **Project-type chips** — at least one `.card-type-chip` is visible; every chip has non-empty text and a colour modifier class (`card-type-chip--<slug>`)
+- **Design-source chips** — when present, every `[class*="card-design-source-chip"]` has non-empty text and matches one of the four known modifier classes (`original`, `pattern`, `model`, `reference`); tests skip gracefully when no design-source relations exist yet
+- **Filter preservation** — checking a project-type filter checkbox submits the form, URL stays on `/posts?…`, filtered cards still render thumbnails and titles
+
 ## Browser-Level Verification
 
 The posts archive should show image tags on:
