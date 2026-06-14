@@ -7,7 +7,7 @@
   --heading: #111111;
   --accent: #ca9b52;
   --border: #e8e2d8;
-  --content-max: 1140px;
+  --content-max: 1240px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -39,11 +39,15 @@ a:hover { opacity: 0.85; }
 }
 
 .header-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  justify-content: space-between;
   min-height: 72px;
   gap: 24px;
+}
+
+.header-row > .brand {
+  justify-self: start;
 }
 
 .brand {
@@ -56,8 +60,60 @@ a:hover { opacity: 0.85; }
 
 .main-nav {
   display: flex;
-  gap: 26px;
   align-items: center;
+  justify-content: center;
+  min-width: 0;
+  gap: 26px;
+  justify-self: center;
+}
+
+.header-project-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-self: end;
+}
+
+.header-project-links__label {
+  color: #555;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.project-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #faf8f5;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.project-link:hover {
+  background: #efe7dc;
+}
+
+.project-link svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+  fill: currentColor;
+}
+
+.project-link--github {
+  color: #24292f;
+}
+
+.project-link--gitlab {
+  color: #fc6d26;
 }
 
 .main-nav a {
@@ -315,6 +371,25 @@ a:hover { opacity: 0.85; }
 @media (max-width: 740px) {
   .container {
     width: min(var(--content-max), 100% - 28px);
+  }
+
+  .header-row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .main-nav {
+    width: 100%;
+    order: 2;
+    justify-content: flex-start;
+    justify-self: auto;
+  }
+
+  .header-project-links {
+    width: 100%;
+    order: 3;
+    justify-self: auto;
+    justify-content: flex-start;
   }
 
   .content-wrap {
