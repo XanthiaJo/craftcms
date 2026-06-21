@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { Store } from '../src/state/Store.js';
-import { ConstraintSubMode, SketchObjectKind, SketchService, SketchTool } from '../src/services/SketchService.js';
-import { SketchConstraint } from '../src/models/SketchConstraint.js';
+import { ConstraintSubMode, SketchObjectKind, SketchService, SketchTool } from '../src/services/sketch/SketchService.js';
+import { SketchConstraint } from '../src/models/sketch/SketchConstraint.js';
 
 describe('SketchService', () => {
   function makeService() {

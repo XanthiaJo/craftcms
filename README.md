@@ -28,9 +28,3 @@ npm run dev
 npm run build
 npm test
 ```
-
-## Notes
-
-- Local secrets such as `config/license.key` should stay untracked
-- Generated KnitStitch coverage and Vite timestamp files should stay untracked
-- `.tmp_localhost_*.html` files are local snapshots and should not be committed

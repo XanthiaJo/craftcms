@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { Store } from '../src/state/Store.js';
 import { StorePersistence } from '../src/state/StorePersistence.js';
-import { SketchService, SketchTool } from '../src/services/SketchService.js';
+import { SketchService, SketchTool } from '../src/services/sketch/SketchService.js';
 
 describe('StorePersistence', () => {
   let originalLocalStorage;

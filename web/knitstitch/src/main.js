@@ -5,7 +5,7 @@ import { AppStage } from './konva/AppStage.js';
 import { Store } from './state/Store.js';
 import { StorePersistence } from './state/StorePersistence.js';
 import { rebuildPreviewCells, updateCellSizing, fitGridToCanvas } from './services/GridService.js';
-import { SketchService, SketchTool } from './services/SketchService.js';
+import { SketchService, SketchTool } from './services/sketch/SketchService.js';
 import { FinishedSizeCalculator } from './services/FinishedSizeCalculator.js';
 import { GaugeSettings } from './models/GaugeSettings.js';
 import { PatternDimensions } from './models/PatternDimensions.js';
