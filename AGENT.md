@@ -28,6 +28,9 @@ Primary ownership in this repository:
 - [templates/](</E:/Coding Projects/craftcms/templates/>) - Twig templates for page rendering
 - [web/](</E:/Coding Projects/craftcms/web/>) - public assets and the KnitStitch front-end app
 - [scripts/](</E:/Coding Projects/craftcms/scripts/>) - maintenance, recovery, and import scripts; not part of the normal request path
+  - `GenerateBuildInfo.php` - cross-platform build info generator. Reads git tags and conventional commit messages to derive a version. Supports `--format=js` (outputs `window.BUILD_INFO` object) and `--format=csharp` (outputs C# `BuildInfo` class). Run via `composer build-info` from the repo root. Also runs automatically after `composer install` via `post-install-cmd`.
+  - `GenerateBuildInfo.ps1` - original PowerShell version (Windows-only). Kept for reference; the PHP version is the canonical one used by composer scripts.
+- [web/webhook.php](</E:/Coding Projects/craftcms/web/webhook.php>) - GitHub webhook listener for VPS auto-deploy. GitHub sends a push event, the VPS verifies the signature and runs `git pull` + `composer install`. Requires `GITHUB_WEBHOOK_SECRET` in `.env`. See deploy section below.
 - [README.md](</E:/Coding Projects/craftcms/README.md>) - project bootstrap notes
 
 ## Target Craft Setup
@@ -173,3 +176,19 @@ If the page renders no `<img>` tags but asset files exist on disk, or taxonomy a
 Old import helpers, recovery scripts, and drift-repair notes live in [docs/content-recovery.md](</E:/Coding Projects/craftcms/docs/content-recovery.md>).
 
 Use that document only when content has been lost, relations have drifted, field layouts no longer match project config, or the database needs to be rebuilt from recovery data.
+
+## VPS Deploy via GitHub Webhook
+
+The VPS auto-deploys when GitHub receives a push to `master`.
+
+### Manual deploy (fallback)
+
+SSH into the VPS and run:
+
+```
+cd /var/www/craftcms
+git pull origin master
+composer install --no-dev --optimize-autoloader
+```
+
+`composer build-info` runs automatically via `post-install-cmd`.
