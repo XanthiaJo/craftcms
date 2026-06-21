@@ -1,10 +1,10 @@
 /.env
+/scripts/.env
 /.idea
 /.run
 /.vite
 /.db-sync
 /package-lock.json
-/scripts
 /vendor
 /web/node_modules
 /web/knitstitch/node_modules
@@ -13,4 +13,6 @@
 .tmp_localhost_*.html
 config/license.key
 .DS_Store
+.aiassistant
+web/knitstitch/test-results
 .github/workflows/deploy.yml
