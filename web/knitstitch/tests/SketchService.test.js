@@ -186,11 +186,12 @@ describe('SketchService', () => {
       const { service, store } = makeService();
       service.onCanvasClick({ x: 0, y: 0 });
       service.onCanvasClick({ x: 60, y: 0 });
-      service.onCanvasClick({ x: 60, y: 60 });
+      service.onCanvasClick({ x: 90, y: 30 });
 
       service.activeTool = SketchTool.Constraint;
       service.constraintSubMode = ConstraintSubMode.Perpendicular;
-      service.onCanvasClick({ x: 60, y: 0 });
+      service.onConstraintLineClick(store.state.sketch.lines[0]);
+      service.onConstraintLineClick(store.state.sketch.lines[1]);
 
       const constraint = store.state.sketch.constraints[0];
       service.selectConstraint(constraint);
@@ -688,30 +689,39 @@ describe('SketchService', () => {
   });
 
   describe('Constraint tool', () => {
-    it('creates a perpendicular constraint from a shared endpoint', () => {
+    it('creates a perpendicular constraint from two lines', () => {
       const { service, store } = makeService();
       service.onCanvasClick({ x: 0, y: 0 });
       service.onCanvasClick({ x: 60, y: 0 });
-      service.onCanvasClick({ x: 60, y: 60 });
+      service.onCanvasClick({ x: 90, y: 30 });
 
       service.activeTool = SketchTool.Constraint;
       service.constraintSubMode = ConstraintSubMode.Perpendicular;
-      service.onCanvasClick({ x: 60, y: 0 });
+      service.onConstraintLineClick(store.state.sketch.lines[0]);
+      service.onConstraintLineClick(store.state.sketch.lines[1]);
 
       expect(store.state.sketch.constraints).toHaveLength(1);
       expect(store.state.sketch.constraints[0].type).toBe('Perpendicular');
       expect(store.state.sketch.objects.some((object) => object.kind === SketchObjectKind.Perpendicular)).toBe(true);
+
+      const sharedPoint = store.state.sketch.points[1];
+      const lineAOther = store.state.sketch.points[0];
+      const lineBOther = store.state.sketch.points[2];
+      const vecA = { x: lineAOther.x - sharedPoint.x, y: lineAOther.y - sharedPoint.y };
+      const vecB = { x: lineBOther.x - sharedPoint.x, y: lineBOther.y - sharedPoint.y };
+      expect(vecA.x * vecB.x + vecA.y * vecB.y).toBeCloseTo(0, 5);
     });
 
     it('keeps constrained lines perpendicular when a free endpoint is dragged', () => {
       const { service, store } = makeService();
       service.onCanvasClick({ x: 0, y: 0 });
       service.onCanvasClick({ x: 60, y: 0 });
-      service.onCanvasClick({ x: 60, y: 60 });
+      service.onCanvasClick({ x: 90, y: 30 });
 
       service.activeTool = SketchTool.Constraint;
       service.constraintSubMode = ConstraintSubMode.Perpendicular;
-      service.onCanvasClick({ x: 60, y: 0 });
+      service.onConstraintLineClick(store.state.sketch.lines[0]);
+      service.onConstraintLineClick(store.state.sketch.lines[1]);
 
       const movedPoint = store.state.sketch.points[2];
       service.activeTool = SketchTool.Select;
@@ -726,6 +736,29 @@ describe('SketchService', () => {
       const dot = vecA.x * vecB.x + vecA.y * vecB.y;
 
       expect(dot).toBeCloseTo(0, 5);
+    });
+
+    it('rejects an impossible third perpendicular constraint on a triangle', () => {
+      const { service, store } = makeService();
+      service.onCanvasClick({ x: 0, y: 0 });
+      service.onCanvasClick({ x: 60, y: 0 });
+      service.onCanvasClick({ x: 90, y: 30 });
+      service.onCanvasClick({ x: 0, y: 0 });
+
+      service.activeTool = SketchTool.Constraint;
+      service.constraintSubMode = ConstraintSubMode.Perpendicular;
+
+      service.onConstraintLineClick(store.state.sketch.lines[0]);
+      service.onConstraintLineClick(store.state.sketch.lines[1]);
+      service.onConstraintLineClick(store.state.sketch.lines[1]);
+      service.onConstraintLineClick(store.state.sketch.lines[2]);
+      expect(store.state.sketch.constraints).toHaveLength(2);
+
+      service.onConstraintLineClick(store.state.sketch.lines[0]);
+      const created = service._tryCreatePerpendicularConstraint(store.state.sketch.lines[0], store.state.sketch.lines[2]);
+
+      expect(created).toBe(false);
+      expect(store.state.sketch.constraints).toHaveLength(2);
     });
   });
 });

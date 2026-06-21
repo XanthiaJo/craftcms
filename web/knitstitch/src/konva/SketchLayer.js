@@ -171,8 +171,13 @@ export class SketchLayer {
       kLine.on('click tap', (e) => {
         e.cancelBubble = true;
         const activeTool = this.store.get('sketch.activeTool');
+        const constraintSubMode = this.store.get('sketch.constraintSubMode');
         if (activeTool === 'Select') {
           this.service.selectLine(line, e.evt.ctrlKey);
+          return;
+        }
+        if (activeTool === 'Constraint' && constraintSubMode === 'Perpendicular') {
+          this.service.onConstraintLineClick(line, e.evt.ctrlKey);
           return;
         }
 
@@ -204,6 +209,9 @@ export class SketchLayer {
         const activeTool = this.store.get('sketch.activeTool');
         if (activeTool === 'Select') {
           this.service.selectPoint(pt, e.evt.ctrlKey);
+          return;
+        }
+        if (activeTool === 'Constraint') {
           return;
         }
         this.service.onCanvasClick({ x: pt.x, y: pt.y }, { snapEnabled: !e.evt.ctrlKey });

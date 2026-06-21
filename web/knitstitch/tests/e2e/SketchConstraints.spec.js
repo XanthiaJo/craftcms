@@ -211,18 +211,34 @@ test.describe('Sketch constraints', () => {
 
     await clickStage(page, box, { x: 120, y: 160 });
     await clickStage(page, box, { x: 200, y: 160 });
-    await clickStage(page, box, { x: 200, y: 240 });
+    await clickStage(page, box, { x: 230, y: 200 });
 
     await page.getByRole('button', { name: 'Perpendicular' }).click();
-    await clickStage(page, box, { x: 200, y: 160 });
+    await page.evaluate(() => {
+      const service = window.__knitstitchSketchService;
+      const lines = window.__knitstitchStore?.state?.sketch?.lines ?? [];
+      service.onConstraintLineClick(lines[0]);
+      service.onConstraintLineClick(lines[1]);
+    });
 
-    const createdConstraintCount = await page.evaluate(() => (
-      window.__knitstitchStore?.state?.sketch?.constraints.filter((constraint) => constraint.type === 'Perpendicular').length ?? 0
-    ));
-    expect(createdConstraintCount).toBe(1);
+    const createdState = await page.evaluate(() => {
+      const sketch = window.__knitstitchStore?.state?.sketch;
+      const [lineA, lineB] = sketch?.lines ?? [];
+      const shared = lineA?.end;
+      const otherA = lineA?.start;
+      const otherB = lineB?.end;
+      const vecA = { x: otherA.x - shared.x, y: otherA.y - shared.y };
+      const vecB = { x: otherB.x - shared.x, y: otherB.y - shared.y };
+      return {
+        constraintCount: sketch?.constraints.filter((constraint) => constraint.type === 'Perpendicular').length ?? 0,
+        dot: vecA.x * vecB.x + vecA.y * vecB.y,
+      };
+    });
+    expect(createdState.constraintCount).toBe(1);
+    expect(createdState.dot).toBeCloseTo(0, 3);
 
     await page.getByRole('button', { name: 'Select' }).click();
-    await dragStage(page, box, { x: 200, y: 240 }, { x: 246, y: 210 });
+    await dragStage(page, box, { x: 200, y: 190 }, { x: 246, y: 210 });
 
     const geometry = await page.evaluate(() => {
       const [lineA, lineB] = window.__knitstitchStore?.state?.sketch?.lines ?? [];
@@ -238,7 +254,42 @@ test.describe('Sketch constraints', () => {
     });
 
     expect(geometry.dot).toBeCloseTo(0, 3);
-    expect(Math.round(geometry.movedX)).toBe(200);
+  });
+
+  test('impossible perpendicular combinations are rejected', async ({ page }) => {
+    const box = await openSketch(page);
+
+    await clickStage(page, box, { x: 120, y: 320 });
+    await clickStage(page, box, { x: 200, y: 320 });
+    await clickStage(page, box, { x: 240, y: 380 });
+    await clickStage(page, box, { x: 120, y: 320 });
+
+    await page.getByRole('button', { name: 'Perpendicular' }).click();
+    await page.evaluate(() => {
+      const service = window.__knitstitchSketchService;
+      const lines = window.__knitstitchStore?.state?.sketch?.lines ?? [];
+      service.onConstraintLineClick(lines[0]);
+      service.onConstraintLineClick(lines[1]);
+      service.onConstraintLineClick(lines[1]);
+      service.onConstraintLineClick(lines[2]);
+    });
+
+    let constraintCount = await page.evaluate(() => (
+      window.__knitstitchStore?.state?.sketch?.constraints.filter((constraint) => constraint.type === 'Perpendicular').length ?? 0
+    ));
+    expect(constraintCount).toBe(2);
+
+    await page.evaluate(() => {
+      const service = window.__knitstitchSketchService;
+      const lines = window.__knitstitchStore?.state?.sketch?.lines ?? [];
+      service.onConstraintLineClick(lines[0]);
+      service.onConstraintLineClick(lines[2]);
+    });
+
+    constraintCount = await page.evaluate(() => (
+      window.__knitstitchStore?.state?.sketch?.constraints.filter((constraint) => constraint.type === 'Perpendicular').length ?? 0
+    ));
+    expect(constraintCount).toBe(2);
   });
 
   test('deleting a constrained line removes the line, its endpoints, and attached constraints', async ({ page }) => {

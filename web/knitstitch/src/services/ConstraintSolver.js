@@ -127,6 +127,93 @@ export class ConstraintSolver {
     }
   }
 
+  canAddPerpendicularConstraint(sketch, lineA, lineB) {
+    const anchor = this._findSharedPoint(lineA, lineB);
+    if (!anchor) return false;
+    if (!this._otherLinePoint(lineA, anchor) || !this._otherLinePoint(lineB, anchor)) return false;
+
+    const adjacency = new Map();
+    for (const line of sketch.lines || []) {
+      adjacency.set(line, new Set());
+    }
+
+    for (const constraint of sketch.constraints || []) {
+      if (constraint?.type !== 'Perpendicular' || !constraint.lineA || !constraint.lineB) continue;
+      if (!adjacency.has(constraint.lineA)) adjacency.set(constraint.lineA, new Set());
+      if (!adjacency.has(constraint.lineB)) adjacency.set(constraint.lineB, new Set());
+      adjacency.get(constraint.lineA).add(constraint.lineB);
+      adjacency.get(constraint.lineB).add(constraint.lineA);
+    }
+
+    if (!adjacency.has(lineA)) adjacency.set(lineA, new Set());
+    if (!adjacency.has(lineB)) adjacency.set(lineB, new Set());
+    adjacency.get(lineA).add(lineB);
+    adjacency.get(lineB).add(lineA);
+
+    const parity = new Map();
+    for (const line of adjacency.keys()) {
+      if (parity.has(line)) continue;
+      parity.set(line, 0);
+      const queue = [line];
+      while (queue.length > 0) {
+        const current = queue.shift();
+        const currentParity = parity.get(current);
+        for (const neighbor of adjacency.get(current) || []) {
+          const nextParity = 1 - currentParity;
+          if (!parity.has(neighbor)) {
+            parity.set(neighbor, nextParity);
+            queue.push(neighbor);
+            continue;
+          }
+          if (parity.get(neighbor) !== nextParity) {
+            return false;
+          }
+        }
+      }
+    }
+
+    return true;
+  }
+
+  enforcePerpendicularConstraint(sketch, constraint, preferredLineToMove = null) {
+    if (constraint?.type !== 'Perpendicular') return false;
+
+    const anchor = constraint.pointA ?? this._findSharedPoint(constraint.lineA, constraint.lineB);
+    if (!anchor) return false;
+
+    const movable = this._resolveMovableLine(constraint, anchor, preferredLineToMove);
+    if (!movable) return false;
+
+    const reference = movable === constraint.lineA ? constraint.lineB : constraint.lineA;
+    const movedPoint = this._otherLinePoint(movable, anchor);
+    const referencePoint = this._otherLinePoint(reference, anchor);
+    if (!movedPoint || !referencePoint) return false;
+
+    const radius = Math.hypot(movedPoint.x - anchor.x, movedPoint.y - anchor.y);
+    const refDx = referencePoint.x - anchor.x;
+    const refDy = referencePoint.y - anchor.y;
+    const refLength = Math.hypot(refDx, refDy);
+    if (radius < EPSILON || refLength < EPSILON) return false;
+
+    const ux = refDx / refLength;
+    const uy = refDy / refLength;
+    const currentDx = movedPoint.x - anchor.x;
+    const currentDy = movedPoint.y - anchor.y;
+
+    const candidates = [
+      { x: -uy * radius, y: ux * radius },
+      { x: uy * radius, y: -ux * radius },
+    ];
+    const chosen = candidates[0].x * currentDx + candidates[0].y * currentDy
+      >= candidates[1].x * currentDx + candidates[1].y * currentDy
+      ? candidates[0]
+      : candidates[1];
+
+    movedPoint.x = anchor.x + chosen.x;
+    movedPoint.y = anchor.y + chosen.y;
+    return true;
+  }
+
   _findNearestPoint(points, position, snapRadius, excludePoint = null) {
     let best = null;
     let bestDist = snapRadius;
@@ -162,6 +249,19 @@ export class ConstraintSolver {
     if (!lineA || !lineB) return null;
     if (lineA.start === lineB.start || lineA.start === lineB.end) return lineA.start;
     if (lineA.end === lineB.start || lineA.end === lineB.end) return lineA.end;
+    return null;
+  }
+
+  _resolveMovableLine(constraint, anchor, preferredLineToMove) {
+    const candidates = [];
+    if (preferredLineToMove) candidates.push(preferredLineToMove);
+    candidates.push(constraint.lineB, constraint.lineA);
+
+    for (const line of candidates) {
+      if (!line) continue;
+      if (line !== constraint.lineA && line !== constraint.lineB) continue;
+      if (this._otherLinePoint(line, anchor)) return line;
+    }
     return null;
   }
 
