@@ -183,6 +183,13 @@ a:hover { opacity: 0.85; }
   text-decoration: none;
 }
 
+.footer-version {
+  margin-left: auto;
+  color: #888;
+  font-size: 12px;
+  font-weight: 400;
+}
+
 /* Buttons */
 .btn {
   display: inline-block;
