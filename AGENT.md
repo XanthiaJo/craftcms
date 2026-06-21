@@ -1,29 +1,59 @@
 # AGENT Notes
 
-This repository is a Craft CMS site. The main drift risk in this project is that post entry metadata, featured-image relations, and asset-path config can fall out of sync independently.
+This repository is a Craft CMS site. The root agent file should describe the intended live setup, where behavior is implemented, and what the front end is supposed to do. Recovery history and one-off import scripts belong in a separate recovery document.
 
 ## Implementation Preference
 
 Prefer modeling content and behavior in Craft CMS itself when that is a viable option.
 
-- prefer Craft fields, entry types, sections, category/tag groups, globals, volumes, and project config over hard-coding structure into Twig
+- prefer Craft fields, entry types, sections, category/tag groups, globals, volumes, and project config over hard-coded structure in Twig
 - treat Twig as the presentation layer first, not the primary source of content modeling
 - only hard-code logic in Twig when the behavior is clearly presentation-specific or there is no sensible Craft-native model for it
 - when choosing between a Craft config change and a Twig-only workaround, prefer the Craft change unless it would create disproportionate complexity or risk
 
-## Post Structure
+## App-Specific Agent Files
 
-- Section handle: `posts`
-- Entry type handle: `post`
-- Canonical post entries use even-numbered IDs in the current recovered dataset: `2, 4, 6, ... 86`
-- Revision/draft-style rows currently exist for many posts as separate element IDs whose `elements.canonicalId` points back to the canonical post
+Keep root guidance DRY and repository-wide. When working inside a sub-project that has its own agent notes, use that file together with this root file.
 
-Relevant config:
+Current app-specific agent file:
 
-- [config/project/sections/posts--7e05d885-8a22-4531-b57e-12f3e9d7f469.yaml](</E:/Coding Projects/craftcms/config/project/sections/posts--7e05d885-8a22-4531-b57e-12f3e9d7f469.yaml>)
-- [config/project/entryTypes/post--d7835db0-9bc7-4ee6-8ad8-acd09625daf0.yaml](</E:/Coding Projects/craftcms/config/project/entryTypes/post--d7835db0-9bc7-4ee6-8ad8-acd09625daf0.yaml>)
+- KnitStitch Grid:
+  - [web/knitstitch/AGENT.md](</E:/Coding Projects/craftcms/web/knitstitch/AGENT.md>)
 
-Critical post fields expected on the `post` entry type:
+## Repository Structure
+
+Primary ownership in this repository:
+
+- [config/project/](</E:/Coding Projects/craftcms/config/project/>) - Craft project config for sections, entry types, fields, globals, sites, and volumes
+- [templates/](</E:/Coding Projects/craftcms/templates/>) - Twig templates for page rendering
+- [web/](</E:/Coding Projects/craftcms/web/>) - public assets and the KnitStitch front-end app
+- [scripts/](</E:/Coding Projects/craftcms/scripts/>) - maintenance, recovery, and import scripts; not part of the normal request path
+- [README.md](</E:/Coding Projects/craftcms/README.md>) - project bootstrap notes
+
+## Target Craft Setup
+
+The site should be driven by Craft content and project config, with templates consuming that content cleanly.
+
+Key expectations:
+
+- section and field structure should come from [config/project/](</E:/Coding Projects/craftcms/config/project/>), not ad hoc template assumptions
+- templates should read stable field handles and relations that exist in the live field layout
+- archive and detail pages should work from canonical Craft entries, not drafts or revisions
+- asset volumes and upload locations should resolve to real public file paths under [web/uploads/](</E:/Coding Projects/craftcms/web/uploads/>)
+- taxonomy and archive filtering should work from real Craft relations and entry dates
+
+## Core Content Model
+
+### Posts
+
+Posts are the main editorial/project content type.
+
+- section handle: `posts`
+- entry type handle: `post`
+- section config: [config/project/sections/posts--7e05d885-8a22-4531-b57e-12f3e9d7f469.yaml](</E:/Coding Projects/craftcms/config/project/sections/posts--7e05d885-8a22-4531-b57e-12f3e9d7f469.yaml>)
+- entry type config: [config/project/entryTypes/post--d7835db0-9bc7-4ee6-8ad8-acd09625daf0.yaml](</E:/Coding Projects/craftcms/config/project/entryTypes/post--d7835db0-9bc7-4ee6-8ad8-acd09625daf0.yaml>)
+
+Expected `post` fields:
 
 - `featuredImage`
 - `body`
@@ -34,475 +64,112 @@ Critical post fields expected on the `post` entry type:
 - `postCategories`
 - `postTags`
 
-If `featuredImage` disappears from the live entry type layout, the front end may render no images even if assets and relations still exist.
-If `postCategories` or `postTags` disappear from the live entry type layout, the archive cards and filters will behave as if posts have no taxonomy even when `relations` rows still exist.
-If `projectTypes` disappears from the live entry type layout, the archive chip and project-type sidebar filter will behave as if projects are untyped.
+If these fields disappear from the live entry layout, the front end will behave as if the content is missing even when data still exists elsewhere.
 
-## Archive Filtering Structure
+### Posts Archive
 
-The posts archive is now a single-page filtered view:
+The posts archive is a single filtered page.
 
-- archive URL: `https://craftcms.ddev.site/posts`
-- template: [templates/posts.twig](</E:/Coding Projects/craftcms/templates/posts.twig>)
+- archive URL: `/posts`
+- archive template: [templates/posts.twig](</E:/Coding Projects/craftcms/templates/posts.twig>)
 - single post template: [templates/_entries/post.twig](</E:/Coding Projects/craftcms/templates/_entries/post.twig>)
-- archive page chrome is backed by the `projectsArchive` Single section, not hard-coded copy
 
-Relevant archive content model:
+Archive chrome and editable copy come from the `projectsArchive` Single:
 
 - section handle: `projectsArchive`
-- section type: `single`
-- section URI: `posts`
-- entry type handle: `projectsArchive`
-- editable archive fields:
-  - `projectsArchiveHeading`
-  - `projectsArchiveMetaDescription`
-  - `projectsArchiveSidebarIntro`
+- section config: [config/project/sections/projectsArchive--6a47cd07-ec9e-460f-999f-081f64ceeb62.yaml](</E:/Coding Projects/craftcms/config/project/sections/projectsArchive--6a47cd07-ec9e-460f-999f-081f64ceeb62.yaml>)
+- entry type config: [config/project/entryTypes/projectsArchive--fd9b9dfd-058f-4810-a86c-3f74aa2d8f4c.yaml](</E:/Coding Projects/craftcms/config/project/entryTypes/projectsArchive--fd9b9dfd-058f-4810-a86c-3f74aa2d8f4c.yaml>)
 
-Relevant config:
+Editable archive fields:
 
-- [config/project/sections/projectsArchive--6a47cd07-ec9e-460f-999f-081f64ceeb62.yaml](</E:/Coding Projects/craftcms/config/project/sections/projectsArchive--6a47cd07-ec9e-460f-999f-081f64ceeb62.yaml>)
-- [config/project/entryTypes/projectsArchive--fd9b9dfd-058f-4810-a86c-3f74aa2d8f4c.yaml](</E:/Coding Projects/craftcms/config/project/entryTypes/projectsArchive--fd9b9dfd-058f-4810-a86c-3f74aa2d8f4c.yaml>)
-- [config/project/fields/projectsArchiveHeading--79c2cc19-c161-4916-b859-98f211c101b5.yaml](</E:/Coding Projects/craftcms/config/project/fields/projectsArchiveHeading--79c2cc19-c161-4916-b859-98f211c101b5.yaml>)
-- [config/project/fields/projectsArchiveMetaDescription--b38efefa-beb0-4839-9347-42377ec6746d.yaml](</E:/Coding Projects/craftcms/config/project/fields/projectsArchiveMetaDescription--b38efefa-beb0-4839-9347-42377ec6746d.yaml>)
-- [config/project/fields/projectsArchiveSidebarIntro--7a2cc7d6-44ed-42f9-ba98-82d4a58c0590.yaml](</E:/Coding Projects/craftcms/config/project/fields/projectsArchiveSidebarIntro--7a2cc7d6-44ed-42f9-ba98-82d4a58c0590.yaml>)
+- `projectsArchiveHeading`
+- `projectsArchiveMetaDescription`
+- `projectsArchiveSidebarIntro`
 
-Supported archive filters:
+### Project Type and Taxonomy
 
-- `/posts?projectType[]=<project-type-slug>&projectType[]=<project-type-slug>`
-- `/posts?category[]=<category-slug>&category[]=<category-slug>`
-- `/posts?tag[]=<tag-slug>&tag[]=<tag-slug>`
-- `/posts?year[]=<YYYY>&year[]=<YYYY>`
+Project classification is handled through Craft taxonomy relations, not separate archive templates.
+
+- `projectTypes` drives the project-type filter and card chip
+- `postCategories` drives category filters and post/category links
+- `postTags` drives tag filters and post/tag links
+- `postDate` drives the year filter
+
+The intended UX is one filtered `/posts` page, not separate category or tag destination pages, even though [templates/category.twig](</E:/Coding Projects/craftcms/templates/category.twig>) and [templates/tag.twig](</E:/Coding Projects/craftcms/templates/tag.twig>) still exist.
+
+## Target Front-End Behavior
+
+### Archive Filtering
+
+Supported filter forms:
+
+- `/posts?projectType[]=<slug>`
+- `/posts?category[]=<slug>`
+- `/posts?tag[]=<slug>`
+- `/posts?year[]=<YYYY>`
 
 Behavior contract:
 
-- clicking a category, tag, or year should stay on `/posts`
-- the page chrome stays the same
-- only the queried posts change
-- categories, tags, and years are multi-selectable and combine with `AND` logic across groups
-- within a single group, selected values use `OR` logic
-
-Current implementation detail:
-
-- [templates/posts.twig](</E:/Coding Projects/craftcms/templates/posts.twig>) now renders one GET form with checkbox groups for project types, categories, tags, and years
-- filtering is applied in Twig against the ordered post list rather than by switching to separate Craft element queries per taxonomy
-- post cards and single-post taxonomy links should emit the array-style query format so they seed the same multiselect UI
-- categories should render on archive cards and single-post pages again once canonical relations and the full post layout are both restored
-
-Current archive card behavior:
-
-- cards render a `Design Source` chip when a `designSource` relation exists
-- cards render a `Project Type` chip when a `projectTypes` relation exists
-- card excerpts prefer `entry.body`
-- if `entry.body` is empty, cards fall back to the first resource-link label or a generic archive prompt
-- if `entry.featuredImage` fails to resolve at runtime, the archive falls back to the first asset in `postImages` volume folder `posts/<canonicalId>/`
-
-If category or tag clicks start navigating to separate archive templates again, check links in both:
-
-- [templates/posts.twig](</E:/Coding Projects/craftcms/templates/posts.twig>)
-- [templates/_entries/post.twig](</E:/Coding Projects/craftcms/templates/_entries/post.twig>)
-
-Separate category/tag templates still exist:
-
-- [templates/category.twig](</E:/Coding Projects/craftcms/templates/category.twig>)
-- [templates/tag.twig](</E:/Coding Projects/craftcms/templates/tag.twig>)
-
-But the current intended UX is the filtered `/posts` page, not those separate archive pages.
-
-## Year Handling
-
-Years are no longer a first-class taxonomy in the UI.
-
-Current intended behavior:
-
-- the sidebar section label is `Year`
-- the year list is derived from post `postDate`
-- year filtering uses `/posts?year[]=<YYYY>`
-- visible category lists should not show 4-digit year terms
-
-Implementation detail:
-
-- [templates/posts.twig](</E:/Coding Projects/craftcms/templates/posts.twig>) builds the year list by iterating posts and extracting `postDate|date('Y')`
-- year counts are based on `postDate` ranges, not category relations
-- [templates/_entries/post.twig](</E:/Coding Projects/craftcms/templates/_entries/post.twig>) shows `Year` in the sidebar using the entry `postDate`
-
-Important: old year-like categories such as `2023` may still exist in `postCategories` data, but the UI intentionally filters them out. Do not reintroduce them into the visible category lists unless that is an explicit product decision.
-
-## Title Storage
-
-Post titles are ultimately read from `elements_sites.title`.
-
-Known-good title recovery source:
-
-- [/.db-sync/craft-local-20260531-220306.sql.gz](</E:/Coding Projects/craftcms/.db-sync/craft-local-20260531-220306.sql.gz>)
-
-Recovery helper:
-
-- [scripts/restore_post_titles.php](</E:/Coding Projects/craftcms/scripts/restore_post_titles.php>)
-
-Verification helpers:
-
-- [scripts/dump_post_titles.php](</E:/Coding Projects/craftcms/scripts/dump_post_titles.php>)
-- [scripts/dump_post_titles_raw.php](</E:/Coding Projects/craftcms/scripts/dump_post_titles_raw.php>)
-
-If the admin shows `Untitled entry`, check `elements_sites.title` for the canonical post rows first.
-
-Known drift trigger:
-
-- scripts that call `saveElement()` on `post` entries can blank canonical titles in this repo if they do not explicitly preserve `entry.title` before saving
-- [scripts/import_wp_post_galleries.php](</E:/Coding Projects/craftcms/scripts/import_wp_post_galleries.php>) needed this safeguard after gallery imports caused partial title drift
-- [scripts/restore_post_content_from_revisions.php](</E:/Coding Projects/craftcms/scripts/restore_post_content_from_revisions.php>) also needs this safeguard because it saves canonical entries while rebuilding `body` and `resourceLinks`
-
-## Featured Image Structure
-
-There are two separate concerns:
-
-1. Asset file paths
-2. Entry-to-asset relations
-
-### Asset path invariants
-
-The intended storage layout is:
-
-- `web/uploads/posts/<canonicalId>/<filename>`
-
-Known-good config:
-
-- [config/project/volumes/postImages--56b64bf1-40b8-4808-a076-f845aced2527.yaml](</E:/Coding Projects/craftcms/config/project/volumes/postImages--56b64bf1-40b8-4808-a076-f845aced2527.yaml>)
-  - `subpath: posts`
-- [config/project/fields/featuredImage--29579835-63db-4481-b347-52f1852e0eb9.yaml](</E:/Coding Projects/craftcms/config/project/fields/featuredImage--29579835-63db-4481-b347-52f1852e0eb9.yaml>)
-  - `defaultUploadLocationSubpath: '{canonicalId}'`
-
-Important: do not put `{canonicalId}` directly in the volume subpath. That caused asset URLs like `/uploads/posts/{canonicalId}/2/file.jpg`.
-
-### Relation invariants
-
-Featured image relations must point from the canonical post entry ID to the asset ID in `relations` for field handle `featuredImage`.
-
-Known failure mode seen here:
-
-- relations existed only on revision rows where `elements.canonicalId = <canonical post id>`
-- canonical post rows then returned no `featuredImage` on the front end
-- after canonical relations were recreated, Craft still only resolved some `featuredImage` assets at runtime even though `relations` rows existed for all canonical posts
-- the practical front-end fallback in this repo is to use the first asset from `web/uploads/posts/<canonicalId>/` when the `featuredImage` field returns nothing
-
-Recovery helper:
-
-- [scripts/restore_post_featured_images.php](</E:/Coding Projects/craftcms/scripts/restore_post_featured_images.php>)
-
-Verification helper:
-
-- [scripts/debug_featured_images.php](</E:/Coding Projects/craftcms/scripts/debug_featured_images.php>)
-
-Current recovery behavior of `restore_post_featured_images.php`:
-
-- seeds canonical featured images from revision relations first
-- if no revision relation is available, falls back to the first asset found in the matching post folder
-- writes the `featuredImage` value via Craft element saves on canonical posts so the field appears correctly in the Control Panel
-- preserves `entry.title` before saving to avoid title drift
-- normalizes inserted relation rows with `sortOrder: 1`
-
-## Post Gallery Structure
-
-Additional post galleries use the `postImages` asset field.
-
-Current intended behavior:
-
-- `postImages` is available on every `post`
-- uploaded gallery assets live in the same volume path pattern as featured images: `web/uploads/posts/<canonicalId>/...`
-- the post detail template renders `postImages` as a gallery below the body and above resource-link buttons
-
-Relevant files:
-
-- [config/project/fields/postImages--895989d9-cefc-4582-bbad-6736c0c471b8.yaml](</E:/Coding Projects/craftcms/config/project/fields/postImages--895989d9-cefc-4582-bbad-6736c0c471b8.yaml>)
-- [config/project/entryTypes/post--d7835db0-9bc7-4ee6-8ad8-acd09625daf0.yaml](</E:/Coding Projects/craftcms/config/project/entryTypes/post--d7835db0-9bc7-4ee6-8ad8-acd09625daf0.yaml>)
-- [templates/_entries/post.twig](</E:/Coding Projects/craftcms/templates/_entries/post.twig>)
-
-Original source of extra gallery images:
-
-- WordPress Elementor `_elementor_data` in the original WordPress DB on `localhost`
-- extra images are not reliably represented in the normalized body text, and often are not recoverable from the simplified REST body alone
-
-Gallery import helper:
-
-- [scripts/import_wp_post_galleries.php](</E:/Coding Projects/craftcms/scripts/import_wp_post_galleries.php>)
-
-Important: when importing or updating galleries, exclude the featured image from `postImages` and preserve `entry.title` before saving the Craft entry.
-
-## Field Layout Risk
-
-Craft stores live field layout config in the database, not just in YAML.
-
-Relevant places:
-
-- project config file:
-  - [config/project/entryTypes/post--d7835db0-9bc7-4ee6-8ad8-acd09625daf0.yaml](</E:/Coding Projects/craftcms/config/project/entryTypes/post--d7835db0-9bc7-4ee6-8ad8-acd09625daf0.yaml>)
-- live DB:
-  - `fieldlayouts.config`
-
-Known drift seen here:
-
-- live `fieldlayouts.config` for the `post` entry type contained an older layout with taxonomy-only fields
-- once that happened, `featuredImage` stopped being a valid field handle at runtime
-- a later recovery attempt also proved the inverse risk: saving a partial layout can leave only `postCategories` and `postTags` active, dropping `featuredImage`, `body`, `resourceLinks`, and `postImages` at runtime
-
-Recovery helper:
-
-- [scripts/restore_post_entry_layout.php](</E:/Coding Projects/craftcms/scripts/restore_post_entry_layout.php>)
-
-Warning: `fieldlayouts.config` is a JSON object. Do not double-encode it into a JSON string.
-
-Current intended `post` field layout in project config:
-
-- [config/project/entryTypes/post--d7835db0-9bc7-4ee6-8ad8-acd09625daf0.yaml](</E:/Coding Projects/craftcms/config/project/entryTypes/post--d7835db0-9bc7-4ee6-8ad8-acd09625daf0.yaml>)
-- custom fields in order:
-  - `featuredImage`
-  - `body`
-  - `resourceLinks`
-  - `postImages`
-  - `projectTypes`
-  - `postCategories`
-  - `postTags`
-
-Taxonomy field config must also exist in project config:
-
-- [config/project/fields/projectTypes--c8ae7352-3ab5-47e7-b586-a001fbe07430.yaml](</E:/Coding Projects/craftcms/config/project/fields/projectTypes--c8ae7352-3ab5-47e7-b586-a001fbe07430.yaml>)
-- [config/project/fields/postCategories--52d25c97-f091-4cfb-84f6-e2529d60f743.yaml](</E:/Coding Projects/craftcms/config/project/fields/postCategories--52d25c97-f091-4cfb-84f6-e2529d60f743.yaml>)
-- [config/project/fields/postTags--5cfa4a6e-5fa2-43f3-a646-d35ea81d5d63.yaml](</E:/Coding Projects/craftcms/config/project/fields/postTags--5cfa4a6e-5fa2-43f3-a646-d35ea81d5d63.yaml>)
-
-## Taxonomy Relation Drift
-
-Known failure mode seen here:
-
-- `postCategories` relations existed only on revision element IDs such as `475`, `477`, `482`
-- canonical posts such as `2`, `4`, `8` then looked uncategorized on the front end
-- sidebar counts based on canonical entry queries returned `0` even though revision relations existed
-
-Additional failure mode discovered (June 2026):
-
-- Relations existed on non-canonical entries (where `elements.canonicalId != elements.id`)
-- These non-canonical entries had IDs like 769, 798, 799, etc. pointing to canonical IDs like 767, 2, 4, etc.
-- Relations had null or empty `sourceSiteId` values
-- Even after moving relations to canonical entries, Craft's element query wouldn't load them until `sourceSiteId` was set to the primary site ID
-- Direct database manipulation of relations is unreliable - must use Craft's API (`setFieldValue` + `saveElement`) to properly rebuild relations
-
-Recovery helpers:
-
-- [scripts/restore_post_taxonomy_relations.php](</E:/Coding Projects/craftcms/scripts/restore_post_taxonomy_relations.php>) - Restores relations from revision entries to canonical entries
-- For full recovery including sourceSiteId fixes, use: `ddev exec php craft resave/entries --section posts --type post` after restoring relations
-
-Important:
-
-- restore the canonical taxonomy relations first
-- ensure `sourceSiteId` is set to the primary site ID (typically 1)
-- use Craft's element API to rebuild relations, not direct DB updates
-- then restore the full `post` field layout from project config
-- both pieces must be correct before categories show up reliably in templates and filters
-
-Current state (June 2026):
-
-- `featuredImage`: 43/43 entries have images restored
-- `projectTypes`: 43 entries with relations restored
-- `postCategories`: 9 entries with relations restored (some posts may have no categories)
-- `designSource`: 0 relations (data never imported from WordPress)
-- `postTags`: 0 relations (data never imported from WordPress)
-
-## Helper Scripts
-
-### Essential Recovery Scripts (keep these)
-
-- `create_design_source_taxonomy.php` - Creates design source taxonomy if needed
-- `create_taxonomies.php` - Creates category/tag taxonomies and seeds from HTML snapshot
-- `import_wordpress_posts.php` - Main WordPress import script
-- `import_wp_post_galleries.php` - Imports post galleries from WordPress Elementor data
-- `normalize_posts_content.php` - Normalizes post content and extracts resource links
-- `restore_post_content_from_revisions.php` - Restores body and resourceLinks from revision rows
-- `restore_post_entry_layout.php` - Restores field layout from project config
-- `restore_post_featured_images.php` - Restores featured images from revision relations
-- `restore_post_taxonomy_relations.php` - Restores taxonomy relations from revision entries
-- `restore_post_titles.php` - Restores post titles from DB snapshot
-- `fix_asset_folders.php` - Fixes asset folder structure
-
-### Content Creation Scripts (keep these)
-
-- `create_home_content.php` - Creates home page content
-- `create_projects_archive_single.php` - Creates projects archive single entry
-- `create_site_header.php` - Creates site header global set
-
-### Deployment Script (keep this)
-
-- `push-local-db-to-live.ps1` - PowerShell script for pushing local DB to live
-
-### Temporary Debugging Scripts (delete these after use)
-
-If you create temporary debugging scripts (e.g., `check_*.php`, `debug_*.php`, `inspect_*.php`), delete them after resolving the issue. These scripts are not part of the recovery workflow and should not be committed.
-
-## Project Type Taxonomy
-
-`Project Type` is a category-style taxonomy used to classify software projects independently from topical categories.
-
-Current intended behavior:
-
-- the archive sidebar shows `Project Type` above `Categories`
-- archive cards show the first assigned project type as a chip above the title/date block
-- single-post pages show `Project Type` in the right-hand details sidebar
-- filtering uses `/posts?projectType[]=<slug>`
-
-Relevant files:
-
-- [templates/posts.twig](</E:/Coding Projects/craftcms/templates/posts.twig>)
-- [templates/_entries/post.twig](</E:/Coding Projects/craftcms/templates/_entries/post.twig>)
-- [scripts/create_taxonomies.php](</E:/Coding Projects/craftcms/scripts/create_taxonomies.php>)
-
-## Useful Recovery Order
-
-If this drifts again, use this order:
-
-1. Verify titles on canonical entries with `scripts/dump_post_titles.php`
-2. Verify the `post` entry type layout still contains `featuredImage`
-3. Verify asset URLs resolve under `/uploads/posts/<id>/...`
-4. Verify `featuredImage` relations point at canonical post entry IDs, not only revision IDs
-5. Reapply project config if the YAML is correct: `ddev craft project-config/apply`
-6. Restore titles if needed: `ddev php scripts/restore_post_titles.php`
-7. Restore featured-image relations if needed: `ddev php scripts/restore_post_featured_images.php`
-8. Restore taxonomy relations if categories are missing on canonical posts: `ddev php scripts/restore_post_taxonomy_relations.php`
-9. **CRITICAL**: After restoring relations, rebuild them using Craft's API to fix sourceSiteId: `ddev exec php craft resave/entries --section posts --type post`
-10. Restore the full post entry layout from project config if taxonomy/image/body fields are invalid at runtime: `ddev php scripts/restore_post_entry_layout.php`
-11. Restore body/resource links from revision rows if needed: `ddev php scripts/restore_post_content_from_revisions.php`
-12. Import extra WordPress gallery images if needed: `ddev php scripts/import_wp_post_galleries.php`
-13. If archive cards still lack images after relation repair, verify the template-level asset-folder fallback in [templates/posts.twig](</E:/Coding Projects/craftcms/templates/posts.twig>) and [templates/_entries/post.twig](</E:/Coding Projects/craftcms/templates/_entries/post.twig>)
-
-## KnitStitch Grid
-
-KnitStitch Grid is a Konva.js web conversion of the original KnitStichGrid WPF desktop app. It lives inside the Craft CMS site as a self-contained front-end sub-project.
-
-### URL and Template
-
-- URL: `/knitstitch` (served by Craft routing)
-- Template: [templates/knitstitch.twig](</E:/Coding Projects/craftcms/templates/knitstitch.twig>)
-- The template uses the shared site header/footer and page-subheader partials from [templates/_partials/](</E:/Coding Projects/craftcms/templates/_partials/>)
-
-### Source Project
-
-The JS/CSS source lives at:
-
-- [web/knitstitch/](</E:/Coding Projects/craftcms/web/knitstitch/>)
-  - `package.json` — `npm` project; Vite bundler, Vitest test runner, Konva.js dependency
-  - `vite.config.js` — builds `src/main.js` to `../dist/main.js` and `../dist/main.css` (i.e. `web/dist/`)
-  - `src/main.js` — app bootstrap: stage setup, sidebar wiring, store subscriptions
-  - `src/state/Store.js` — central reactive store (path-based get/set/subscribe)
-  - `src/models/` — plain data classes: `GaugeSettings`, `PatternDimensions`, `Point`, `SketchColorOption`, `SketchConstraint`, `SketchDimension`, `SketchLine`, `SketchPoint`
-  - `src/services/GridService.js` — `rebuildPreviewCells`, `togglePreviewCell`, `fitGridToCanvas`, `updateCellSizing`
-  - `src/services/SketchService.js` — line-draw tool, snap, undo/clear, selection, angle-snap, constraint sub-modes
-  - `src/services/FinishedSizeCalculator.js` — converts gauge + grid cell counts to finished inches
-  - `src/services/ConstraintSolver.js` — stub constraint solver
-  - `src/konva/AppStage.js` — creates Konva stage, mounts GridLayer/OverlayLayer/SketchLayer, handles resize
-  - `src/konva/GridLayer.js` — off-screen canvas raster render of the stitch grid; click-to-toggle cells
-  - `src/konva/SketchLayer.js` — Konva lines/points/preview/snap-ring render; forwards mouse events to SketchService
-  - `src/konva/OverlayLayer.js` — image overlay layer with opacity control
-  - `css/app.css` — app-specific styles (imported by `src/main.js`, bundled into `web/dist/main.css`)
-  - `tests/` — Vitest unit tests for `FinishedSizeCalculator`, `GridService`, `SketchService`, `Store`
-
-### Build Output
-
-Built output is in:
-
-- [web/dist/main.js](</E:/Coding Projects/craftcms/web/dist/main.js>) — bundled Konva + app JS
-- [web/dist/main.css](</E:/Coding Projects/craftcms/web/dist/main.css>) — bundled app CSS
-
-Both are loaded by the Twig template via `<script type="module" src="/dist/main.js">` and `<link rel="stylesheet" href="/dist/main.css">`.
-
-Generated local artifacts should stay untracked:
-
-- `config/license.key`
-- `web/knitstitch/coverage/`
-- `web/knitstitch/vite.config.js.timestamp-*.mjs`
-- root `package-lock.json`
-
-### Store State Shape
-
-```
-{
-  gridColumns: 30,
-  gridRows: 30,
-  cellWidthPx: 20,
-  cellHeightPx: 28,
-  previewCells: [{ isFilled: bool }, ...],
-  stitchesPer4Inches: 20,
-  rowsPer4Inches: 28,
-  finishedWidth: 0,
-  finishedHeight: 0,
-  overlayImageSrc: null,
-  overlayOpacity: 0.5,
-  overlayVisible: false,
-  sketch: {
-    isActive: false,
-    activeTool: 'Select',        // 'Select' | 'Line' | 'Dimension' | 'Constraint'
-    constraintSubMode: null,     // 'Perpendicular' | 'Midpoint'
-    strokeColor: '#E63946',
-    strokeThickness: 2,
-    lines: [],
-    points: [],
-    dimensions: [],
-    constraints: [],
-    objects: [],
-    previewLine: null,
-    snapCandidate: null,
-  }
-}
-```
-
-### Workspaces
-
-The UI has three ribbon-bar workspaces that swap the right-hand sidebar panel:
-
-- **Grid** — gauge inputs (stitches/rows per 4 in), grid cell dimensions, finished-size readout, Recalculate button
-- **Sketch** — freehand line tool, color/thickness, undo/clear, shape tools (circle/rect/triangle disabled/coming soon), constraint buttons, objects list
-- **Overlay** — image file picker, show/hide toggle, opacity slider
-
-Workspace switching is handled by `setWorkspace(ws)` in the template, extended in `main.js` to toggle `sketchService.isActive`.
-
-### Layer Z-Order
-
-- `0` GridLayer — stitch grid (click to fill/unfill cells)
-- `1` OverlayLayer — reference image overlay
-- `2` SketchLayer — freehand sketch on top
-
-### Build and Dev Commands
-
-Run from `web/knitstitch/`:
-
-```bash
-npm install        # install deps
-npm run dev        # Vite dev server
-npm run build      # output to web/dist/
-npm test           # Vitest unit tests
-```
-
-### Known Architecture Notes
-
-- `Store.set` uses dotted path notation (`sketch.lines`, `overlayVisible`, etc.)
-- `Store.subscribe` returns an unsubscribe function; all layers/services hold a reference and call it in `destroy()`
-- `GridLayer` renders via an off-screen `<canvas>` element promoted to a `Konva.Image` node to avoid one Konva shape per cell
-- `SketchLayer` clears and redraws all shapes on every store change that touches sketch state
-- Snap radius is 12 px (`SNAP_RADIUS`), angle snap threshold is 10° from H/V axes (`SNAP_ANGLE_DEG`)
-- Cell pixel size (`cellWidthPx` / `cellHeightPx`) is set equal to the gauge numbers (stitches/rows per 4 in) — this is a deliberate simplification for proportional rendering, not a 1:1 px=stitch mapping
+- clicking category, tag, project type, or year filters should stay on `/posts`
+- the archive page chrome should stay fixed while the result set changes
+- filter groups combine with `AND` logic across groups
+- selections within a single group combine with `OR` logic
+- years are derived from `postDate`, not from category terms
+- visible category lists should not show year-like terms such as `2023`
+
+### Archive Cards
+
+Expected card behavior in [templates/posts.twig](</E:/Coding Projects/craftcms/templates/posts.twig>):
+
+- show a `Design Source` chip when a `designSource` relation exists
+- show a `Project Type` chip when a `projectTypes` relation exists
+- prefer `entry.body` for excerpt text
+- fall back to a resource-link label or a generic prompt when body content is empty
+- render a thumbnail from `featuredImage` when available
+- fall back to the first asset in the post image folder when the relation is missing at runtime
+
+### Single Post Pages
+
+Expected detail-page behavior in [templates/_entries/post.twig](</E:/Coding Projects/craftcms/templates/_entries/post.twig>):
+
+- show the main featured image when available
+- render `postImages` as a gallery below the body content
+- show project type, categories, tags, and year in the sidebar/details area
+- emit archive links using array-style query parameters so they seed the same `/posts` filtering UI
+
+## File Ownership
+
+Use these files as the first place to look when behavior changes:
+
+- [templates/posts.twig](</E:/Coding Projects/craftcms/templates/posts.twig>) - archive layout, filter UI, archive card rendering, year extraction
+- [templates/_entries/post.twig](</E:/Coding Projects/craftcms/templates/_entries/post.twig>) - single post rendering, post meta, taxonomy links, gallery output
+- [templates/knitstitch.twig](</E:/Coding Projects/craftcms/templates/knitstitch.twig>) - Craft template wrapper for the KnitStitch page
+- [config/project/entryTypes/post--d7835db0-9bc7-4ee6-8ad8-acd09625daf0.yaml](</E:/Coding Projects/craftcms/config/project/entryTypes/post--d7835db0-9bc7-4ee6-8ad8-acd09625daf0.yaml>) - source-of-truth field layout for posts
+- [config/project/fields/featuredImage--29579835-63db-4481-b347-52f1852e0eb9.yaml](</E:/Coding Projects/craftcms/config/project/fields/featuredImage--29579835-63db-4481-b347-52f1852e0eb9.yaml>) - featured image field config
+- [config/project/fields/postImages--895989d9-cefc-4582-bbad-6736c0c471b8.yaml](</E:/Coding Projects/craftcms/config/project/fields/postImages--895989d9-cefc-4582-bbad-6736c0c471b8.yaml>) - gallery field config
+- [config/project/fields/projectTypes--c8ae7352-3ab5-47e7-b586-a001fbe07430.yaml](</E:/Coding Projects/craftcms/config/project/fields/projectTypes--c8ae7352-3ab5-47e7-b586-a001fbe07430.yaml>) - project type taxonomy field
+- [config/project/fields/postCategories--52d25c97-f091-4cfb-84f6-e2529d60f743.yaml](</E:/Coding Projects/craftcms/config/project/fields/postCategories--52d25c97-f091-4cfb-84f6-e2529d60f743.yaml>) - category taxonomy field
+- [config/project/fields/postTags--5cfa4a6e-5fa2-43f3-a646-d35ea81d5d63.yaml](</E:/Coding Projects/craftcms/config/project/fields/postTags--5cfa4a6e-5fa2-43f3-a646-d35ea81d5d63.yaml>) - tag taxonomy field
+- [config/project/volumes/postImages--56b64bf1-40b8-4808-a076-f845aced2527.yaml](</E:/Coding Projects/craftcms/config/project/volumes/postImages--56b64bf1-40b8-4808-a076-f845aced2527.yaml>) - post image volume pathing
 
 ## Browser-Level Verification
 
-The posts archive should show image tags on:
-
-- `https://craftcms.ddev.site/posts`
-
-If the page renders no `<img>` tags but asset files exist on disk, check field layout drift and relation drift before touching templates.
-
-Current high-signal browser checks:
+High-signal checks for the live site:
 
 - `/posts` should show the sidebar sections `Project Type`, `Categories`, `Tags`, and `Year`
-- `/posts` should show populated project cards with non-empty title links
-- `/posts` should render image thumbnails even if `featuredImage` field resolution is partially broken, via the per-post folder fallback
-- `/posts?category[]=crochet&year[]=2023` should stay on the posts archive and combine filters
-- `/posts?projectType[]=<slug>` should stay on the posts archive and filter by project-type relation
-- `/posts?category[]=accessories&category[]=crochet&year[]=2023` should stay on the posts archive and return the union of those categories inside the selected year
-- `/posts?year[]=2023` should stay on the posts archive and filter by `postDate`
-- `/posts?category[]=<slug>` should stay on the posts archive and filter by taxonomy relation
-- `/posts?tag[]=<slug>` should stay on the posts archive and filter by taxonomy relation
+- `/posts` should render populated cards with non-empty titles
+- `/posts` should render image thumbnails even if `featuredImage` resolution is partially broken, via the per-post folder fallback
+- `/posts?category[]=crochet&year[]=2023` should stay on `/posts` and combine filters
+- `/posts?projectType[]=<slug>` should stay on `/posts` and filter by project type
+- `/posts?category[]=accessories&category[]=crochet&year[]=2023` should stay on `/posts` and return the union of those categories inside the selected year
+- `/posts?year[]=2023` should stay on `/posts` and filter by `postDate`
+- `/posts?category[]=<slug>` should stay on `/posts` and filter by taxonomy relation
+- `/posts?tag[]=<slug>` should stay on `/posts` and filter by taxonomy relation
+
+If the page renders no `<img>` tags but asset files exist on disk, or taxonomy appears empty despite known content, treat that as content/config drift first rather than a template-only problem.
+
+## Recovery and Script History
+
+Old import helpers, recovery scripts, and drift-repair notes live in [docs/content-recovery.md](</E:/Coding Projects/craftcms/docs/content-recovery.md>).
+
+Use that document only when content has been lost, relations have drifted, field layouts no longer match project config, or the database needs to be rebuilt from recovery data.
