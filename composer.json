@@ -21,6 +21,10 @@
   "scripts": {
     "post-root-package-install": [
       "@php -r \"file_exists('.env') || copy('.env.example.dev', '.env');\""
+    ],
+    "build-info": "@php scripts/GenerateBuildInfo.php --root=. --output=web/js/buildInfo.js --format=js",
+    "post-install-cmd": [
+      "@build-info"
     ]
   },
   "repositories": [
