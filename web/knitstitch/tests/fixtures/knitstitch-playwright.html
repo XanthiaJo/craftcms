@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KnitStitch Playwright Fixture</title>
+  <style>
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    #app-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+    }
+
+    .ribbon-bar {
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .workspace {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .canvas-area {
+      flex: 1;
+      min-width: 0;
+      padding: 12px;
+      box-sizing: border-box;
+    }
+
+    .canvas-wrapper {
+      width: 900px;
+      height: 620px;
+      border: 1px solid #bbb;
+      box-sizing: border-box;
+      background: #fff;
+    }
+
+    .canvas-content {
+      width: 100%;
+      height: 100%;
+    }
+
+    .sidebar {
+      width: 360px;
+      border-left: 1px solid #ddd;
+      padding: 12px;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    .workspace-panel {
+      display: none;
+    }
+
+    .workspace-panel.active {
+      display: block;
+    }
+
+    .group-box {
+      margin-bottom: 16px;
+      border: 1px solid #ddd;
+      padding: 12px;
+    }
+
+    .group-header {
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .toggle-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .object-list {
+      margin: 0;
+      padding-left: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app-container">
+    <div class="ribbon-bar">
+      <button class="workspace-btn active" onclick="setWorkspace('grid')" data-workspace="grid">Grid</button>
+      <button class="workspace-btn" onclick="setWorkspace('sketch')" data-workspace="sketch">Sketch</button>
+      <button class="workspace-btn" onclick="setWorkspace('overlay')" data-workspace="overlay">Overlay</button>
+    </div>
+
+    <div class="workspace">
+      <div class="canvas-area">
+        <div class="canvas-wrapper">
+          <div class="canvas-content" id="konva-stage"></div>
+        </div>
+      </div>
+
+      <div class="sidebar">
+        <div class="workspace-panel active" id="panel-grid"></div>
+
+        <div class="workspace-panel" id="panel-sketch">
+          <div class="group-box">
+            <div class="group-header">Sketch</div>
+            <div class="toggle-group">
+              <button class="toggle-btn" id="tool-line">Line</button>
+              <button class="toggle-btn" id="tool-select">Select</button>
+            </div>
+          </div>
+
+          <div class="group-box">
+            <div class="group-header">Constraints</div>
+            <div class="toggle-group">
+              <button class="toggle-btn" id="tool-dimension">Dimension</button>
+              <button class="toggle-btn" id="tool-perpendicular">Perpendicular</button>
+              <button class="toggle-btn" id="tool-midpoint">Midpoint</button>
+            </div>
+          </div>
+
+          <div class="group-box">
+            <div class="group-header">Objects</div>
+            <ul class="object-list" id="sketch-object-list"></ul>
+          </div>
+        </div>
+
+        <div class="workspace-panel" id="panel-overlay"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function setWorkspace(ws) {
+      document.querySelectorAll('.workspace-btn').forEach((btn) => btn.classList.remove('active'));
+      document.querySelectorAll('.workspace-panel').forEach((panel) => panel.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+      document.getElementById('panel-' + ws).classList.add('active');
+    }
+  </script>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

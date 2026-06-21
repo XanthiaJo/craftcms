@@ -35,6 +35,12 @@ npm run build
 npm test
 ```
 
+Run the browser regression test with:
+
+```bash
+npm run test:e2e
+```
+
 ## Build
 
 ```bash
