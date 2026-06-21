@@ -35,10 +35,32 @@ if (!$root || !is_dir($root)) {
     exit(1);
 }
 
+function findGit(): string {
+    // Check if git is already in PATH
+    $testOutput = [];
+    $testExit = 0;
+    exec('git --version 2>&1', $testOutput, $testExit);
+    if ($testExit === 0) {
+        return 'git';
+    }
+    // Try common locations
+    $candidates = ['/usr/local/bin/git', '/usr/bin/git', '/bin/git', '/usr/local/git/bin/git', '/opt/git/bin/git'];
+    foreach ($candidates as $path) {
+        if (file_exists($path) && is_executable($path)) {
+            return $path;
+        }
+    }
+    throw new RuntimeException('git binary not found in PATH or common locations');
+}
+
 function git(string $root, string ...$args): array {
+    static $gitBin = null;
+    if ($gitBin === null) {
+        $gitBin = findGit();
+    }
     $escapedRoot = escapeshellarg($root);
     $escapedArgs = array_map('escapeshellarg', $args);
-    $cmd = "git -C $escapedRoot " . implode(' ', $escapedArgs) . ' 2>&1';
+    $cmd = "$gitBin -C $escapedRoot " . implode(' ', $escapedArgs) . ' 2>&1';
     $output = [];
     $exitCode = 0;
     exec($cmd, $output, $exitCode);
@@ -203,3 +225,4 @@ if ($outputDir !== '' && !is_dir($outputDir)) {
 
 file_put_contents($outputPath, $content);
 fwrite(STDOUT, "Generated $outputPath ($format) — version $displayVersion, commit $shortSha\n");
+

@@ -80,6 +80,16 @@ if ($ref !== 'refs/heads/master') {
 
 // Run deploy commands
 $repoRoot = dirname(__DIR__);
+// Ensure common binary paths are in PATH for PHP exec()
+$extraPaths = ['/usr/local/bin', '/usr/bin', '/bin', '/usr/local/git/bin', '/opt/git/bin'];
+$envPath = getenv('PATH');
+foreach ($extraPaths as $p) {
+    if (is_dir($p) && strpos($envPath, $p) === false) {
+        $envPath .= ':' . $p;
+    }
+}
+putenv('PATH=' . $envPath);
+
 $commands = [
     'git pull origin master 2>&1',
     'composer install --no-dev --optimize-autoloader 2>&1',
