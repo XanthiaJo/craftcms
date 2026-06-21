@@ -1,6 +1,1 @@
-export class SketchColorOption {
-  constructor(name, hex) {
-    this.name = name;
-    this.hex = hex;
-  }
-}
+export { SketchColorOption } from './sketch/SketchColorOption.js';
