@@ -94,6 +94,7 @@ export class SketchLayer {
       path === 'sketch.isActive' ||
       path === 'sketch.activeTool' ||
       path === 'sketch.dimensions' ||
+      path === 'sketch.constraints' ||
       path === 'sketch.pendingDimEdit'
     ) {
       this._render();
@@ -150,6 +151,7 @@ export class SketchLayer {
     const lines = this.store.get('sketch.lines');
     const points = this.store.get('sketch.points');
     const dimensions = this.store.get('sketch.dimensions') || [];
+    const constraints = this.store.get('sketch.constraints') || [];
     const preview = this.store.get('sketch.previewLine');
     const snap = this.store.get('sketch.snapCandidate');
     const color = this.store.get('sketch.strokeColor') || '#E63946';
@@ -168,25 +170,43 @@ export class SketchLayer {
       });
       kLine.on('click tap', (e) => {
         e.cancelBubble = true;
-        this.service.selectLine(line, e.evt.ctrlKey);
+        const activeTool = this.store.get('sketch.activeTool');
+        if (activeTool === 'Select') {
+          this.service.selectLine(line, e.evt.ctrlKey);
+          return;
+        }
+
+        const pointer = this.layer.getStage()?.getPointerPosition();
+        if (!pointer) return;
+        this.service.onCanvasClick({ x: pointer.x, y: pointer.y }, { snapEnabled: !e.evt.ctrlKey });
       });
       group.add(kLine);
     }
 
+    const pointDisplayColor = '#0078D7';
+
     // Points
     for (const pt of points) {
       const isSelectTool = this.store.get('sketch.activeTool') === 'Select';
+      const isSelected = pt.isSelected;
       const dot = new Konva.Circle({
         x: pt.x,
         y: pt.y,
-        radius: isSelectTool ? 5 : 3,
-        fill: pt.isSelected ? '#0078D7' : color,
+        radius: isSelected ? 6 : isSelectTool ? 5 : 3,
+        fill: isSelected ? pointDisplayColor : color,
+        stroke: isSelected ? pointDisplayColor : null,
+        strokeWidth: isSelected ? 1 : 0,
         listening: true,
-        hitRadius: 10,
+        hitStrokeWidth: 14,
       });
       dot.on('click tap', (e) => {
         e.cancelBubble = true;
-        this.service.selectPoint(pt, e.evt.ctrlKey);
+        const activeTool = this.store.get('sketch.activeTool');
+        if (activeTool === 'Select') {
+          this.service.selectPoint(pt, e.evt.ctrlKey);
+          return;
+        }
+        this.service.onCanvasClick({ x: pt.x, y: pt.y }, { snapEnabled: !e.evt.ctrlKey });
       });
       if (isSelectTool) {
         dot.on('mouseenter', () => { document.body.style.cursor = 'grab'; });
@@ -220,7 +240,7 @@ export class SketchLayer {
         y: snap.y,
         innerRadius: 6,
         outerRadius: 10,
-        fill: '#FF8C00',
+        fill: '#0078D7',
         listening: false,
       });
       group.add(ring);
@@ -280,7 +300,7 @@ export class SketchLayer {
         stroke: dim.isSelected ? '#1D70B8' : '#444444',
         strokeWidth: 1.5,
         cornerRadius: 10,
-        listening: false,
+        listening: true,
       });
       const labelTxt = new Konva.Text({
         text: dim.labelText,
@@ -298,13 +318,68 @@ export class SketchLayer {
       labelTxt.offsetX(labelTxt.width() / 2);
       labelTxt.offsetY(labelTxt.height() / 2);
       labelGroup.add(labelBg, labelTxt);
-      labelGroup.on('click tap', (e) => {
+      labelGroup.on('mousedown touchstart', (e) => {
+        e.cancelBubble = true;
+        this.service.selectDimension(dim, e.evt.ctrlKey);
+      });
+      labelGroup.on('dblclick dbltap', (e) => {
         e.cancelBubble = true;
         this.service.selectDimension(dim, e.evt.ctrlKey);
         this.service._openDimEdit(dim);
       });
       dimGroup.add(labelGroup);
       group.add(dimGroup);
+    }
+
+    for (const constraint of constraints) {
+      if (constraint?.type !== 'Perpendicular') continue;
+      const anchor = constraint.pointA ?? this.service._findSharedPoint(constraint.lineA, constraint.lineB);
+      if (!anchor || !constraint.lineA || !constraint.lineB) continue;
+
+      const lineAPoint = constraint.lineA.start === anchor ? constraint.lineA.end : constraint.lineA.start;
+      const lineBPoint = constraint.lineB.start === anchor ? constraint.lineB.end : constraint.lineB.start;
+      if (!lineAPoint || !lineBPoint) continue;
+
+      const vecA = { x: lineAPoint.x - anchor.x, y: lineAPoint.y - anchor.y };
+      const vecB = { x: lineBPoint.x - anchor.x, y: lineBPoint.y - anchor.y };
+      const lenA = Math.hypot(vecA.x, vecA.y);
+      const lenB = Math.hypot(vecB.x, vecB.y);
+      if (lenA < 0.001 || lenB < 0.001) continue;
+
+      const unitA = { x: vecA.x / lenA, y: vecA.y / lenA };
+      const unitB = { x: vecB.x / lenB, y: vecB.y / lenB };
+      const iconSize = 8;
+      const iconOrigin = {
+        x: anchor.x + (unitA.x + unitB.x) * 8,
+        y: anchor.y + (unitA.y + unitB.y) * 8,
+      };
+      const iconColor = constraint.isSelected ? '#0078D7' : '#2D9E4F';
+
+      const iconGroup = new Konva.Group({ listening: true });
+      iconGroup.add(new Konva.Line({
+        points: [
+          iconOrigin.x + unitA.x * iconSize, iconOrigin.y + unitA.y * iconSize,
+          iconOrigin.x + unitA.x * iconSize + unitB.x * iconSize, iconOrigin.y + unitA.y * iconSize + unitB.y * iconSize,
+          iconOrigin.x + unitB.x * iconSize, iconOrigin.y + unitB.y * iconSize,
+        ],
+        stroke: iconColor,
+        strokeWidth: 2,
+        hitStrokeWidth: 18,
+        lineJoin: 'round',
+        listening: true,
+      }));
+      iconGroup.add(new Konva.Circle({
+        x: iconOrigin.x + (unitA.x + unitB.x) * (iconSize * 0.5),
+        y: iconOrigin.y + (unitA.y + unitB.y) * (iconSize * 0.5),
+        radius: 10,
+        fill: 'rgba(0,0,0,0)',
+        listening: true,
+      }));
+      iconGroup.on('click tap', (e) => {
+        e.cancelBubble = true;
+        this.service.selectConstraint(constraint, e.evt.ctrlKey);
+      });
+      group.add(iconGroup);
     }
 
     // Floating dim-edit input overlay (rendered as a Konva HTML overlay)

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { Store } from '../src/state/Store.js';
-import { SketchService, SketchTool } from '../src/services/SketchService.js';
+import { ConstraintSubMode, SketchObjectKind, SketchService, SketchTool } from '../src/services/SketchService.js';
+import { SketchConstraint } from '../src/models/SketchConstraint.js';
 
 describe('SketchService', () => {
   function makeService() {
@@ -109,6 +110,23 @@ describe('SketchService', () => {
   });
 
   describe('Delete selection', () => {
+    it('should delete a selected point, its attached line, and dependent dimensions', () => {
+      const { service, store } = makeDimensionService({ x: 0, y: 0 }, { x: 60, y: 0 });
+      service.onCanvasClick({ x: 0, y: 0 });
+      service.onCanvasClick({ x: 60, y: 0 });
+
+      const point = store.state.sketch.points[0];
+
+      service.selectPoint(point);
+      service.deleteSelected();
+
+      expect(store.state.sketch.lines.length).toBe(0);
+      expect(store.state.sketch.points.length).toBe(0);
+      expect(store.state.sketch.dimensions.length).toBe(0);
+      expect(store.state.sketch.constraints.length).toBe(0);
+      expect(service.hasSelection).toBe(false);
+    });
+
     it('should delete selected lines and orphan points', () => {
       const { service, store } = makeService();
       service.onCanvasClick({ x: 0, y: 0 });
@@ -124,6 +142,31 @@ describe('SketchService', () => {
       expect(service.hasSelection).toBe(false);
     });
 
+    it('should delete constraints that reference points from a deleted line even if the point is shared', () => {
+      const { service, store } = makeService();
+
+      service.onCanvasClick({ x: 0, y: 0 });
+      service.onCanvasClick({ x: 50, y: 0 });
+      service.onCanvasClick({ x: 100, y: 0 });
+
+      const firstLine = store.state.sketch.lines[0];
+      const secondLine = store.state.sketch.lines[1];
+      const sharedPoint = store.state.sketch.points[1];
+      const farPoint = store.state.sketch.points[2];
+
+      store.state.sketch.constraints.push(new SketchConstraint('Coincident', sharedPoint, farPoint));
+
+      service.selectLine(firstLine);
+      service.deleteSelected();
+
+      expect(store.state.sketch.lines.length).toBe(1);
+      expect(store.state.sketch.points).toContain(sharedPoint);
+      expect(store.state.sketch.points).toContain(farPoint);
+      expect(store.state.sketch.points).not.toContain(firstLine.start);
+      expect(store.state.sketch.constraints.length).toBe(0);
+      expect(store.state.sketch.lines[0]).toBe(secondLine);
+    });
+
     it('should delete selected dimensions', () => {
       const { service, store } = makeDimensionService({ x: 0, y: 0 }, { x: 60, y: 0 });
       service.onCanvasClick({ x: 0, y: 0 });
@@ -137,6 +180,57 @@ describe('SketchService', () => {
 
       expect(store.state.sketch.dimensions.length).toBe(0);
       expect(service.hasSelection).toBe(false);
+    });
+
+    it('should delete a selected perpendicular constraint without deleting its lines', () => {
+      const { service, store } = makeService();
+      service.onCanvasClick({ x: 0, y: 0 });
+      service.onCanvasClick({ x: 60, y: 0 });
+      service.onCanvasClick({ x: 60, y: 60 });
+
+      service.activeTool = SketchTool.Constraint;
+      service.constraintSubMode = ConstraintSubMode.Perpendicular;
+      service.onCanvasClick({ x: 60, y: 0 });
+
+      const constraint = store.state.sketch.constraints[0];
+      service.selectConstraint(constraint);
+      service.deleteSelected();
+
+      expect(store.state.sketch.constraints.length).toBe(0);
+      expect(store.state.sketch.lines.length).toBe(2);
+    });
+
+    it('should delete line endpoints and attached dimensions when a constrained line is deleted', () => {
+      const { service, store } = makeDimensionService({ x: 0, y: 0 }, { x: 60, y: 0 });
+      service.onCanvasClick({ x: 0, y: 0 });
+      service.onCanvasClick({ x: 60, y: 0 });
+
+      const line = store.state.sketch.lines[0];
+      expect(store.state.sketch.points.length).toBe(2);
+      expect(store.state.sketch.dimensions.length).toBe(1);
+
+      service.selectLine(line);
+      service.deleteSelected();
+
+      expect(store.state.sketch.lines.length).toBe(0);
+      expect(store.state.sketch.points.length).toBe(0);
+      expect(store.state.sketch.dimensions.length).toBe(0);
+      expect(store.state.sketch.constraints.length).toBe(0);
+    });
+
+    it('should delete every line attached to a selected shared point', () => {
+      const { service, store } = makeService();
+      service.onCanvasClick({ x: 0, y: 0 });
+      service.onCanvasClick({ x: 50, y: 0 });
+      service.onCanvasClick({ x: 100, y: 0 });
+
+      const sharedPoint = store.state.sketch.points[1];
+
+      service.selectPoint(sharedPoint);
+      service.deleteSelected();
+
+      expect(store.state.sketch.lines.length).toBe(0);
+      expect(store.state.sketch.points.length).toBe(0);
     });
   });
 
@@ -180,6 +274,39 @@ describe('SketchService', () => {
       const { service, store } = makeService();
       service.exitToSelect();
       expect(store.state.sketch.activeTool).toBe(SketchTool.Select);
+    });
+
+    it('should clear a selected point on right-click exit', () => {
+      const { service, store } = makeService();
+      service.onCanvasClick({ x: 50, y: 50 });
+      service.onCanvasClick({ x: 100, y: 100 });
+      service.activeTool = SketchTool.Select;
+
+      const point = store.state.sketch.points[0];
+      service.selectPoint(point);
+      expect(point.isSelected).toBe(true);
+
+      service.onRightMouseDown();
+      service.exitToSelect();
+
+      expect(store.state.sketch.activeTool).toBe(SketchTool.Select);
+      expect(point.isSelected).toBe(false);
+      expect(service.hasSelection).toBe(false);
+    });
+
+    it('should clear an existing selection when exiting to Select', () => {
+      const { service, store } = makeService();
+      service.onCanvasClick({ x: 0, y: 0 });
+      service.onCanvasClick({ x: 50, y: 50 });
+      const line = store.state.sketch.lines[0];
+
+      service.selectLine(line);
+      expect(line.isSelected).toBe(true);
+
+      service.exitToSelect();
+
+      expect(line.isSelected).toBe(false);
+      expect(service.hasSelection).toBe(false);
     });
 
     it('right-click event order: onRightMouseDown sets suppress before click fires', () => {
@@ -309,6 +436,23 @@ describe('SketchService', () => {
       expect(pt.y).toBe(65);
     });
 
+    it('selects the endpoint when a select drag starts near a line endpoint', () => {
+      const { service, store } = makeSelectService();
+      service.activeTool = SketchTool.Line;
+      service.onCanvasClick({ x: 120, y: 120 });
+      service.onCanvasClick({ x: 200, y: 120 });
+      service.activeTool = SketchTool.Select;
+
+      const startPoint = store.state.sketch.points[0];
+      const line = store.state.sketch.lines[0];
+
+      service.startDrag({ x: 124, y: 120 });
+
+      expect(service._dragPoint).toBe(startPoint);
+      expect(startPoint.isSelected).toBe(true);
+      expect(line.isSelected).toBe(false);
+    });
+
     it('should snap a dragged point to a nearby point and create a coincident constraint', () => {
       const { service, store } = makeSelectService();
       service.activeTool = SketchTool.Line;
@@ -389,8 +533,11 @@ describe('SketchService', () => {
       const { service, store } = makeDimensionService();
       service.onCanvasClick({ x: 0, y: 0 });   // first click — sets _dimPendingA
       expect(store.state.sketch.dimensions.length).toBe(0);
+      expect(store.state.sketch.points[0].isSelected).toBe(true);
       service.onCanvasClick({ x: 60, y: 0 });  // second click — commits
       expect(store.state.sketch.dimensions.length).toBe(1);
+      expect(store.state.sketch.points[0].isSelected).toBe(false);
+      expect(store.state.sketch.points[1].isSelected).toBe(false);
     });
 
     it('horizontal 60px dimension has correct labelText', () => {
@@ -449,6 +596,18 @@ describe('SketchService', () => {
       expect(obj.label).toContain('[H]');
     });
 
+    it('object list rows can select a dimension by reference', () => {
+      const { service, store } = makeDimensionService();
+      service.onCanvasClick({ x: 0, y: 0 });
+      service.onCanvasClick({ x: 60, y: 0 });
+
+      const obj = store.state.sketch.objects.find((candidate) => candidate.refType === 'dimension');
+      service.selectObjectByRef(obj.refType, obj.refId);
+
+      expect(store.state.sketch.dimensions[0].isSelected).toBe(true);
+      expect(service.hasSelection).toBe(true);
+    });
+
     it('keeps a constrained dimension length when an endpoint is dragged', () => {
       const { service, store } = makeDimensionService();
       service.onCanvasClick({ x: 0, y: 0 });
@@ -470,6 +629,34 @@ describe('SketchService', () => {
       const movedLength = Math.hypot(end.x - start.x, end.y - start.y);
       expect(movedLength).toBeCloseTo(originalLength, 5);
       expect(dim.labelText).toContain('80.0');
+    });
+
+    it('removes the dimension when the edit overlay is cancelled', () => {
+      const { service, store } = makeDimensionService();
+      service.onCanvasClick({ x: 0, y: 0 });
+      service.onCanvasClick({ x: 60, y: 0 });
+
+      expect(store.state.sketch.dimensions.length).toBe(1);
+      expect(store.state.sketch.pendingDimEdit).not.toBeNull();
+
+      store.state.sketch.pendingDimEdit.onCancel();
+
+      expect(store.state.sketch.dimensions.length).toBe(0);
+      expect(store.state.sketch.pendingDimEdit).toBeNull();
+      expect(store.state.sketch.objects.some((object) => object.kind === SketchObjectKind.Dimension)).toBe(false);
+    });
+
+    it('keeps the dimension when the edit overlay is confirmed', () => {
+      const { service, store } = makeDimensionService();
+      service.onCanvasClick({ x: 0, y: 0 });
+      service.onCanvasClick({ x: 60, y: 0 });
+
+      const pendingEdit = store.state.sketch.pendingDimEdit;
+      pendingEdit.onConfirm(80);
+
+      expect(store.state.sketch.dimensions.length).toBe(1);
+      expect(store.state.sketch.dimensions[0].isConstrained).toBe(true);
+      expect(store.state.sketch.pendingDimEdit).toBeNull();
     });
 
     it('snaps to existing point within snap radius on second click', () => {
@@ -497,6 +684,48 @@ describe('SketchService', () => {
       service.onCanvasClick({ x: 50, y: 50 });
       const near = service._findNearestPoint({ x: 200, y: 200 });
       expect(near).toBeNull();
+    });
+  });
+
+  describe('Constraint tool', () => {
+    it('creates a perpendicular constraint from a shared endpoint', () => {
+      const { service, store } = makeService();
+      service.onCanvasClick({ x: 0, y: 0 });
+      service.onCanvasClick({ x: 60, y: 0 });
+      service.onCanvasClick({ x: 60, y: 60 });
+
+      service.activeTool = SketchTool.Constraint;
+      service.constraintSubMode = ConstraintSubMode.Perpendicular;
+      service.onCanvasClick({ x: 60, y: 0 });
+
+      expect(store.state.sketch.constraints).toHaveLength(1);
+      expect(store.state.sketch.constraints[0].type).toBe('Perpendicular');
+      expect(store.state.sketch.objects.some((object) => object.kind === SketchObjectKind.Perpendicular)).toBe(true);
+    });
+
+    it('keeps constrained lines perpendicular when a free endpoint is dragged', () => {
+      const { service, store } = makeService();
+      service.onCanvasClick({ x: 0, y: 0 });
+      service.onCanvasClick({ x: 60, y: 0 });
+      service.onCanvasClick({ x: 60, y: 60 });
+
+      service.activeTool = SketchTool.Constraint;
+      service.constraintSubMode = ConstraintSubMode.Perpendicular;
+      service.onCanvasClick({ x: 60, y: 0 });
+
+      const movedPoint = store.state.sketch.points[2];
+      service.activeTool = SketchTool.Select;
+      service.onCanvasMouseDown({ x: movedPoint.x, y: movedPoint.y });
+      service.onCanvasMouseMove({ x: 95, y: 50 });
+      service.onCanvasMouseUp();
+
+      const sharedPoint = store.state.sketch.points[1];
+      const fixedPoint = store.state.sketch.points[0];
+      const vecA = { x: fixedPoint.x - sharedPoint.x, y: fixedPoint.y - sharedPoint.y };
+      const vecB = { x: movedPoint.x - sharedPoint.x, y: movedPoint.y - sharedPoint.y };
+      const dot = vecA.x * vecB.x + vecA.y * vecB.y;
+
+      expect(dot).toBeCloseTo(0, 5);
     });
   });
 });

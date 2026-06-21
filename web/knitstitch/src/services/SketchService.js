@@ -2,6 +2,7 @@ import { SketchPoint } from '../models/SketchPoint.js';
 import { SketchLine } from '../models/SketchLine.js';
 import { SketchColorOption } from '../models/SketchColorOption.js';
 import { SketchDimension } from '../models/SketchDimension.js';
+import { SketchConstraint } from '../models/SketchConstraint.js';
 import { ConstraintSolver } from './ConstraintSolver.js';
 
 const SNAP_RADIUS = 10.0;
@@ -24,7 +25,8 @@ export const SketchObjectKind = {
   Line: 'Line',
   Coincident: 'Coincident',
   Constraint: 'Constraint',
-  Dimension: 'Dimension'
+  Dimension: 'Dimension',
+  Perpendicular: 'Perpendicular',
 };
 
 export class SketchService {
@@ -33,6 +35,7 @@ export class SketchService {
     this._nextPointId = 0;
     this._nextLineId = 0;
     this._nextDimId = 0;
+    this._nextConstraintId = 0;
     this._pendingStart = null;
     this._dimPendingA = null;
     this._selectedPoints = new Set();
@@ -73,6 +76,7 @@ export class SketchService {
     this._nextPointId = this._nextId(sketch.points);
     this._nextLineId = this._nextId(sketch.lines);
     this._nextDimId = this._nextId(sketch.dimensions);
+    this._nextConstraintId = this._nextId(sketch.constraints);
   }
 
   _nextId(items) {
@@ -143,6 +147,9 @@ export class SketchService {
       case SketchTool.Dimension:
         this._onDimensionClick(position, modifiers);
         break;
+      case SketchTool.Constraint:
+        this._onConstraintClick(position, modifiers);
+        break;
     }
   }
 
@@ -199,6 +206,7 @@ export class SketchService {
       originalPosition,
       modifiers
     );
+    this._assignConstraintIds();
     for (const dim of this.store.state.sketch.dimensions) dim.recompute();
     this.store.set('sketch.points', [...this.store.state.sketch.points]);
     this.store.set('sketch.dimensions', [...this.store.state.sketch.dimensions]);
@@ -222,6 +230,7 @@ export class SketchService {
     if (this._dimPendingA) {
       this._removeOrphanPoint(this._dimPendingA);
       this._dimPendingA = null;
+      this.clearSelection();
     }
     this._setPreviewLine(null);
     this._setSnapCandidate(null);
@@ -230,6 +239,7 @@ export class SketchService {
 
   exitToSelect() {
     this.cancelCurrentLine();
+    this.clearSelection();
     this.store.set('sketch.activeTool', SketchTool.Select);
   }
 
@@ -261,6 +271,7 @@ export class SketchService {
     this._nextPointId = 0;
     this._nextLineId = 0;
     this._nextDimId = 0;
+    this._nextConstraintId = 0;
     this._pendingStart = null;
     this._setPreviewLine(null);
     this._setSnapCandidate(null);
@@ -364,14 +375,41 @@ export class SketchService {
 
     if (!this._dimPendingA) {
       this._dimPendingA = pt;
+      this.selectPoint(pt);
       this._setSnapCandidate(null);
     } else {
       if (!Object.is(this._dimPendingA, pt)) {
         this._commitDimension(this._dimPendingA, pt);
       }
       this._dimPendingA = null;
+      this.clearSelection();
       this._setSnapCandidate(null);
     }
+  }
+
+  _onConstraintClick(position, modifiers = {}) {
+    if (this.constraintSubMode !== ConstraintSubMode.Perpendicular) return;
+
+    const point = this._findNearestPoint(position, modifiers.snapEnabled !== false);
+    if (!point) return;
+
+    const connectedLines = this._findLinesForPoint(point);
+    if (connectedLines.length !== 2) return;
+    if (this._findPerpendicularConstraint(connectedLines[0], connectedLines[1])) return;
+
+    const constraint = new SketchConstraint(
+      'Perpendicular',
+      point,
+      null,
+      connectedLines[0],
+      connectedLines[1],
+      this._nextConstraintId++
+    );
+    this.store.state.sketch.constraints.push(constraint);
+    this._assignConstraintIds();
+    this.selectConstraint(constraint);
+    this.store.set('sketch.constraints', [...this.store.state.sketch.constraints]);
+    this._rebuildObjects();
   }
 
   _commitDimension(a, b) {
@@ -391,7 +429,14 @@ export class SketchService {
         this._applyDimConstraint(dim, value);
         this.store.set('sketch.pendingDimEdit', null);
       },
-      onCancel: () => this.store.set('sketch.pendingDimEdit', null),
+      onCancel: () => {
+        const sketch = this.store.state.sketch;
+        sketch.dimensions = sketch.dimensions.filter((candidate) => candidate !== dim);
+        this.clearSelection();
+        this.store.set('sketch.dimensions', [...sketch.dimensions]);
+        this.store.set('sketch.pendingDimEdit', null);
+        this._rebuildObjects();
+      },
     });
   }
 
@@ -451,6 +496,7 @@ export class SketchService {
     }
     this._selectedPoints.clear();
     this._selectedLines.clear();
+    this._rebuildObjects();
     this.store.set('sketch.points', [...this.store.state.sketch.points]);
     this.store.set('sketch.lines', [...this.store.state.sketch.lines]);
     this.store.set('sketch.dimensions', [...this.store.state.sketch.dimensions]);
@@ -461,6 +507,7 @@ export class SketchService {
     if (!multiSelect) this.clearSelection();
     point.isSelected = true;
     this._selectedPoints.add(point);
+    this._rebuildObjects();
     this.store.set('sketch.points', [...this.store.state.sketch.points]);
   }
 
@@ -468,43 +515,75 @@ export class SketchService {
     if (!multiSelect) this.clearSelection();
     line.isSelected = true;
     this._selectedLines.add(line);
+    this._rebuildObjects();
     this.store.set('sketch.lines', [...this.store.state.sketch.lines]);
   }
 
   selectDimension(dim, multiSelect = false) {
     if (!multiSelect) this.clearSelection();
     dim.isSelected = true;
+    this._rebuildObjects();
     this.store.set('sketch.dimensions', [...this.store.state.sketch.dimensions]);
+  }
+
+  selectConstraint(constraint, multiSelect = false) {
+    if (!multiSelect) this.clearSelection();
+    constraint.isSelected = true;
+    this._rebuildObjects();
+    this.store.set('sketch.constraints', [...this.store.state.sketch.constraints]);
+  }
+
+  selectObjectByRef(refType, refId, multiSelect = false) {
+    if (refType === 'line') {
+      const line = this.store.state.sketch.lines.find((candidate) => candidate.id === refId);
+      if (line) this.selectLine(line, multiSelect);
+      return;
+    }
+    if (refType === 'dimension') {
+      const dim = this.store.state.sketch.dimensions.find((candidate) => candidate.id === refId);
+      if (dim) this.selectDimension(dim, multiSelect);
+      return;
+    }
+    if (refType === 'constraint') {
+      const constraint = this.store.state.sketch.constraints.find((candidate) => candidate.id === refId);
+      if (constraint) this.selectConstraint(constraint, multiSelect);
+    }
   }
 
   deleteSelected() {
     const sketch = this.store.state.sketch;
+    const removedPoints = new Set(this._selectedPoints);
+    const linesToRemove = new Set(this._selectedLines);
 
-    const dimsToRemove = sketch.dimensions.filter((d) => d.isSelected);
-    sketch.dimensions = sketch.dimensions.filter((d) => !d.isSelected);
-    const removedPoints = new Set();
-    for (const dim of dimsToRemove) {
-      removedPoints.add(dim.a);
-      removedPoints.add(dim.b);
-      this._removeOrphanPoint(dim.a);
-      this._removeOrphanPoint(dim.b);
+    for (const point of this._selectedPoints) {
+      for (const line of sketch.lines) {
+        if (line.start === point || line.end === point) {
+          linesToRemove.add(line);
+        }
+      }
     }
 
-    const linesToRemove = new Set(this._selectedLines);
-    sketch.lines = sketch.lines.filter((line) => !linesToRemove.has(line));
     for (const line of linesToRemove) {
       removedPoints.add(line.start);
       removedPoints.add(line.end);
-      this._removeOrphanPoint(line.start);
-      this._removeOrphanPoint(line.end);
     }
+
+    const dimsToRemove = new Set();
+    for (const dim of sketch.dimensions) {
+      if (dim.isSelected || removedPoints.has(dim.a) || removedPoints.has(dim.b)) {
+        dimsToRemove.add(dim);
+        removedPoints.add(dim.a);
+        removedPoints.add(dim.b);
+      }
+    }
+    sketch.dimensions = sketch.dimensions.filter((dim) => !dimsToRemove.has(dim));
 
     if (sketch.constraints.length > 0) {
       sketch.constraints = sketch.constraints.filter((constraint) => {
         if (constraint?.isSelected) return false;
         const usesRemovedPoint =
-          (constraint?.pointA && (removedPoints.has(constraint.pointA) || this._selectedPoints.has(constraint.pointA)))
-          || (constraint?.pointB && (removedPoints.has(constraint.pointB) || this._selectedPoints.has(constraint.pointB)));
+          (constraint?.pointA && removedPoints.has(constraint.pointA))
+          || (constraint?.pointB && removedPoints.has(constraint.pointB));
         const usesRemovedLine =
           (constraint?.lineA && linesToRemove.has(constraint.lineA))
           || (constraint?.lineB && linesToRemove.has(constraint.lineB));
@@ -512,8 +591,18 @@ export class SketchService {
       });
     }
 
+    sketch.lines = sketch.lines.filter((line) => !linesToRemove.has(line));
+
     for (const point of this._selectedPoints) {
       this._removeOrphanPoint(point);
+    }
+    for (const line of linesToRemove) {
+      this._removeOrphanPoint(line.start);
+      this._removeOrphanPoint(line.end);
+    }
+    for (const dim of dimsToRemove) {
+      this._removeOrphanPoint(dim.a);
+      this._removeOrphanPoint(dim.b);
     }
 
     this._selectedPoints.clear();
@@ -538,11 +627,15 @@ export class SketchService {
 
   _rebuildObjects() {
     const sketch = this.store.state.sketch;
+    this._assignConstraintIds();
     const objects = [];
     for (const line of sketch.lines) {
       objects.push({
         kind: SketchObjectKind.Line,
         label: `Line ${line.id + 1}  (${line.start.x.toFixed(0)},${line.start.y.toFixed(0)}) → (${line.end.x.toFixed(0)},${line.end.y.toFixed(0)})`,
+        refType: 'line',
+        refId: line.id,
+        isSelected: line.isSelected,
       });
     }
     const usage = new Map();
@@ -558,19 +651,35 @@ export class SketchService {
       objects.push({
         kind: SketchObjectKind.Coincident,
         label: `Coincident  ${names}  @ (${pt.x.toFixed(0)},${pt.y.toFixed(0)})`,
+        refType: null,
+        refId: null,
+        isSelected: false,
       });
     }
 
     for (const constraint of sketch.constraints || []) {
-      if (constraint?.type !== 'Coincident') continue;
-      const a = constraint.pointA;
-      const b = constraint.pointB;
-      const label = a && b
-        ? `Coincident P${a.id + 1} & P${b.id + 1}  @ (${a.x.toFixed(0)},${a.y.toFixed(0)})`
-        : 'Coincident';
+      let label = constraint?.description ?? 'Constraint';
+      let kind = SketchObjectKind.Constraint;
+      if (constraint?.type === 'Coincident') {
+        const a = constraint.pointA;
+        const b = constraint.pointB;
+        label = a && b
+          ? `Coincident P${a.id + 1} & P${b.id + 1}  @ (${a.x.toFixed(0)},${a.y.toFixed(0)})`
+          : 'Coincident';
+        kind = SketchObjectKind.Coincident;
+      } else if (constraint?.type === 'Perpendicular') {
+        const pivot = constraint.pointA ?? this._findSharedPoint(constraint.lineA, constraint.lineB);
+        label = pivot
+          ? `Perpendicular L${constraint.lineA.id + 1} & L${constraint.lineB.id + 1}  @ (${pivot.x.toFixed(0)},${pivot.y.toFixed(0)})`
+          : `Perpendicular L${constraint.lineA.id + 1} & L${constraint.lineB.id + 1}`;
+        kind = SketchObjectKind.Perpendicular;
+      }
       objects.push({
-        kind: SketchObjectKind.Coincident,
+        kind,
         label,
+        refType: 'constraint',
+        refId: constraint.id,
+        isSelected: !!constraint.isSelected,
       });
     }
 
@@ -579,9 +688,41 @@ export class SketchService {
       objects.push({
         kind: SketchObjectKind.Dimension,
         label: `Dim ${dim.id + 1}  [${kindLabel}]  ${dim.labelText}`,
+        refType: 'dimension',
+        refId: dim.id,
+        isSelected: dim.isSelected,
       });
     }
 
     this.store.set('sketch.objects', objects);
+  }
+
+  _findLinesForPoint(point) {
+    return this.store.state.sketch.lines.filter((line) => line.start === point || line.end === point);
+  }
+
+  _assignConstraintIds() {
+    for (const constraint of this.store.state.sketch.constraints || []) {
+      if (!Number.isFinite(constraint?.id)) {
+        constraint.id = this._nextConstraintId++;
+      }
+    }
+  }
+
+  _findPerpendicularConstraint(lineA, lineB) {
+    return this.store.state.sketch.constraints.find((constraint) => {
+      if (constraint?.type !== 'Perpendicular') return false;
+      return (
+        (constraint.lineA === lineA && constraint.lineB === lineB)
+        || (constraint.lineA === lineB && constraint.lineB === lineA)
+      );
+    }) ?? null;
+  }
+
+  _findSharedPoint(lineA, lineB) {
+    if (!lineA || !lineB) return null;
+    if (lineA.start === lineB.start || lineA.start === lineB.end) return lineA.start;
+    if (lineA.end === lineB.start || lineA.end === lineB.end) return lineA.end;
+    return null;
   }
 }

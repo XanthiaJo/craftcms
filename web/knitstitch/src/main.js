@@ -17,6 +17,11 @@ persistence.hydrate();
 const sketchService = new SketchService(store);
 persistence.attach();
 
+if (typeof window !== 'undefined') {
+  window.__knitstitchStore = store;
+  window.__knitstitchSketchService = sketchService;
+}
+
 // Build initial preview cells (only if not restored from storage)
 if (store.get('previewCells').length === 0) {
   rebuildPreviewCells(store);
@@ -174,7 +179,11 @@ function updateSketchSidebar() {
 
   if (sketchObjectList) {
     sketchObjectList.innerHTML = sketch.objects.map(o =>
-      `<li><span>${o.kind === 'Line' ? '&#9473;' : '&#9679;'}</span> ${o.label}</li>`
+      `<li class="${o.isSelected ? 'selected' : ''} ${o.refType ? 'is-selectable' : 'is-readonly'}"
+           data-ref-type="${o.refType ?? ''}"
+           data-ref-id="${o.refId ?? ''}">
+        <span>${o.kind === 'Line' ? '&#9473;' : o.kind === 'Perpendicular' ? '&#8869;' : '&#9679;'}</span> ${o.label}
+      </li>`
     ).join('');
   }
 }
@@ -201,6 +210,17 @@ if (sketchClearBtn) {
 
 if (sketchDeleteBtn) {
   sketchDeleteBtn.addEventListener('click', () => sketchService.deleteSelected());
+}
+
+if (sketchObjectList) {
+  sketchObjectList.addEventListener('click', (event) => {
+    const row = event.target.closest('li[data-ref-type]');
+    if (!row) return;
+    const refType = row.dataset.refType;
+    const rawRefId = row.dataset.refId;
+    if (!refType || rawRefId === '') return;
+    sketchService.selectObjectByRef(refType, Number(rawRefId), event.ctrlKey);
+  });
 }
 
 if (toolLineBtn) {

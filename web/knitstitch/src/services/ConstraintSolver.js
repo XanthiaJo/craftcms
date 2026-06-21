@@ -18,6 +18,7 @@ export class ConstraintSolver {
     }
 
     this._propagateCoincidentConstraints(sketch, movedPoint);
+    this._applyPerpendicularConstraints(sketch, movedPoint);
 
     if (!sketch.dimensions?.length) return;
 
@@ -80,6 +81,52 @@ export class ConstraintSolver {
     return constraint;
   }
 
+  _applyPerpendicularConstraints(sketch, movedPoint) {
+    for (const constraint of sketch.constraints || []) {
+      if (constraint?.type !== 'Perpendicular') continue;
+
+      const anchor = constraint.pointA ?? this._findSharedPoint(constraint.lineA, constraint.lineB);
+      if (!anchor) continue;
+
+      const movedLine = this._findLineUsingPoint(constraint, movedPoint);
+      if (!movedLine) continue;
+
+      if (movedPoint === anchor) continue;
+
+      const referenceLine = movedLine === constraint.lineA ? constraint.lineB : constraint.lineA;
+      if (!referenceLine) continue;
+
+      const referencePoint = this._otherLinePoint(referenceLine, anchor);
+      if (!referencePoint) continue;
+
+      const distance = Math.hypot(movedPoint.x - anchor.x, movedPoint.y - anchor.y);
+      if (distance < EPSILON) continue;
+
+      const refDx = referencePoint.x - anchor.x;
+      const refDy = referencePoint.y - anchor.y;
+      const refLength = Math.hypot(refDx, refDy);
+      if (refLength < EPSILON) continue;
+
+      const ux = refDx / refLength;
+      const uy = refDy / refLength;
+      const currentDx = movedPoint.x - anchor.x;
+      const currentDy = movedPoint.y - anchor.y;
+
+      const candidates = [
+        { x: -uy * distance, y: ux * distance },
+        { x: uy * distance, y: -ux * distance },
+      ];
+
+      const chosen = candidates[0].x * currentDx + candidates[0].y * currentDy
+        >= candidates[1].x * currentDx + candidates[1].y * currentDy
+        ? candidates[0]
+        : candidates[1];
+
+      movedPoint.x = anchor.x + chosen.x;
+      movedPoint.y = anchor.y + chosen.y;
+    }
+  }
+
   _findNearestPoint(points, position, snapRadius, excludePoint = null) {
     let best = null;
     let bestDist = snapRadius;
@@ -92,6 +139,30 @@ export class ConstraintSolver {
       }
     }
     return best;
+  }
+
+  _findLineUsingPoint(constraint, point) {
+    if (this._lineUsesPoint(constraint.lineA, point)) return constraint.lineA;
+    if (this._lineUsesPoint(constraint.lineB, point)) return constraint.lineB;
+    return null;
+  }
+
+  _lineUsesPoint(line, point) {
+    return !!line && (line.start === point || line.end === point);
+  }
+
+  _otherLinePoint(line, point) {
+    if (!line) return null;
+    if (line.start === point) return line.end;
+    if (line.end === point) return line.start;
+    return null;
+  }
+
+  _findSharedPoint(lineA, lineB) {
+    if (!lineA || !lineB) return null;
+    if (lineA.start === lineB.start || lineA.start === lineB.end) return lineA.start;
+    if (lineA.end === lineB.start || lineA.end === lineB.end) return lineA.end;
+    return null;
   }
 
   _maintainDrivenDimension(dim, movedPoint, otherPoint, originalPosition) {

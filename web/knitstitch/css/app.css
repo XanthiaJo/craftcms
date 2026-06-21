@@ -54,17 +54,26 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 
-.workspace-btn {
+.ribbon-modes {
   display: flex;
-  flex-direction: column;
   align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.workspace-btn {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  flex: 0 0 auto;
   padding: 6px 14px;
   border: 1px solid transparent;
   border-radius: 6px;
   background: transparent;
   cursor: pointer;
   font-family: inherit;
-  gap: 2px;
+  gap: 6px;
+  white-space: nowrap;
   position: relative;
 }
 
@@ -73,11 +82,13 @@
 .workspace-btn .icon {
   font-size: 18px;
   color: #444;
+  line-height: 1;
 }
 
 .workspace-btn .label {
   font-size: 10px;
   color: #444;
+  line-height: 1;
 }
 
 .workspace-btn.active {
@@ -299,9 +310,20 @@
   gap: 6px;
   padding: 3px 4px;
   font-size: 12px;
+  border-radius: 3px;
 }
 
 .object-list li:hover { background: #f0f0f0; }
+
+.object-list li.is-selectable {
+  cursor: pointer;
+}
+
+.object-list li.selected {
+  background: rgba(29, 112, 184, 0.14);
+  color: #124f80;
+  font-weight: 600;
+}
 
 /* Info text */
 .info-text {

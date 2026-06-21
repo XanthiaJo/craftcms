@@ -188,7 +188,7 @@ export class StorePersistence {
       const pointB = pointById.get(raw.pointB?.id) ?? null;
       const lineA = lineById.get(raw.lineA?.id) ?? null;
       const lineB = lineById.get(raw.lineB?.id) ?? null;
-      const constraint = new SketchConstraint(raw.type ?? 'Constraint', pointA, pointB, lineA, lineB);
+      const constraint = new SketchConstraint(raw.type ?? 'Constraint', pointA, pointB, lineA, lineB, raw.id ?? null);
       constraint.isSelected = !!raw.isSelected;
       return constraint;
     });

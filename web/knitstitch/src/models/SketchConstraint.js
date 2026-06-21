@@ -3,7 +3,8 @@
 // Port icon positioning. Remove PropertyChanged event subscriptions.
 
 export class SketchConstraint {
-  constructor(type, pointA = null, pointB = null, lineA = null, lineB = null) {
+  constructor(type, pointA = null, pointB = null, lineA = null, lineB = null, id = null) {
+    this.id = id;
     this.type = type;
     this.pointA = pointA;
     this.pointB = pointB;
@@ -15,6 +16,9 @@ export class SketchConstraint {
   get description() {
     if (this.type === 'Coincident' && this.pointA && this.pointB) {
       return `Coincident P${this.pointA.id + 1} & P${this.pointB.id + 1}`;
+    }
+    if (this.type === 'Perpendicular' && this.lineA && this.lineB) {
+      return `Perpendicular L${this.lineA.id + 1} & L${this.lineB.id + 1}`;
     }
     if (this.type === 'Coincident') return 'Coincident';
     return this.type ?? 'Constraint';
