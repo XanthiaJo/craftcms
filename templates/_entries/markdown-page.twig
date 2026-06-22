@@ -21,7 +21,7 @@
 
 <main class="page-main">
     <div class="container page-layout">
-        <div class="content-column">
+        <div class="panel">
         {% if markdownSource %}
             <div class="body">
                 {{ markdownSource|markdown('gfm')|purify }}
@@ -32,7 +32,7 @@
         {% endif %}
         </div>
 
-        <aside class="side-panel">
+        <aside class="panel panel--sticky">
             <h2>Source</h2>
             <div class="panel-content">This entry renders markdown directly from GitHub.</div>
             <div class="panel-sections">

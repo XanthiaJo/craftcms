@@ -49,6 +49,11 @@ The shared layout already includes:
 
 Before adding a new wrapper or spacing rule, check whether an existing layout class can be reused.
 
+Surface rules:
+
+- `.card` is the shared white surface for repeated card grids
+- `.panel` is the shared colored surface for the page subheader, general content pages, and sidebars
+
 ## Markdown And Rich Text
 
 Markdown and long-form content should use the shared `.body` styles in `site.css`.
@@ -77,6 +82,8 @@ Use the existing pattern:
 - `.card-chips`
 - `.card-type-chip`
 - `.card-design-source-chip`
+
+If a page needs a white content box, add `card` to the wrapper and keep any page-specific layout class separate.
 
 If a new chip color is needed, add a named variant in `site.css` rather than using inline background colors.
 

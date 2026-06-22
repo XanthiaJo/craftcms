@@ -18,7 +18,7 @@
 
 <main class="page-main">
     <div class="container page-layout">
-        <div class="content-column">
+        <div class="panel">
             {% set featuredImage = entry.featuredImage ? entry.featuredImage.one() : null %}
             {% if featuredImage %}
                 <img class="featured-image" src="{{ featuredImage.url }}" alt="{{ featuredImage.title ?: entry.title }}">

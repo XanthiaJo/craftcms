@@ -199,10 +199,12 @@
                             {% endif %}
                         </div>
                         {% set excerpt = entry.body ? entry.body|striptags|trim : '' %}
-                        {% if excerpt %}
-                            <div>{{ excerpt|slice(0, 145) ~ (excerpt|length > 145 ? '...' : '') }}</div>
-                        {% endif %}
-                        <div class="caption">{{ entry.postDate|date('F Y') }}</div>
+                        <div class="card-excerpt">
+                            {% if excerpt %}
+                                {{ excerpt|slice(0, 145) ~ (excerpt|length > 145 ? '...' : '') }}
+                            {% endif %}
+                        </div>
+                        <div class="card-date caption">{{ entry.postDate|date('F Y') }}</div>
                     </div>
                     </li>
                 {% else %}
