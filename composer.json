@@ -3,7 +3,7 @@
   "prefer-stable": true,
   "require": {
     "adigital/cookie-consent-banner": "^3.1.1",
-    "craftcms/cms": "^5.10.5",
+    "craftcms/cms": "^5.10.7",
     "vlucas/phpdotenv": "^5.4.0"
   },
   "require-dev": {
