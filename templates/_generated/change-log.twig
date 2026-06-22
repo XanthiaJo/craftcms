@@ -1,0 +1,721 @@
+<div class="panel-sections">
+  <section class="panel-section">
+    <h2>Build Snapshot</h2>
+    <div class="panel-actions">
+      <span class="chip color-pair-ink">Version v1.17.0</span>
+      <span class="chip color-pair-sage">Production v1.17.0</span>
+      <span class="chip color-pair-stone">64 commits</span>
+    </div>
+    <p class="body">Generated from conventional commits and git tags during the site build.</p>
+  </section>
+  <section class="panel-section">
+    <h2>Change Types</h2>
+    <nav class="panel-actions" aria-label="Change log sections">
+      <a class="chip color-pair-gold" href="#feature-changes">Features</a>
+      <a class="chip color-pair-sage" href="#fix-changes">Fixes</a>
+      <a class="chip color-pair-sky" href="#docs-changes">Documentation</a>
+      <a class="chip color-pair-stone" href="#refactor-changes">Refactors</a>
+      <a class="chip color-pair-plum" href="#test-changes">Tests</a>
+      <a class="chip color-pair-olive" href="#chore-changes">Maintenance</a>
+      <a class="chip color-pair-ink" href="#other-changes">Other changes</a>
+    </nav>
+  </section>
+  <section class="panel-section" id="feature-changes">
+    <h3>Features</h3>
+    <ul class="list">
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-gold">Features</span>
+            <span class="caption">
+28deae - 2026-06-22</span>
+          </div>
+          <h4>Add reusable colour pairs to archive cards</h4>
+          <p class="panel-content">add the reusable colourPair term field to all category groups switch archive cards and filters to colour-pair utility classes update the style guide, tests, and card layout spacing to match the new system</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-gold">Features</span>
+            <span class="caption">
+988178 - 2026-06-22</span>
+          </div>
+          <h4>Add the page directory selector field</h4>
+          <p class="panel-content">Add the Craft dropdown field used by the markdown page entry type so the page can be routed through the admin panel without hardcoding the directory choice in templates.</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-gold">Features</span>
+            <span class="caption">
+2fa695 - 2026-06-22</span>
+          </div>
+          <h4>Add admin-managed header submenus</h4>
+          <p class="panel-content">Convert the site navigation field to a nested Matrix setup so each top-level header item can carry submenu links from the control panel and render them in the shared header partial.</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-gold">Features</span>
+            <span class="caption">
+b79034 - 2026-06-22</span>
+          </div>
+          <h4>Add a reusable markdown page entry type</h4>
+          <p class="panel-content">Add a single-editable Craft page with a title plus markdown source URL, a shared template that renders remote GitHub markdown, and the small module/twig helper needed to fetch and normalize the content.</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-gold">Features</span>
+            <span class="caption">
+34ea18 - 2026-06-21</span>
+          </div>
+          <h4>Add GitHub webhook auto-deploy listener</h4>
+          <p class="panel-content">Add web/webhook.php with HMAC-SHA256 signature verification VPS pulls from GitHub on push to master (VPS-initiated, not push) Runs git pull + composer install (which triggers build-info via post-install-cmd) Add GITHUB_WEBHOOK_SECRET to .env.example.production and .env.example.staging</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-gold">Features</span>
+            <span class="caption">
+5f6f3d - 2026-06-21</span>
+          </div>
+          <h4>Display build version in site footer</h4>
+          <p class="panel-content">Add version display element to footer bottom-right Load web/js/buildInfo.js and populate version + commit hash Add .footer-version CSS (muted grey, right-aligned)</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-gold">Features</span>
+            <span class="caption">
+619427 - 2026-06-21</span>
+          </div>
+          <h4>Add cross-platform build info version generator</h4>
+          <p class="panel-content">Add GenerateBuildInfo.php (PHP, cross-platform) as canonical generator Add GenerateBuildInfo.ps1 (PowerShell, Windows) as alternative Both derive version from git tags and conventional commit messages feat: bumps minor, fix: bumps patch, BREAKING CHANGE bumps major Other commits (ui:, test:, etc.) bump revision (4th number) Add composer build-info script and post-install-cmd hook Generate web/js/buildInfo.js with window.BUILD_INFO object</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-gold">Features</span>
+            <span class="caption">
+7cfb51 - 2026-06-21</span>
+          </div>
+          <h4>Enforce perpendicular line constraints</h4>
+          <p class="panel-content">Apply perpendicular constraints from two selected lines, move geometry into a valid state on creation, and reject impossible combinations. Include canvas interaction updates, regression tests, and rebuilt browser assets.</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-gold">Features</span>
+            <span class="caption">
+e9a1fd - 2026-06-21</span>
+          </div>
+          <h4>Improve sketch selection and constraints</h4>
+          <p class="panel-content">Make dimension labels and object-list rows selectable for deletion, add point and line selection fixes, and implement perpendicular constraints with canvas markers and solver support.</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-gold">Features</span>
+            <span class="caption">
+c6f59a - 2026-06-14</span>
+          </div>
+          <h4>Wire knitstitch bootstrap</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-gold">Features</span>
+            <span class="caption">
+3d1c7e - 2026-06-14</span>
+          </div>
+          <h4>Rebuild knitstitch editor</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-gold">Features</span>
+            <span class="caption">
+ab351f - 2026-06-14</span>
+          </div>
+          <h4>Add project links to shared header</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-gold">Features</span>
+            <span class="caption">
+9b13b9 - 2026-06-13</span>
+          </div>
+          <h4>Integrate knitstitch into craftcms</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-gold">Features</span>
+            <span class="caption">
+fc0a03 - 2026-06-13</span>
+          </div>
+          <h4>Add knitstitch web app scaffold</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-gold">Features</span>
+            <span class="caption">
+1dcd3e - 2026-06-07</span>
+          </div>
+          <h4>Track uploads folder</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-gold">Features</span>
+            <span class="caption">
+81ad34 - 2026-06-07</span>
+          </div>
+          <h4>Add site header, category, and tag templates</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-gold">Features</span>
+            <span class="caption">
+3f0c49 - 2026-06-07</span>
+          </div>
+          <h4>Add project configuration for home cards, projects archive, and taxonomies</h4>
+        </div>
+      </li>
+    </ul>
+  </section>
+  <section class="panel-section" id="fix-changes">
+    <h3>Fixes</h3>
+    <ul class="list">
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-sage">Fixes</span>
+            <span class="caption">
+daa1f7 - 2026-06-21</span>
+          </div>
+          <h4>Use shared site-footer partial on all pages</h4>
+          <p class="panel-content">Replace inline footer markup with  include &#039;_partials/site-footer.twig&#039;  in index.twig, category.twig, and tag.twig Ensures version display and buildInfo.js load consistently across all pages</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-sage">Fixes</span>
+            <span class="caption">
+d150f4 - 2026-06-21</span>
+          </div>
+          <h4>Resolve git binary path for VPS where git is not in PHP&#039;s PATH</h4>
+          <p class="panel-content">Add findGit() to locate git binary in common paths Add PATH export in webhook.php for exec() calls Fixes &#039;sh: 1: git: not found&#039; on VPS during post-install-cmd</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-sage">Fixes</span>
+            <span class="caption">
+749d98 - 2026-06-14</span>
+          </div>
+          <h4>Align homepage header overrides</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-sage">Fixes</span>
+            <span class="caption">
+6c760d - 2026-06-07</span>
+          </div>
+          <h4>Add asset folder fix script to deployment workflow</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-sage">Fixes</span>
+            <span class="caption">
+04fe73 - 2026-06-07</span>
+          </div>
+          <h4>Temporarily enable admin changes during deployment</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-sage">Fixes</span>
+            <span class="caption">
+d129c5 - 2026-06-07</span>
+          </div>
+          <h4>Disable read-only mode and add content creation scripts to deployment</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-sage">Fixes</span>
+            <span class="caption">
+a62e24 - 2026-06-07</span>
+          </div>
+          <h4>Add content creation scripts to deployment workflow</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-sage">Fixes</span>
+            <span class="caption">
+62c14e - 2026-06-07</span>
+          </div>
+          <h4>Add project config sync to deployment workflow</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-sage">Fixes</span>
+            <span class="caption">
+dbf912 - 2026-06-07</span>
+          </div>
+          <h4>Update post entry type and featured image field configuration</h4>
+        </div>
+      </li>
+    </ul>
+  </section>
+  <section class="panel-section" id="docs-changes">
+    <h3>Documentation</h3>
+    <ul class="list">
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-sky">Documentation</span>
+            <span class="caption">
+e9c139 - 2026-06-22</span>
+          </div>
+          <h4>Document local ddev php workflow</h4>
+          <p class="panel-content">record the DDEV PHP convention for Craft CLI work in AGENTS.md add a roadmap note that colour pair previews belong in a future module or plugin update recovery commands to use ddev exec php</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-sky">Documentation</span>
+            <span class="caption">
+ab3998 - 2026-06-22</span>
+          </div>
+          <h4>Document site structure and styling rules</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-sky">Documentation</span>
+            <span class="caption">
+5a1bbe - 2026-06-21</span>
+          </div>
+          <h4>Update AGENT.md with build info and deploy documentation</h4>
+          <p class="panel-content">Document GenerateBuildInfo.php and .ps1 scripts Document webhook auto-deploy flow and VPS setup Document manual deploy fallback</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-sky">Documentation</span>
+            <span class="caption">
+b99b14 - 2026-06-21</span>
+          </div>
+          <h4>Separate app and recovery agent guidance</h4>
+          <p class="panel-content">Refocus the root agent file on steady-state Craft CMS structure and behavior, add an app-specific KnitStitch agent file, and move recovery/import history into a dedicated content recovery document.</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-sky">Documentation</span>
+            <span class="caption">
+9315ab - 2026-06-14</span>
+          </div>
+          <h4>Remove playwright artifacts and add root readme</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-sky">Documentation</span>
+            <span class="caption">
+9d6047 - 2026-06-14</span>
+          </div>
+          <h4>Update agent and knitstitch docs</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-sky">Documentation</span>
+            <span class="caption">
+2c7713 - 2026-06-07</span>
+          </div>
+          <h4>Add AGENT.md and category groups configuration</h4>
+        </div>
+      </li>
+    </ul>
+  </section>
+  <section class="panel-section" id="refactor-changes">
+    <h3>Refactors</h3>
+    <ul class="list">
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-stone">Refactors</span>
+            <span class="caption">
+02871f - 2026-06-22</span>
+          </div>
+          <h4>Align shared templates and archive styling</h4>
+          <p class="panel-content">update the home, archive, header, sidebar, and entry templates together tighten archive card and sidebar presentation in the shared stylesheet refresh CSS guidance notes to match the current visual system</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-stone">Refactors</span>
+            <span class="caption">
+66a602 - 2026-06-22</span>
+          </div>
+          <h4>Split bootstrap, UI wiring, and sketch helpers</h4>
+          <p class="panel-content">Extract the KnitStitch sidebar and store wiring into dedicated UI helpers, move sketch state mutations into shared helper functions, add the new constraint regression coverage, and rebuild the bundled browser asset from the refactor.</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-stone">Refactors</span>
+            <span class="caption">
+436e55 - 2026-06-22</span>
+          </div>
+          <h4>Unify the shared layout and typography</h4>
+          <p class="panel-content">Move the non-home templates onto the same header, footer, page subheader, content width, and CSS system so posts, archives, markdown pages, and the homepage all inherit one consistent shell.</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-stone">Refactors</span>
+            <span class="caption">
+8a6ae6 - 2026-06-21</span>
+          </div>
+          <h4>Reorganize knitstitch sketch models and services</h4>
+          <p class="panel-content">Remove old SketchModel classes (SketchColorOption, SketchConstraint, SketchDimension, SketchLine, SketchPoint) Remove old SketchService.js (replaced by services/sketch/SketchService.js) Update ConstraintSolver, StorePersistence, and main.js Update affected tests</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-stone">Refactors</span>
+            <span class="caption">
+f843ea - 2026-06-21</span>
+          </div>
+          <h4>Organize sketch models and services</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-stone">Refactors</span>
+            <span class="caption">
+d98294 - 2026-06-07</span>
+          </div>
+          <h4>Remove hardcoded content from home and header scripts</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-stone">Refactors</span>
+            <span class="caption">
+a2e19a - 2026-06-07</span>
+          </div>
+          <h4>Update post, sidebar, index, and posts templates</h4>
+        </div>
+      </li>
+    </ul>
+  </section>
+  <section class="panel-section" id="test-changes">
+    <h3>Tests</h3>
+    <ul class="list">
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-plum">Tests</span>
+            <span class="caption">
+1aa543 - 2026-06-22</span>
+          </div>
+          <h4>Add field-layout and archive contract coverage</h4>
+          <p class="panel-content">pin Craft admin field layouts for posts, archive, home, and header globals assert template dependencies for archive cards, single posts, and navigation add Playwright coverage for the rendered posts archive card layout</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-plum">Tests</span>
+            <span class="caption">
+ff3a00 - 2026-06-21</span>
+          </div>
+          <h4>Add browser sketch regressions</h4>
+          <p class="panel-content">Add Playwright configuration, fixture wiring, and end-to-end coverage for sketch selection, dimension editing, deletion flows, and perpendicular constraints.</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-plum">Tests</span>
+            <span class="caption">
+bbde72 - 2026-06-14</span>
+          </div>
+          <h4>Add Playwright e2e coverage</h4>
+        </div>
+      </li>
+    </ul>
+  </section>
+  <section class="panel-section" id="chore-changes">
+    <h3>Maintenance</h3>
+    <ul class="list">
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-olive">Maintenance</span>
+            <span class="caption">
+7d994c - 2026-06-22</span>
+          </div>
+          <h4>Ignore local tooling files</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-olive">Maintenance</span>
+            <span class="caption">
+0896f6 - 2026-06-22</span>
+          </div>
+          <h4>Load .env.dev in local development</h4>
+          <p class="panel-content">Make bootstrap select the DDEV-specific environment file when IS_DDEV_PROJECT is true, so local admin changes use the dev database and allow project-config writes without affecting production.</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-olive">Maintenance</span>
+            <span class="caption">
+121ae0 - 2026-06-22</span>
+          </div>
+          <h4>Bump Craft CMS to 5.10.7</h4>
+          <p class="panel-content">Upgrade the CMS and supporting packages to the current patch release so the project config, markdown page support, and local runtime changes are based on the same dependency set.</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-olive">Maintenance</span>
+            <span class="caption">
+ddfed9 - 2026-06-21</span>
+          </div>
+          <h4>Un-ignore scripts directory and reorganize recovery scripts</h4>
+          <p class="panel-content">Remove /scripts from .gitignore so scripts are tracked in the repo Move legacy recovery/import scripts to scripts/recovery_scripts/ Add .aiassistant and web/knitstitch/test-results to .gitignore Add scripts/.env to .gitignore (contains DB credentials)</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-olive">Maintenance</span>
+            <span class="caption">
+7c9be9 - 2026-06-14</span>
+          </div>
+          <h4>Remove stale deployment artifacts</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-olive">Maintenance</span>
+            <span class="caption">
+0acfa5 - 2026-06-14</span>
+          </div>
+          <h4>Refresh knitstitch bundle</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-olive">Maintenance</span>
+            <span class="caption">
+c4da20 - 2026-06-13</span>
+          </div>
+          <h4>Ignore local node_modules folders</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-olive">Maintenance</span>
+            <span class="caption">
+e84fe4 - 2026-06-07</span>
+          </div>
+          <h4>Update project configuration</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-olive">Maintenance</span>
+            <span class="caption">
+04d361 - 2026-06-07</span>
+          </div>
+          <h4>Remove debug scripts</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-olive">Maintenance</span>
+            <span class="caption">
+df2f5e - 2026-06-07</span>
+          </div>
+          <h4>Add uploads directory gitignore</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-olive">Maintenance</span>
+            <span class="caption">
+6fd050 - 2026-06-07</span>
+          </div>
+          <h4>Add content migration and restoration scripts</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-olive">Maintenance</span>
+            <span class="caption">
+cbfe9c - 2026-06-07</span>
+          </div>
+          <h4>Update composer dependencies</h4>
+        </div>
+      </li>
+    </ul>
+  </section>
+  <section class="panel-section" id="other-changes">
+    <h3>Other changes</h3>
+    <ul class="list">
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-ink">Other changes</span>
+            <span class="caption">
+569122 - 2026-06-07</span>
+          </div>
+          <h4>Remove scripts/.env from git tracking</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-ink">Other changes</span>
+            <span class="caption">
+2f54c2 - 2026-06-07</span>
+          </div>
+          <h4>Remove content creation scripts from deployment workflow</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-ink">Other changes</span>
+            <span class="caption">
+a00308 - 2026-06-01</span>
+          </div>
+          <h4>Improve database push script for CloudPanel</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-ink">Other changes</span>
+            <span class="caption">
+7b42a4 - 2026-05-31</span>
+          </div>
+          <h4>Refine content pages with sidebar layout</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-ink">Other changes</span>
+            <span class="caption">
+b7fe8c - 2026-05-31</span>
+          </div>
+          <h4>Clean imported post bodies and add DB push script</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-ink">Other changes</span>
+            <span class="caption">
+0d54a8 - 2026-05-31</span>
+          </div>
+          <h4>Remove SSH passphrase from deployment workflow</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-ink">Other changes</span>
+            <span class="caption">
+d86d9e - 2026-05-31</span>
+          </div>
+          <h4>Add passphrase support for SSH in deployment workflow</h4>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-ink">Other changes</span>
+            <span class="caption">
+a1164e - 2026-05-31</span>
+          </div>
+          <h4>Set up deployment workflow and homepage redesign</h4>
+          <p class="panel-content">Added GitHub Actions workflow for production deployment via SSH. Redesigned the homepage with a new layout, styles, and visual improvements. Updated `.env.example.production` to unset default database user.</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-ink">Other changes</span>
+            <span class="caption">e66b92c - 2026-05-31</span>
+          </div>
+          <h4>Initial commit</h4>
+        </div>
+      </li>
+    </ul>
+  </section>
+</div>

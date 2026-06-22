@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    {% set siteHeader = craft.app.globals.getSetByHandle('siteHeader') %}
+    {% set siteName = siteHeader and siteHeader.siteName ? siteHeader.siteName : '' %}
+    <title>{{ entry.title }} - {{ siteName }}</title>
+    <meta name="description" content="A human readable change log generated from commits and version tags.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Open+Sans:wght@400;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+{% include '_partials/site-header.twig' %}
+{% include '_partials/page-subheader.twig' with {
+    pageName: entry.title
+} %}
+{% set generatedChangeLog = include('_generated/change-log.twig', ignore_missing = true) %}
+
+<main class="page-main">
+    <div class="container page-layout">
+        <div class="panel">
+            {% if generatedChangeLog|trim %}
+                {{ generatedChangeLog|raw }}
+            {% else %}
+                <h1>Change log unavailable</h1>
+                <p class="body">Run the build-info generator to create the changelog fragment before publishing this page.</p>
+            {% endif %}
+        </div>
+
+        <aside class="panel panel--sticky">
+            <h2>About this log</h2>
+            <div class="panel-content">This page is generated from conventional commits and git tags during the build step.</div>
+            <div class="panel-sections">
+                <section class="panel-section">
+                    <h3>What appears here</h3>
+                    <div class="body panel-content">
+                        The latest build snapshot, production version, commit count, and recent commits grouped into simple readable sections.
+                    </div>
+                </section>
+            </div>
+        </aside>
+    </div>
+</main>
+
+{% include '_partials/site-footer.twig' %}
+
+</body>
+</html>
