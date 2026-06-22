@@ -1,70 +1,29 @@
 columnSuffix: null
 handle: siteNavigation
-instructions: 'Top navigation links shown site-wide.'
+instructions: 'Top navigation links shown site-wide, with optional submenu links.'
 name: 'Site Navigation'
 searchable: false
 settings:
-  addRowLabel: 'Add a link'
-  columns:
-    __assoc__:
-      -
-        - col1
-        -
-          __assoc__:
-            -
-              - heading
-              - Label
-            -
-              - handle
-              - label
-            -
-              - width
-              - ''
-            -
-              - type
-              - singleline
-      -
-        - col2
-        -
-          __assoc__:
-            -
-              - heading
-              - URL
-            -
-              - handle
-              - url
-            -
-              - width
-              - ''
-            -
-              - type
-              - url
-  defaults:
+  createButtonLabel: 'Add navigation item'
+  defaultIndexViewMode: cards
+  enableVersioning: false
+  entryTypes:
     -
       __assoc__:
         -
-          - col1
-          - Home
+          - uid
+          - 11e3f2ab-984e-4f93-9f70-d9bcfdf52828 # Navigation Item
         -
-          - col2
-          - /
-        -
-          - rowId
-          - 7a39f7c8-5d75-49b3-92eb-f6f8f3e2ff01
-    -
-      __assoc__:
-        -
-          - col1
-          - 'Completed Projects'
-        -
-          - col2
-          - /posts
-        -
-          - rowId
-          - 8cc6b4cf-5142-4f57-9c95-fb0c8d0d9e6a
-  maxRows: null
-  minRows: null
-  staticRows: false
+          - group
+          - Navigation
+  includeTableView: false
+  maxEntries: null
+  minEntries: null
+  pageSize: null
+  propagationKeyFormat: null
+  propagationMethod: all
+  showCardsInGrid: false
+  viewMode: blocks
 translationKeyFormat: null
-translationMethod: none
-type: craft\fields\Table
+translationMethod: site
+type: craft\fields\Matrix
