@@ -167,8 +167,14 @@ function Pause-OnExit {
 
     Write-Host ''
     Write-Host $Message
-    Write-Host 'Press Enter to close...'
-    [void](Read-Host)
+    if ($Host.Name -eq 'ConsoleHost' -and -not [Console]::IsInputRedirected) {
+        Write-Host 'Press Enter to close...'
+        [void](Read-Host)
+    }
+    else {
+        Write-Host 'Non-interactive shell detected. Pausing for 30 seconds so you can read the error.'
+        Start-Sleep -Seconds 30
+    }
 }
 
 function Normalize-RemotePath {
@@ -256,9 +262,15 @@ catch {
     $script:FailureMessage = "ERROR: $($_.Exception.Message)"
     Write-Host ''
     Write-Host $script:FailureMessage -ForegroundColor Red
+    if ($_.Exception.InnerException) {
+        Write-Host "INNER: $($_.Exception.InnerException.Message)" -ForegroundColor Red
+    }
     if ($_.ScriptStackTrace) {
         Write-Host $_.ScriptStackTrace -ForegroundColor DarkGray
     }
+    Write-Host ''
+    Write-Host 'Full error details:' -ForegroundColor Red
+    Write-Host ($_ | Out-String)
 }
 finally {
     Pop-Location
