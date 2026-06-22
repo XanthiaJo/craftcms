@@ -10,6 +10,9 @@ Prefer modeling content and behavior in Craft CMS itself when that is a viable o
 - treat Twig as the presentation layer first, not the primary source of content modeling
 - only hard-code logic in Twig when the behavior is clearly presentation-specific or there is no sensible Craft-native model for it
 - when choosing between a Craft config change and a Twig-only workaround, prefer the Craft change unless it would create disproportionate complexity or risk
+- do not introduce new bespoke styles for one-off content blocks when the current default site styles already cover the need
+- prefer the existing semantic element styles and shared CSS classes over new selectors, inline styles, or special-case page styling
+- if a page just needs normal headings, captions, lists, or body copy, render the plain HTML and let the current stylesheet handle it
 
 ## App-Specific Agent Files
 
