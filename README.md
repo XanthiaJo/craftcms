@@ -8,7 +8,16 @@ Craft CMS site for the Structured Chaos portfolio and KnitStitch Grid app.
 - `web/` contains the shared site CSS/JS assets and the KnitStitch subproject
 - `config/` holds Craft project config
 - `scripts/` contains recovery and content-management helpers
-- `AGENT.md` tracks repo-specific working notes and recovery guidance
+- `docs/` contains site structure, CSS, and recovery notes
+- `AGENTS.md` tracks repo-specific working notes and recovery guidance
+
+## Documentation
+
+Start here when working on the site shell or content model:
+
+- [Site Structure](docs/site-structure.md)
+- [CSS Guidelines](docs/css-guidelines.md)
+- [Content Recovery Notes](docs/content-recovery.md)
 
 ## KnitStitch Grid
 
