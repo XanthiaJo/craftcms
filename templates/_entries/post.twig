@@ -9,249 +9,22 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Open+Sans:wght@400;600;700&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #f7f4ef;
-            --surface: #ffffff;
-            --text: #333333;
-            --heading: #111111;
-            --accent: #ca9b52;
-            --border: #e8e2d8;
-            --content-max: 860px;
-        }
-        * { box-sizing: border-box; }
-        body {
-            margin: 0;
-            color: var(--text);
-            background: var(--bg);
-            font-family: "Open Sans", sans-serif;
-            line-height: 1.7;
-        }
-        a { color: var(--accent); text-decoration: none; }
-        .container {
-            width: min(var(--content-max), 100% - 32px);
-            margin: 0 auto;
-        }
-        .page-layout {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) 280px;
-            gap: 28px;
-            align-items: start;
-        }
-        .content-column {
-            min-width: 0;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 28px;
-        }
-        .post-feature-image {
-            display: block;
-            width: 100%;
-            margin: 0 0 22px;
-            aspect-ratio: 4 / 3;
-            object-fit: cover;
-            border-radius: 4px;
-            border: 1px solid var(--border);
-            background: #f2eee8;
-        }
-        .side-panel {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 22px;
-            position: sticky;
-            top: 24px;
-        }
-        .side-panel-title {
-            margin: 0 0 12px;
-            color: var(--heading);
-            font-family: "Playfair Display", serif;
-            font-size: 28px;
-            font-weight: 400;
-            line-height: 1.2;
-        }
-        .side-panel-intro {
-            font-size: 14px;
-            line-height: 1.7;
-        }
-
-        .side-panel-sections {
-            margin-top: 18px;
-            display: grid;
-            gap: 14px;
-        }
-
-        .side-panel-section {
-            padding-top: 12px;
-            border-top: 1px solid var(--border);
-        }
-
-        .side-panel-section-title {
-            margin: 0 0 8px;
-            color: var(--heading);
-            font-family: "Playfair Display", serif;
-            font-size: 18px;
-            font-weight: 400;
-        }
-
-        .side-panel-text {
-            font-size: 14px;
-            line-height: 1.7;
-        }
-        .taxonomy-list {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            display: grid;
-            gap: 8px;
-        }
-        .taxonomy-list a {
-            color: var(--heading);
-        }
-        .taxonomy-list .count {
-            color: #8a8a8a;
-        }
-        .site-header {
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            padding: 18px 0;
-        }
-        .header-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-            min-height: 52px;
-        }
-        .brand {
-            margin: 0;
-            color: var(--heading);
-            font-family: "Dancing Script", cursive;
-            font-size: 42px;
-            line-height: 1;
-        }
-        .main-nav {
-            display: flex;
-            gap: 22px;
-            align-items: center;
-        }
-        .main-nav a {
-            color: #222;
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-        .main-nav a.active {
-            color: var(--accent);
-        }
-        main {
-            margin: 32px auto 60px;
-        }
-        h1 {
-            margin: 0 0 10px;
-            color: var(--heading);
-            font-family: "Playfair Display", serif;
-            font-size: clamp(30px, 4vw, 42px);
-            font-weight: 400;
-            line-height: 1.25;
-        }
-        .meta {
-            margin: 0 0 22px;
-            color: #8a8a8a;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .post-categories,
-        .post-tags {
-            margin: 0 0 14px;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #8a8a8a;
-        }
-        .post-categories a,
-        .post-tags a {
-            color: var(--accent);
-        }
-        .content {
-            font-size: 16px;
-        }
-        .content :first-child { margin-top: 0; }
-        .post-gallery {
-            margin-top: 24px;
-            display: grid;
-            gap: 14px;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-        .post-gallery-image {
-            display: block;
-            width: 100%;
-            aspect-ratio: 4 / 3;
-            object-fit: cover;
-            border-radius: 4px;
-            border: 1px solid var(--border);
-            background: #f2eee8;
-        }
-        .link-buttons {
-            margin-top: 18px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .link-button {
-            display: inline-block;
-            padding: 10px 14px;
-            border-radius: 4px;
-            border: 1px solid var(--border);
-            background: #333;
-            color: #fff;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .link-button:hover {
-            background: var(--accent);
-            opacity: 1;
-        }
-        .back-link {
-            margin-top: 28px;
-            display: inline-block;
-            font-weight: 700;
-            letter-spacing: 0.4px;
-        }
-        @media (max-width: 900px) {
-            .page-layout {
-                grid-template-columns: 1fr;
-            }
-            .side-panel {
-                position: static;
-            }
-            .content-column {
-                padding: 22px;
-            }
-            .post-gallery {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="/css/site.css">
 </head>
 <body>
 {% include '_partials/site-header.twig' %}
+{% include '_partials/page-subheader.twig' with { pageName: entry.title } %}
 {% set postsIndexUrl = '/posts' %}
 
-<div class="container">
-    <main class="page-layout">
+<main class="page-main">
+    <div class="container page-layout">
         <div class="content-column">
             {% set featuredImage = entry.featuredImage ? entry.featuredImage.one() : null %}
             {% if featuredImage %}
-                <img class="post-feature-image" src="{{ featuredImage.url }}" alt="{{ featuredImage.title ?: entry.title }}">
+                <img class="featured-image" src="{{ featuredImage.url }}" alt="{{ featuredImage.title ?: entry.title }}">
             {% endif %}
             <h1>{{ entry.title }}</h1>
-            <p class="meta">{{ entry.postDate|date('F j, Y') }}</p>
+            <p class="caption meta">{{ entry.postDate|date('F j, Y') }}</p>
             {% set rawEntryProjectTypes = attribute(entry, 'projectTypes') is defined and entry.projectTypes ? entry.projectTypes.all() : [] %}
             {% set entryProjectTypes = [] %}
             {% for projectType in rawEntryProjectTypes %}
@@ -267,7 +40,7 @@
                 {% endif %}
             {% endfor %}
             {% if entryCategories|length %}
-                <div class="post-categories">
+                <div class="subtitle">
                     {% for category in entryCategories %}
                         <a href="{{ postsIndexUrl }}?category[]={{ category.slug|url_encode }}">{{ category.title }}</a>{% if not loop.last %}, {% endif %}
                     {% endfor %}
@@ -275,13 +48,13 @@
             {% endif %}
             {% set entryTags = attribute(entry, 'postTags') is defined and entry.postTags ? entry.postTags.all() : [] %}
             {% if entryTags|length %}
-                <div class="post-tags">
+                <div class="subtitle">
                     {% for tag in entryTags %}
                         <a href="{{ postsIndexUrl }}?tag[]={{ tag.slug|url_encode }}">{{ tag.title }}</a>{% if not loop.last %}, {% endif %}
                     {% endfor %}
                 </div>
             {% endif %}
-            <div class="content">
+            <div class="body">
                 {% if entry.body %}
                     {{ entry.body|nl2br }}
                 {% endif %}
@@ -295,68 +68,68 @@
                 {% set allGalleryImages = allGalleryImages|merge(galleryImages) %}
             {% endif %}
             {% if allGalleryImages|length %}
-                <div class="post-gallery" aria-label="Post image gallery">
+                <div class="gallery" aria-label="Post image gallery">
                     {% for galleryImage in allGalleryImages %}
                         <a href="{{ galleryImage.url }}" target="_blank" rel="noopener">
-                            <img class="post-gallery-image" src="{{ galleryImage.url }}" alt="{{ galleryImage.title ?: entry.title }}">
+                            <img class="gallery-image" src="{{ galleryImage.url }}" alt="{{ galleryImage.title ?: entry.title }}">
                         </a>
                     {% endfor %}
                 </div>
             {% endif %}
             {% if attribute(entry, 'resourceLinks') is defined and entry.resourceLinks|length %}
-                <div class="link-buttons">
+                <div class="links">
                     {% for row in entry.resourceLinks %}
                         {% set url = row.url ?? row.col2 ?? null %}
                         {% set label = row.label ?? row.col1 ?? '' %}
                         {% if url %}
-                            <a class="link-button" href="{{ url }}" target="_blank" rel="noopener">{{ label }}</a>
+                            <a class="button button-primary" href="{{ url }}" target="_blank" rel="noopener">{{ label }}</a>
                         {% endif %}
                     {% endfor %}
                 </div>
             {% endif %}
-            <a class="back-link" href="/posts">Back to Completed Projects</a>
+            <a class="button back" href="/posts">Back to Completed Projects</a>
         </div>
 
         {% set categoriesSidebarHtml %}
             {% if entryCategories|length %}
-                <ul class="taxonomy-list">
+                <ul class="list">
                     {% for category in entryCategories %}
                         <li class="cat-item"><a href="{{ postsIndexUrl }}?category[]={{ category.slug|url_encode }}">{{ category.title }}</a></li>
                     {% endfor %}
                 </ul>
             {% else %}
-                <ul class="taxonomy-list"><li class="cat-item-none">No categories</li></ul>
+                <ul class="list"><li class="cat-item-none">No categories</li></ul>
             {% endif %}
         {% endset %}
         {% set projectTypesSidebarHtml %}
             {% if entryProjectTypes|length %}
-                <ul class="taxonomy-list">
+                <ul class="list">
                     {% for projectType in entryProjectTypes %}
                         <li class="cat-item"><a href="{{ postsIndexUrl }}?projectType[]={{ projectType.slug|url_encode }}">{{ projectType.title }}</a></li>
                     {% endfor %}
                 </ul>
             {% else %}
-                <ul class="taxonomy-list"><li class="cat-item-none">No project types</li></ul>
+                <ul class="list"><li class="cat-item-none">No project types</li></ul>
             {% endif %}
         {% endset %}
         {% set designSourceSidebarHtml %}
             {% if entryDesignSource %}
-                <ul class="taxonomy-list">
+                <ul class="list">
                     <li class="cat-item"><a href="{{ postsIndexUrl }}?designSource[]={{ entryDesignSource.slug|url_encode }}">{{ entryDesignSource.title }}</a></li>
                 </ul>
             {% else %}
-                <ul class="taxonomy-list"><li class="cat-item-none">No design source</li></ul>
+                <ul class="list"><li class="cat-item-none">No design source</li></ul>
             {% endif %}
         {% endset %}
         {% set tagsSidebarHtml %}
             {% if entryTags|length %}
-                <ul class="taxonomy-list">
+                <ul class="list">
                     {% for tag in entryTags %}
                         <li class="cat-item"><a href="{{ postsIndexUrl }}?tag[]={{ tag.slug|url_encode }}">{{ tag.title }}</a></li>
                     {% endfor %}
                 </ul>
             {% else %}
-                <ul class="taxonomy-list"><li class="cat-item-none">No tags</li></ul>
+                <ul class="list"><li class="cat-item-none">No tags</li></ul>
             {% endif %}
         {% endset %}
 
@@ -371,7 +144,7 @@
                 { title: 'Year', text: entry.postDate|date('Y') }
             ]
         } only %}
-    </main>
-</div>
+    </div>
+</main>
 </body>
 </html>

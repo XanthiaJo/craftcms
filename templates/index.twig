@@ -10,323 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Open+Sans:wght@400;600;700&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #f7f4ef;
-            --surface: #ffffff;
-            --text: #333333;
-            --heading: #111111;
-            --accent: #ca9b52;
-            --border: #e8e2d8;
-            --hero-overlay: rgba(38, 27, 14, 0.36);
-            --content-max: 1140px;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            color: var(--text);
-            background: var(--bg);
-            font-family: "Open Sans", sans-serif;
-            line-height: 1.6;
-        }
-
-        a {
-            color: var(--accent);
-            text-decoration: none;
-        }
-
-        a:hover {
-            opacity: 0.85;
-        }
-
-        .container {
-            width: min(var(--content-max), 100% - 48px);
-            margin: 0 auto;
-        }
-
-        .site-header {
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        .header-row {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-            align-items: center;
-            min-height: 72px;
-            gap: 24px;
-        }
-
-        .brand {
-            color: var(--heading);
-            font-family: "Dancing Script", cursive;
-            font-size: clamp(30px, 4vw, 48px);
-            line-height: 1;
-            margin: 0;
-            white-space: nowrap;
-            justify-self: start;
-        }
-
-        .main-nav {
-            display: flex;
-            align-items: center;
-            justify-self: center;
-            justify-content: center;
-            gap: 26px;
-            min-width: 0;
-        }
-
-        .main-nav a {
-            color: #222;
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .main-nav a.active {
-            color: var(--accent);
-        }
-
-        .header-project-links {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            justify-self: end;
-        }
-
-        .project-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 10px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            background: #faf8f5;
-            color: var(--text);
-            font-size: 12px;
-            font-weight: 700;
-            white-space: nowrap;
-        }
-
-        .project-link:hover {
-            background: #efe7dc;
-            opacity: 1;
-        }
-
-        .project-link svg {
-            width: 16px;
-            height: 16px;
-            display: block;
-            fill: currentColor;
-        }
-
-        .project-link--github {
-            color: #24292f;
-        }
-
-        .project-link--gitlab {
-            color: #fc6d26;
-        }
-
-        .hero {
-            min-height: 400px;
-            display: grid;
-            place-items: center;
-            text-align: center;
-            color: #fff;
-            background: linear-gradient(var(--hero-overlay), var(--hero-overlay));
-        }
-
-        .hero h2 {
-            margin: 0;
-            font-family: "Playfair Display", serif;
-            font-size: clamp(34px, 6vw, 56px);
-            font-weight: 400;
-        }
-
-        .hero p {
-            margin: 12px 0 0;
-            font-size: 18px;
-            letter-spacing: 0.4px;
-        }
-
-        main {
-            padding: 56px 0 72px;
-        }
-
-        .intro {
-            text-align: center;
-            max-width: 860px;
-            margin: 0 auto 46px;
-        }
-
-        .intro h3 {
-            margin: 0 0 10px;
-            color: var(--heading);
-            font-family: "Playfair Display", serif;
-            font-size: clamp(32px, 5vw, 44px);
-            font-weight: 400;
-        }
-
-        .intro p {
-            margin: 0;
-        }
-
-        .project-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 24px;
-            margin-bottom: 44px;
-        }
-
-        .project-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        .project-card-link {
-            display: block;
-            color: inherit;
-        }
-
-        .project-card-link:hover {
-            opacity: 1;
-        }
-
-        .project-image {
-            aspect-ratio: 4 / 3;
-            width: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        .project-content {
-            padding: 18px;
-        }
-
-        .project-content h4 {
-            margin: 0 0 8px;
-            color: var(--heading);
-            font-family: "Playfair Display", serif;
-            font-size: 24px;
-            font-weight: 400;
-            line-height: 1.3;
-        }
-
-        .project-content p {
-            margin: 0;
-            font-size: 14px;
-        }
-
-        .center-cta {
-            text-align: center;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 14px 26px;
-            background: #333;
-            color: #fff;
-            border-radius: 4px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            font-size: 12px;
-        }
-
-        .btn:hover {
-            background: var(--accent);
-            opacity: 1;
-        }
-
-        .site-footer {
-            border-top: 1px solid var(--border);
-            background: #f2eee8;
-            padding: 22px 0;
-        }
-
-        .footer-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 14px;
-            font-size: 13px;
-        }
-
-        .footer-socials {
-            display: flex;
-            gap: 14px;
-            align-items: center;
-        }
-
-        .footer-socials a {
-            color: #333;
-            font-weight: 600;
-        }
-
-        @media (max-width: 980px) {
-            .project-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-        }
-
-        @media (max-width: 740px) {
-            .container {
-                width: min(var(--content-max), 100% - 28px);
-            }
-
-            .header-row {
-                display: flex;
-                flex-wrap: wrap;
-                min-height: 64px;
-            }
-
-            .brand {
-                font-size: 34px;
-                width: 100%;
-            }
-
-            .main-nav {
-                width: 100%;
-                justify-content: flex-start;
-                gap: 14px;
-            }
-
-            .main-nav a {
-                font-size: 12px;
-                letter-spacing: 0.6px;
-            }
-
-            .header-project-links {
-                width: 100%;
-                justify-content: flex-start;
-            }
-
-            .hero {
-                min-height: 300px;
-            }
-
-            .project-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .footer-row {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="/css/site.css">
 </head>
 <body>
 {% set home = craft.app.globals.getSetByHandle('home') %}
@@ -338,23 +22,21 @@
 {% set heroImage = heroEntry and heroEntry.featuredImage ? heroEntry.featuredImage.one() : null %}
 {% include '_partials/site-header.twig' %}
 
-<section class="hero"{% if heroImage %} style="background:
-    linear-gradient(var(--hero-overlay), var(--hero-overlay)),
-    url('{{ heroImage.url }}') center/cover no-repeat;"{% endif %}>
-    <div class="container">
-        <h2>Hello There!</h2>
-        <p>I'm Karima</p>
+<section class="home-hero"{% if heroImage %} style="--home-hero-image: url('{{ heroImage.url }}');"{% endif %}>
+    <div class="container home-hero-inner">
+        <h1 class="home-hero-title">Hello There!</h1>
+        <p class="home-hero-subtitle subtitle">I'm Karima</p>
     </div>
 </section>
 
-<main>
+<main class="home-main">
     <div class="container">
-        <section class="intro">
-            <h3>{{ homeHeading }}</h3>
+        <section class="home-intro">
+            <h2 class="home-intro-title">{{ homeHeading }}</h2>
             <p>{{ homeIntro }}</p>
         </section>
 
-        <section class="project-grid" aria-label="Project highlights">
+        <section class="home-project-grid" aria-label="Project highlights">
             {% if homeCards|length %}
                 {% for card in homeCards %}
                     {% set cardImageField = card.getFieldValue('homeCardImage') %}
@@ -362,16 +44,16 @@
                     {% set cardText = card.getFieldValue('homeCardText') %}
                     {% set cardLink = card.getFieldValue('homeCardLink') %}
                     {% if cardLink %}
-                        <a class="project-card-link" href="{{ cardLink }}">
+                        <a class="home-project-card-link" href="{{ cardLink }}">
                     {% endif %}
-                    <article class="project-card">
+                    <article class="home-project-card">
                         {% if cardImage %}
-                            <img class="project-image" src="{{ cardImage.url }}" alt="{{ cardImage.title ?: card.title }}">
+                            <img class="thumb" src="{{ cardImage.url }}" alt="{{ cardImage.title ?: card.title }}">
                         {% endif %}
-                        <div class="project-content">
-                            <h4>{{ card.title }}</h4>
+                        <div class="home-project-content">
+                            <h3>{{ card.title }}</h3>
                             {% if cardText %}
-                                <p>{{ cardText }}</p>
+                                <p class="body">{{ cardText }}</p>
                             {% endif %}
                         </div>
                     </article>
@@ -382,8 +64,8 @@
             {% endif %}
         </section>
 
-        <div class="center-cta">
-            <a class="btn" href="/posts">See all projects!</a>
+        <div class="home-center-cta">
+            <a class="button button-primary" href="/posts">See all projects!</a>
         </div>
     </div>
 </main>
