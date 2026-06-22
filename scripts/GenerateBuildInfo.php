@@ -117,6 +117,107 @@ function getCommitType(string $subject): string {
     return 'none';
 }
 
+function getChangelogGroup(string $subject): string {
+    if (preg_match('/BREAKING CHANGE|!:/', $subject)) {
+        return 'breaking';
+    }
+    if (preg_match('/^feat(\([^)]+\))?:/', $subject)) {
+        return 'feature';
+    }
+    if (preg_match('/^fix(\([^)]+\))?:/', $subject)) {
+        return 'fix';
+    }
+    if (preg_match('/^docs(\([^)]+\))?:/', $subject)) {
+        return 'docs';
+    }
+    if (preg_match('/^refactor(\([^)]+\))?:/', $subject)) {
+        return 'refactor';
+    }
+    if (preg_match('/^test(\([^)]+\))?:/', $subject)) {
+        return 'test';
+    }
+    if (preg_match('/^chore(\([^)]+\))?:/', $subject)) {
+        return 'chore';
+    }
+    return 'other';
+}
+
+function humanizeCommitSubject(string $subject): string {
+    $summary = preg_replace('/^(?:[a-z]+(?:\([^)]+\))?:\s*|BREAKING CHANGE:?\s*)/i', '', $subject);
+    $summary = trim((string)$summary);
+    if ($summary === '') {
+        return $subject;
+    }
+    return strtoupper($summary[0]) . substr($summary, 1);
+}
+
+function cleanCommitDescription(string $subject, string $body): ?string {
+    $body = trim($body);
+    if ($body === '') {
+        return null;
+    }
+
+    $lines = preg_split('/\R+/', $body) ?: [];
+    $paragraphs = [];
+    $current = [];
+
+    foreach ($lines as $line) {
+        $trimmed = trim($line);
+        if ($trimmed === '') {
+            if ($current) {
+                $paragraphs[] = implode(' ', $current);
+                $current = [];
+            }
+            continue;
+        }
+        if (preg_match('/^(Signed-off-by:|Co-authored-by:|Reviewed-by:|Acked-by:)/i', $trimmed)) {
+            continue;
+        }
+        $trimmed = preg_replace('/^-\s*/', '', $trimmed);
+        $trimmed = preg_replace('/^\*\s*/', '', $trimmed);
+        $current[] = $trimmed;
+    }
+
+    if ($current) {
+        $paragraphs[] = implode(' ', $current);
+    }
+
+    foreach ($paragraphs as $paragraph) {
+        $paragraph = trim(preg_replace('/\s+/', ' ', $paragraph) ?? '');
+        if ($paragraph !== '') {
+            if (preg_match('/^(?:[a-z]+(?:\([^)]+\))?:\s*|BREAKING CHANGE:?\s*)/i', $paragraph, $match)) {
+                $summary = trim(substr($paragraph, strlen($match[0])));
+                if ($summary !== '') {
+                    $paragraph = $summary;
+                }
+            }
+            $summaryPrefix = preg_replace('/^(?:[a-z]+(?:\([^)]+\))?:\s*|BREAKING CHANGE:?\s*)/i', '', $subject);
+            $summaryPrefix = trim((string)$summaryPrefix);
+            if ($summaryPrefix !== '' && strncasecmp($paragraph, $summaryPrefix, strlen($summaryPrefix)) === 0) {
+                $paragraph = trim(substr($paragraph, strlen($summaryPrefix)));
+            }
+            if ($paragraph === '') {
+                continue;
+            }
+            return $paragraph;
+        }
+    }
+
+    return null;
+}
+
+function escapeHtml(string $value): string {
+    return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+function escapeTwigText(string $value): string {
+    return str_replace(
+        ['{{', '}}', '{%', '%}', '{#', '#}'],
+        ['', '', '', '', '', ''],
+        $value
+    );
+}
+
 // Commit count
 $commitCountOutput = git($root, 'rev-list', '--count', 'HEAD');
 $commitCount = (int)trim($commitCountOutput[0] ?? '0');
@@ -135,16 +236,30 @@ foreach ($tagOutput as $line) {
 }
 
 // Commit log (oldest first)
-$logOutput = git($root, 'log', '--pretty=format:%H|%s', '--reverse', '--', '.');
+$logOutput = git($root, 'log', '--pretty=format:%H%x1f%ad%x1f%s%x1f%B%x1e', '--date=short', '--reverse', '--', '.');
 $resolvedVersion = [1, 0, 0, 0];
 $revision = 0;
+$changeGroups = [
+    'breaking' => [],
+    'feature' => [],
+    'fix' => [],
+    'docs' => [],
+    'refactor' => [],
+    'test' => [],
+    'chore' => [],
+    'other' => [],
+];
 
-foreach ($logOutput as $line) {
-    if (trim($line) === '') continue;
-    $parts = explode('|', $line, 2);
-    if (count($parts) !== 2) continue;
+foreach (preg_split('/\x1e/', implode("\n", $logOutput)) ?: [] as $record) {
+    if (trim($record) === '') {
+        continue;
+    }
+    $parts = explode("\x1f", $record, 4);
+    if (count($parts) !== 4) {
+        continue;
+    }
 
-    [$sha, $subject] = $parts;
+    [$sha, $date, $subject, $body] = $parts;
 
     if (isset($taggedVersions[$sha])) {
         $resolvedVersion = $taggedVersions[$sha];
@@ -173,6 +288,14 @@ foreach ($logOutput as $line) {
             $revision++;
             break;
     }
+
+    $group = getChangelogGroup($subject);
+    $changeGroups[$group][] = [
+        'sha' => substr($sha, 0, 7),
+        'date' => $date,
+        'subject' => humanizeCommitSubject($subject),
+        'description' => cleanCommitDescription($subject, $body),
+    ];
 }
 
 $displayVersion = formatVersion($resolvedVersion, $revision);
@@ -202,6 +325,85 @@ window.BUILD_INFO = {
   commitCount: "$commitCount"
 };
 JS;
+} elseif ($format === 'twig') {
+    $groupLabels = [
+        'breaking' => 'Breaking changes',
+        'feature' => 'Features',
+        'fix' => 'Fixes',
+        'docs' => 'Documentation',
+        'refactor' => 'Refactors',
+        'test' => 'Tests',
+        'chore' => 'Maintenance',
+        'other' => 'Other changes',
+    ];
+    $groupChips = [
+        'breaking' => 'rose',
+        'feature' => 'gold',
+        'fix' => 'sage',
+        'docs' => 'sky',
+        'refactor' => 'stone',
+        'test' => 'plum',
+        'chore' => 'olive',
+        'other' => 'ink',
+    ];
+
+    $content = '';
+    $content .= "<div class=\"panel-sections\">\n";
+    $content .= "  <section class=\"panel-section\">\n";
+    $content .= "    <h2>Build Snapshot</h2>\n";
+    $content .= "    <div class=\"panel-actions\">\n";
+    $content .= '      <span class="chip color-pair-ink">Version ' . escapeHtml($displayVersion) . "</span>\n";
+    $content .= '      <span class="chip color-pair-sage">Production ' . escapeHtml($productionVersion) . "</span>\n";
+    $content .= '      <span class="chip color-pair-stone">' . escapeHtml((string)$commitCount) . " commits</span>\n";
+    $content .= "    </div>\n";
+    $content .= "    <p class=\"body\">Generated from conventional commits and git tags during the site build.</p>\n";
+    $content .= "  </section>\n";
+
+    $content .= "  <section class=\"panel-section\">\n";
+    $content .= "    <h2>Change Types</h2>\n";
+    $content .= "    <nav class=\"panel-actions\" aria-label=\"Change log sections\">\n";
+    foreach ($groupLabels as $groupKey => $groupLabel) {
+        $items = $changeGroups[$groupKey] ?? [];
+        if (!$items) {
+            continue;
+        }
+        $sectionId = $groupKey . '-changes';
+        $chipColor = $groupChips[$groupKey] ?? 'ink';
+        $content .= '      <a class="chip color-pair-' . escapeHtml($chipColor) . '" href="#' . escapeHtml($sectionId) . '">' . escapeHtml($groupLabel) . "</a>\n";
+    }
+    $content .= "    </nav>\n";
+    $content .= "  </section>\n";
+
+    foreach ($groupLabels as $groupKey => $groupLabel) {
+        $items = $changeGroups[$groupKey] ?? [];
+        if (!$items) {
+            continue;
+        }
+        $sectionId = $groupKey . '-changes';
+
+        $content .= '  <section class="panel-section" id="' . escapeHtml($sectionId) . "\">\n";
+        $content .= '    <h3>' . escapeHtml($groupLabel) . "</h3>\n";
+        $content .= "    <ul class=\"list\">\n";
+        foreach (array_reverse($items) as $item) {
+            $chipColor = $groupChips[$groupKey] ?? 'ink';
+            $content .= "      <li>\n";
+            $content .= "        <div class=\"panel-content\">\n";
+            $content .= "          <div class=\"panel-actions\">\n";
+            $content .= '          <span class="chip color-pair-' . escapeHtml($chipColor) . '">' . escapeHtml($groupLabel) . "</span>\n";
+            $content .= '            <span class="caption">' . escapeHtml($item['sha']) . ' - ' . escapeHtml($item['date']) . "</span>\n";
+            $content .= "          </div>\n";
+            $content .= '          <h4>' . escapeHtml(escapeTwigText($item['subject'])) . "</h4>\n";
+            if (!empty($item['description'])) {
+                $content .= '          <p class="panel-content">' . escapeHtml(escapeTwigText($item['description'])) . "</p>\n";
+            }
+            $content .= "        </div>\n";
+            $content .= "      </li>\n";
+        }
+        $content .= "    </ul>\n";
+        $content .= "  </section>\n";
+    }
+
+    $content .= "</div>\n";
 } else {
     $namespace = 'Mudblazer.Build';
     $content = <<<CS
