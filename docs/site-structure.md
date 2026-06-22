@@ -76,6 +76,15 @@ If you create a new page template, it should follow that pattern unless there is
   - shared page subheader
   - the same content shell as a post detail page
 
+### Change Log Page
+
+- Template: `templates/_entries/change-log-page.twig`
+- Purpose: reusable page for rendering a build-time changelog from git history
+- Uses:
+  - shared header and footer
+  - shared page subheader
+  - generated changelog fragment from `scripts/GenerateBuildInfo.php`
+
 ### KnitStitch
 
 - Template: `templates/knitstitch.twig`
@@ -107,6 +116,9 @@ If you create a new page template, it should follow that pattern unless there is
 - `markdownPage`
   - entry type: `markdownPage`
   - reusable remote Markdown pages
+- `changeLogPage`
+  - entry type: `changeLogPage`
+  - generated changelog page driven by git history
 
 ### Taxonomy Groups
 
@@ -132,4 +144,3 @@ When adding a page:
 4. Make it use the shared header, subheader, and footer.
 5. Add styling to `web/css/site.css` instead of inlining it in the template.
 6. Document the new page in this file.
-
