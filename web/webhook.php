@@ -91,6 +91,7 @@ foreach ($extraPaths as $p) {
 putenv('PATH=' . $envPath);
 
 $commands = [
+    'git checkout -- web/js/buildInfo.js 2>&1',
     'git pull origin master 2>&1',
     'composer install --no-dev --optimize-autoloader 2>&1',
 ];
