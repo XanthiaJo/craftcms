@@ -13,8 +13,17 @@ define('CRAFT_VENDOR_PATH', CRAFT_BASE_PATH . '/vendor');
 // Load Composer's autoloader
 require_once CRAFT_VENDOR_PATH . '/autoload.php';
 
+// Load custom web helpers
+require_once CRAFT_BASE_PATH . '/modules/remote-markdown/RemoteMarkdownModule.php';
+require_once CRAFT_BASE_PATH . '/modules/remote-markdown/RemoteMarkdownTwigExtension.php';
+
 // Load dotenv?
 if (class_exists(Dotenv\Dotenv::class)) {
-    // Use `createMutable` to allow .env file overrides for existing environment variables.
-    Dotenv\Dotenv::createImmutable(CRAFT_BASE_PATH)->safeLoad();
+    $envFile = '.env';
+
+    if (getenv('IS_DDEV_PROJECT') === 'true' && file_exists(CRAFT_BASE_PATH . '/.env.dev')) {
+        $envFile = '.env.dev';
+    }
+
+    Dotenv\Dotenv::createMutable(CRAFT_BASE_PATH, [$envFile])->safeLoad();
 }
