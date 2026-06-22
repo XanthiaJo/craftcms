@@ -18,7 +18,7 @@ export class ConstraintSolver {
     }
 
     this._propagateCoincidentConstraints(sketch, movedPoint);
-    this._applyPerpendicularConstraints(sketch, movedPoint);
+    this._applyPerpendicularConstraints(sketch, movedPoint, originalPosition);
 
     if (!sketch.dimensions?.length) return;
 
@@ -81,17 +81,42 @@ export class ConstraintSolver {
     return constraint;
   }
 
-  _applyPerpendicularConstraints(sketch, movedPoint) {
+  _applyPerpendicularConstraints(sketch, movedPoint, originalPosition = null) {
+    const movedEndpointTargets = new Set();
+
     for (const constraint of sketch.constraints || []) {
       if (constraint?.type !== 'Perpendicular') continue;
 
       const anchor = constraint.pointA ?? this._findSharedPoint(constraint.lineA, constraint.lineB);
       if (!anchor) continue;
 
+      if (movedPoint === anchor) {
+        for (const line of [constraint.lineA, constraint.lineB]) {
+          const otherPoint = this._otherLinePoint(line, anchor);
+          if (otherPoint) movedEndpointTargets.add(otherPoint);
+        }
+      }
+    }
+
+    if (movedEndpointTargets.size > 0 && originalPosition) {
+      const dx = movedPoint.x - originalPosition.x;
+      const dy = movedPoint.y - originalPosition.y;
+      if (Math.abs(dx) >= EPSILON || Math.abs(dy) >= EPSILON) {
+        for (const point of movedEndpointTargets) {
+          point.x += dx;
+          point.y += dy;
+        }
+      }
+    }
+
+    for (const constraint of sketch.constraints || []) {
+      if (constraint?.type !== 'Perpendicular') continue;
+
+      const anchor = constraint.pointA ?? this._findSharedPoint(constraint.lineA, constraint.lineB);
+      if (!anchor || movedPoint === anchor) continue;
+
       const movedLine = this._findLineUsingPoint(constraint, movedPoint);
       if (!movedLine) continue;
-
-      if (movedPoint === anchor) continue;
 
       const referenceLine = movedLine === constraint.lineA ? constraint.lineB : constraint.lineA;
       if (!referenceLine) continue;

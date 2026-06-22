@@ -4,15 +4,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>KnitStitch Grid</title>
+  {% set siteHeader = craft.app.globals.getSetByHandle('siteHeader') %}
+  {% set siteName = siteHeader and siteHeader.siteName ? siteHeader.siteName : '' %}
+  <title>KnitStitch Grid - {{ siteName }}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Open+Sans:wght@400;600;700&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/site.css">
   <link rel="stylesheet" href="/dist/main.css">
 </head>
 <body>
-  {% set siteHeader = craft.app.globals.getSetByHandle('siteHeader') %}
   {% include '_partials/site-header.twig' %}
   {% include '_partials/page-subheader.twig' with { pageName: 'KnitStitch Grid' } %}
 
@@ -90,7 +91,7 @@
             <div class="group-body">
               <p id="finished-width">Width: -- in</p>
               <p id="finished-height">Height: -- in</p>
-              <button class="btn btn-primary" id="btn-recalculate" style="margin-top:8px;">Recalculate</button>
+              <button class="button button-primary" id="btn-recalculate" style="margin-top:8px;">Recalculate</button>
             </div>
           </div>
         </div>
@@ -128,9 +129,9 @@
                 <label for="previewMatch">Preview matches line colour</label>
               </div>
               <div style="display:flex;gap:8px;margin-top:8px;">
-                <button class="btn btn-sm" id="sketch-undo">Undo</button>
-                <button class="btn btn-sm" id="sketch-clear">Clear</button>
-                <button class="btn btn-sm" id="sketch-delete">Delete</button>
+                <button class="button button-sm" id="sketch-undo">Undo</button>
+                <button class="button button-sm" id="sketch-clear">Clear</button>
+                <button class="button button-sm" id="sketch-delete">Delete</button>
               </div>
               <p class="info-text">Click to place points, chain lines. Snap ring = existing point. Right-click or Esc to cancel.</p>
             </div>
@@ -185,8 +186,8 @@
             <div class="group-body">
               <div class="form-row">
                 <input type="text" id="overlay-path" placeholder="No image selected" readonly style="flex:1;">
-                <button class="btn btn-sm" id="overlay-browse">Browse</button>
-                <button class="btn btn-sm" id="overlay-clear">Clear</button>
+                <button class="button button-sm" id="overlay-browse">Browse</button>
+                <button class="button button-sm" id="overlay-clear">Clear</button>
                 <input type="file" id="overlay-file" accept="image/*" style="display:none;">
               </div>
               <div class="checkbox-row">

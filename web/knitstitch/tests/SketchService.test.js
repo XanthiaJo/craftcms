@@ -738,6 +738,35 @@ describe('SketchService', () => {
       expect(dot).toBeCloseTo(0, 5);
     });
 
+    it('keeps constrained lines perpendicular when the shared corner is dragged', () => {
+      const { service, store } = makeService();
+      service.onCanvasClick({ x: 0, y: 0 });
+      service.onCanvasClick({ x: 60, y: 0 });
+      service.onCanvasClick({ x: 90, y: 30 });
+
+      service.activeTool = SketchTool.Constraint;
+      service.constraintSubMode = ConstraintSubMode.Perpendicular;
+      service.onConstraintLineClick(store.state.sketch.lines[0]);
+      service.onConstraintLineClick(store.state.sketch.lines[1]);
+
+      const anchor = store.state.sketch.points[1];
+      const otherA = store.state.sketch.points[0];
+      const otherB = store.state.sketch.points[2];
+
+      service.activeTool = SketchTool.Select;
+      service.onCanvasMouseDown({ x: anchor.x, y: anchor.y });
+      service.onCanvasMouseMove({ x: 120, y: 90 });
+      service.onCanvasMouseUp();
+
+      const vecA = { x: otherA.x - anchor.x, y: otherA.y - anchor.y };
+      const vecB = { x: otherB.x - anchor.x, y: otherB.y - anchor.y };
+      const dot = vecA.x * vecB.x + vecA.y * vecB.y;
+
+      expect(dot).toBeCloseTo(0, 5);
+      expect(anchor.x).toBe(120);
+      expect(anchor.y).toBe(90);
+    });
+
     it('rejects an impossible third perpendicular constraint on a triangle', () => {
       const { service, store } = makeService();
       service.onCanvasClick({ x: 0, y: 0 });
