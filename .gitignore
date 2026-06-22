@@ -6,6 +6,7 @@
 /.vite
 /.db-sync
 /package-lock.json
+/package.json
 /vendor
 /web/node_modules
 /web/knitstitch/node_modules
@@ -15,5 +16,7 @@
 config/license.key
 .DS_Store
 .aiassistant
+.ai/
 web/knitstitch/test-results
 .github/workflows/deploy.yml
+node_modules/
