@@ -19,6 +19,10 @@ Start here when working on the site shell or content model:
 - [CSS Guidelines](docs/css-guidelines.md)
 - [Content Recovery Notes](docs/content-recovery.md)
 
+## Roadmap
+
+- Revisit reusable colour pair previews later as a small Craft module or plugin, rather than project-config YAML, so editors can get a visual reference without breaking config sync.
+
 ## KnitStitch Grid
 
 The KnitStitch Grid editor lives at `/knitstitch`.

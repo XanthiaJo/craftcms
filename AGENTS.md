@@ -33,6 +33,15 @@ Primary ownership in this repository:
 - [web/webhook.php](</E:/Coding Projects/craftcms/web/webhook.php>) - GitHub webhook listener for VPS auto-deploy. GitHub sends a push event, the VPS verifies the signature and runs `git pull` + `composer install`. Requires `GITHUB_WEBHOOK_SECRET` in `.env`. See deploy section below.
 - [README.md](</E:/Coding Projects/craftcms/README.md>) - project bootstrap notes
 
+## Local CLI Runtime
+
+This repo is run through DDEV in the local dev environment.
+
+- use `ddev exec php ...` for Craft CLI commands when running them from the host shell
+- do not assume a host `php.exe` is installed or on `PATH`
+- prefer `ddev craft ...` when the command is supported directly by DDEV
+- for one-off maintenance commands, use `ddev exec php craft ...` so the command runs inside the project container
+
 ## Target Craft Setup
 
 The site should be driven by Craft content and project config, with templates consuming that content cleanly.

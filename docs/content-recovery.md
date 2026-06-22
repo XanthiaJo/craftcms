@@ -173,10 +173,10 @@ If content drifts again, use this order:
 3. Verify asset URLs resolve under `/uploads/posts/<id>/...`
 4. Verify `featuredImage` relations point at canonical post entry IDs, not only revision IDs
 5. Reapply project config if the YAML is correct: `ddev craft project-config/apply`
-6. Restore titles if needed: `ddev php scripts/restore_post_titles.php`
-7. Restore featured-image relations if needed: `ddev php scripts/restore_post_featured_images.php`
-8. Restore taxonomy relations if categories are missing on canonical posts: `ddev php scripts/restore_post_taxonomy_relations.php`
+6. Restore titles if needed: `ddev exec php scripts/restore_post_titles.php`
+7. Restore featured-image relations if needed: `ddev exec php scripts/restore_post_featured_images.php`
+8. Restore taxonomy relations if categories are missing on canonical posts: `ddev exec php scripts/restore_post_taxonomy_relations.php`
 9. Rebuild relations using Craft's API to fix `sourceSiteId`: `ddev exec php craft resave/entries --section posts --type post`
-10. Restore the full post entry layout from project config if taxonomy/image/body fields are invalid at runtime: `ddev php scripts/restore_post_entry_layout.php`
-11. Restore body and resource links from revision rows if needed: `ddev php scripts/restore_post_content_from_revisions.php`
-12. Import extra WordPress gallery images if needed: `ddev php scripts/import_wp_post_galleries.php`
+10. Restore the full post entry layout from project config if taxonomy/image/body fields are invalid at runtime: `ddev exec php scripts/restore_post_entry_layout.php`
+11. Restore body and resource links from revision rows if needed: `ddev exec php scripts/restore_post_content_from_revisions.php`
+12. Import extra WordPress gallery images if needed: `ddev exec php scripts/import_wp_post_galleries.php`
