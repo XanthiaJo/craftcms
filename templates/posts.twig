@@ -156,29 +156,10 @@
                                         {% set entryProjectTypeChip = projectType %}
                                     {% endif %}
                                 {% endfor %}
-                                {% set entryProjectTypeRoot = entryProjectTypeChip %}
-                                {% if entryProjectTypeChip.level > 1 %}
-                                    {% set entryProjectTypeRoot = entryProjectTypeChip.ancestor(1).one() ?? entryProjectTypeChip %}
-                                {% endif %}
-                                {% set entryProjectTypeChipClass = '' %}
-                                {% if entryProjectTypeRoot %}
-                                    {% set entryProjectTypeChipClass = 'card-type-chip--' ~ entryProjectTypeRoot.slug %}
-                                {% endif %}
-                                <div class="card-type-chip {{ entryProjectTypeChipClass }}">{{ entryProjectTypeChip.title }}</div>
+                                <div class="chip color-pair-{{ entryProjectTypeChip.colourPair }}">{{ entryProjectTypeChip.title }}</div>
                             {% endif %}
                             {% if entryDesignSource %}
-                                {% set designSourceSlug = entryDesignSource.slug ?? '' %}
-                                {% set designSourceClass = 'card-design-source-chip' %}
-                                {% if designSourceSlug in ['original', 'self-made', 'self-drafted'] %}
-                                    {% set designSourceClass = designSourceClass ~ ' card-design-source-chip--original' %}
-                                {% elseif designSourceSlug in ['pattern', 'pattern-file', 'based-on-pattern', 'purchased-pattern'] %}
-                                    {% set designSourceClass = designSourceClass ~ ' card-design-source-chip--pattern' %}
-                                {% elseif designSourceSlug in ['model', 'based-on-model', 'purchased-model'] %}
-                                    {% set designSourceClass = designSourceClass ~ ' card-design-source-chip--model' %}
-                                {% elseif designSourceSlug in ['reference', 'referenced-remixed', 'remixed', 'adapted'] %}
-                                    {% set designSourceClass = designSourceClass ~ ' card-design-source-chip--reference' %}
-                                {% endif %}
-                                <div class="{{ designSourceClass }}">{{ entryDesignSource.title }}</div>
+                                <div class="chip color-pair-{{ entryDesignSource.colourPair }}">{{ entryDesignSource.title }}</div>
                             {% endif %}
                         </div>
                         {% set rawEntryCategories = attribute(entry, 'postCategories') is defined and entry.postCategories ? entry.postCategories.all() : [] %}
@@ -191,9 +172,9 @@
                         <div class="card-heading">
                             <h3><a href="{{ entry.url }}">{{ entry.title }}</a></h3>
                             {% if entryCategories|length %}
-                                <div class="subtitle">
+                                <div class="card-category-chips">
                                     {% for category in entryCategories %}
-                                        <a href="{{ postsIndexUrl }}?category[]={{ category.slug|url_encode }}">{{ category.title }}</a>{% if not loop.last %}, {% endif %}
+                                        <a class="chip color-pair-{{ attribute(category, 'colourPair') }}" href="{{ postsIndexUrl }}?category[]={{ category.slug|url_encode }}">{{ category.title }}</a>
                                     {% endfor %}
                                 </div>
                             {% endif %}

@@ -34,6 +34,22 @@ fieldLayouts:
             userCondition: null
             warning: null
             width: 100
+          -
+            dateAdded: '2026-06-22T00:00:00+00:00'
+            editCondition: null
+            elementCondition: null
+            elementEditCondition: null
+            fieldUid: 3cb6b6d4-4bf5-4f4a-a9dc-0ef1fdbe6f2a # Colour Pair
+            handle: null
+            instructions: null
+            label: 'Colour Pair'
+            required: false
+            tip: null
+            type: craft\fieldlayoutelements\CustomField
+            uid: 8a5d49b8-1df9-4f1c-b58c-21ff5ef3c1d7
+            userCondition: null
+            warning: null
+            width: 100
         name: Content
         uid: f11f1ec7-2444-4bc4-9df8-b0f6d6e9d9f3
         userCondition: null

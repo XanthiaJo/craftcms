@@ -26,32 +26,35 @@ test.describe('posts archive layout', () => {
     const firstCard = cards.first();
     await expect(firstCard.locator('.thumb')).toBeVisible();
     await expect(firstCard.locator('h3 a')).toHaveText('A long title that should wrap onto two lines and stop there rather than growing forever');
-    await expect(firstCard.locator('.subtitle')).toHaveText('Wearables');
+    await expect(firstCard.locator('.chip')).toHaveText(['Crochet', 'Pattern/File', 'Wearables']);
     await expect(firstCard.locator('.card-date')).toHaveText('November 2023');
 
     const secondCard = cards.nth(1);
     await expect(secondCard.locator('.thumb')).toBeVisible();
     await expect(secondCard.locator('h3 a')).toHaveText('Short title');
-    await expect(secondCard.locator('.subtitle')).toHaveText('Accessories');
+    await expect(secondCard.locator('.chip').nth(0)).toHaveText('3D Print');
+    await expect(secondCard.locator('.chip').nth(1)).toHaveText('Accessories');
     await expect(secondCard.locator('.card-date')).toHaveText('October 2023');
   });
 
   test('keeps the archive typography and color tokens applied', async ({ page }) => {
     const firstHeading = page.locator('.card').first().locator('h3');
     const firstThumb = page.locator('.card').first().locator('.thumb');
-    const firstTypeChip = page.locator('.card').first().locator('.card-type-chip');
+    const chips = page.locator('.card').first().locator('.chip');
+    const firstTypeChip = chips.nth(0);
+    const firstDesignChip = chips.nth(1);
+    const firstCategoryChip = chips.nth(2);
     const firstDate = page.locator('.card').first().locator('.card-date');
-    const firstSubtitle = page.locator('.card').first().locator('.subtitle');
 
     await expect(firstHeading).toHaveCSS('font-family', /Open Sans/);
     await expect(firstHeading).toHaveCSS('-webkit-line-clamp', '2');
     await expect(firstThumb).toHaveCSS('object-fit', 'cover');
     await expect(firstThumb).toHaveCSS('aspect-ratio', '4 / 3');
-    await expect(firstTypeChip).toHaveCSS('background-color', 'rgb(247, 221, 216)');
+    await expect(firstTypeChip).toHaveCSS('background-color', 'rgb(246, 230, 226)');
+    await expect(firstDesignChip).toHaveCSS('background-color', 'rgb(243, 239, 230)');
+    await expect(firstCategoryChip).toHaveCSS('background-color', 'rgb(231, 238, 226)');
     await expect(firstDate).toHaveCSS('color', 'rgb(138, 138, 138)');
     await expect(firstDate).toHaveCSS('font-size', '12px');
-    await expect(firstSubtitle).toHaveCSS('text-transform', 'uppercase');
-    await expect(firstSubtitle).toHaveCSS('letter-spacing', '1px');
   });
 
   test('aligns the card dates at the bottom of the content block', async ({ page }) => {

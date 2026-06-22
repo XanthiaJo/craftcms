@@ -6,6 +6,7 @@ const test = require('node:test');
 const rootDir = path.resolve(__dirname, '..', '..');
 const postsTemplate = fs.readFileSync(path.join(rootDir, 'templates', 'posts.twig'), 'utf8');
 const siteCss = fs.readFileSync(path.join(rootDir, 'web', 'css', 'site.css'), 'utf8');
+const styleGuide = fs.readFileSync(path.join(rootDir, 'templates', 'style-guide.twig'), 'utf8');
 
 test('posts archive template renders the expected card content and filters', () => {
   assert.match(postsTemplate, /featuredImage\s*\?\s*entry\.featuredImage\.one\(\)\s*:\s*null/);
@@ -16,22 +17,49 @@ test('posts archive template renders the expected card content and filters', () 
   assert.match(postsTemplate, /name="category\[\]"/);
   assert.match(postsTemplate, /name="tag\[\]"/);
   assert.match(postsTemplate, /name="year\[\]"/);
+  assert.match(postsTemplate, /card-category-chips/);
+  assert.match(postsTemplate, /class="chip color-pair-\{\{\s*entryProjectTypeChip\.colourPair\s*\}\}"/);
+  assert.match(postsTemplate, /class="chip color-pair-\{\{\s*entryDesignSource\.colourPair\s*\}\}"/);
+  assert.match(postsTemplate, /class="chip color-pair-\{\{\s*attribute\(category,\s*'colourPair'\)\s*\}\}"/);
+  assert.match(postsTemplate, /attribute\(category,\s*'colourPair'\)/);
   assert.match(postsTemplate, /\?category\[\]=\{\{\s*category\.slug\|url_encode\s*\}\}/);
   assert.match(postsTemplate, /selectedProjectTypeSlugs/);
   assert.match(postsTemplate, /selectedTagSlugs/);
   assert.match(postsTemplate, /selectedYears/);
+  assert.doesNotMatch(postsTemplate, /categoryChipColor/);
+  assert.doesNotMatch(postsTemplate, /projectTypeColorPairs/);
+  assert.doesNotMatch(postsTemplate, /designSourceSlug/);
+  assert.doesNotMatch(postsTemplate, /muted-(gold|sand|sage|olive|sky|stone|rose|clay|plum|ink)/);
+  assert.doesNotMatch(postsTemplate, /card-category-chip\b/);
+  assert.doesNotMatch(postsTemplate, /card-type-chip--/);
+  assert.doesNotMatch(postsTemplate, /card-design-source-chip--/);
 });
 
 test('site CSS encodes the archive typography and card layout rules', () => {
   assert.match(siteCss, /--font-body:\s*"Open Sans",\s*sans-serif;/);
   assert.match(siteCss, /--font-heading:\s*"Playfair Display",\s*serif;/);
   assert.match(siteCss, /--font-brand:\s*"Dancing Script",\s*cursive;/);
+  assert.match(siteCss, /\.chip\s*\{[\s\S]*display:\s*inline-block;/);
+  assert.match(siteCss, /\.color-pair-gold\s*\{[\s\S]*background:\s*#efe9da;/);
+  assert.match(siteCss, /\.color-pair-sand\s*\{[\s\S]*background:\s*#f3efe6;/);
+  assert.match(siteCss, /\.color-pair-sage\s*\{[\s\S]*background:\s*#edf2ea;/);
+  assert.match(siteCss, /\.color-pair-olive\s*\{[\s\S]*background:\s*#e7eee2;/);
+  assert.match(siteCss, /\.color-pair-stone\s*\{[\s\S]*background:\s*#edf0f2;/);
+  assert.match(siteCss, /\.color-pair-rose\s*\{[\s\S]*background:\s*#f6e6e2;/);
+  assert.match(siteCss, /\.color-pair-sky\s*\{[\s\S]*background:\s*#e7eef5;/);
+  assert.match(siteCss, /\.color-pair-clay\s*\{[\s\S]*background:\s*#f3e5dc;/);
+  assert.match(siteCss, /\.color-pair-plum\s*\{[\s\S]*background:\s*#ece7f3;/);
+  assert.match(siteCss, /\.color-pair-ink\s*\{[\s\S]*background:\s*#e8ebf1;/);
   assert.match(siteCss, /\.card-heading h3\s*\{[\s\S]*-webkit-line-clamp:\s*2;/);
   assert.match(siteCss, /\.card-heading > \.subtitle\s*\{[\s\S]*-webkit-line-clamp:\s*2;/);
   assert.match(siteCss, /\.card-excerpt\s*\{[\s\S]*-webkit-line-clamp:\s*3;/);
   assert.match(siteCss, /\.card-date\s*\{[\s\S]*margin-top:\s*auto;/);
   assert.match(siteCss, /\.subtitle\s*\{[\s\S]*text-transform:\s*uppercase;/);
   assert.match(siteCss, /\.caption\s*\{[\s\S]*font-size:\s*var\(--type-caption\);/);
+  assert.doesNotMatch(siteCss, /\.chip\.color-pair-|\.color-pair-muted-/);
+  assert.doesNotMatch(siteCss, /card-category-chip\b/);
+  assert.doesNotMatch(siteCss, /card-type-chip--/);
+  assert.doesNotMatch(siteCss, /card-design-source-chip--/);
 });
 
 test('template and CSS still advertise the visible project archive chrome', () => {
@@ -42,4 +70,28 @@ test('template and CSS still advertise the visible project archive chrome', () =
   assert.match(postsTemplate, /<h3>Year<\/h3>/);
   assert.match(siteCss, /\.content-with-sidebar\s*\{/);
   assert.match(siteCss, /\.grid\s*\{/);
+});
+
+test('style guide shows every reusable colour pair', () => {
+  assert.match(styleGuide, /set colourPairs = \[/);
+  assert.match(styleGuide, /color-pair-gold/);
+  assert.match(styleGuide, /Muted Gold/);
+  assert.match(styleGuide, /color-pair-sand/);
+  assert.match(styleGuide, /Muted Sand/);
+  assert.match(styleGuide, /color-pair-sage/);
+  assert.match(styleGuide, /Muted Sage/);
+  assert.match(styleGuide, /color-pair-olive/);
+  assert.match(styleGuide, /Muted Olive/);
+  assert.match(styleGuide, /color-pair-sky/);
+  assert.match(styleGuide, /Muted Sky/);
+  assert.match(styleGuide, /color-pair-stone/);
+  assert.match(styleGuide, /Muted Stone/);
+  assert.match(styleGuide, /color-pair-rose/);
+  assert.match(styleGuide, /Muted Rose/);
+  assert.match(styleGuide, /color-pair-clay/);
+  assert.match(styleGuide, /Muted Clay/);
+  assert.match(styleGuide, /color-pair-plum/);
+  assert.match(styleGuide, /Muted Plum/);
+  assert.match(styleGuide, /color-pair-ink/);
+  assert.match(styleGuide, /Muted Ink/);
 });

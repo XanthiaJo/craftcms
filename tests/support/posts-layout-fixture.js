@@ -12,14 +12,16 @@ function buildPostsLayoutFixture() {
         <ul class="grid" aria-label="Completed project list" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
           <li class="card">
             <img class="thumb" src="https://example.com/featured-a.jpg" alt="Long featured image title">
-            <div class="card-content">
+              <div class="card-content">
               <div class="card-chips">
-                <div class="card-type-chip card-type-chip--needlework">Crochet</div>
-                <div class="card-design-source-chip card-design-source-chip--pattern">Pattern/File</div>
+                <div class="chip color-pair-rose">Crochet</div>
+                <div class="chip color-pair-sand">Pattern/File</div>
               </div>
               <div class="card-heading">
                 <h3><a href="/posts/long-title-a">A long title that should wrap onto two lines and stop there rather than growing forever</a></h3>
-                <div class="subtitle"><a href="/posts?category[]=wearables">Wearables</a></div>
+                <div class="card-category-chips">
+                  <a class="chip color-pair-olive" href="/posts?category[]=wearables">Wearables</a>
+                </div>
               </div>
               <div class="card-excerpt">Short excerpt that still leaves room for the date to sit at the bottom of the card.</div>
               <div class="card-date caption">November 2023</div>
@@ -29,11 +31,13 @@ function buildPostsLayoutFixture() {
             <img class="thumb" src="https://example.com/featured-b.jpg" alt="Second featured image title">
             <div class="card-content">
               <div class="card-chips">
-                <div class="card-type-chip card-type-chip--modeling">3D Print</div>
+                <div class="chip color-pair-plum">3D Print</div>
               </div>
               <div class="card-heading">
                 <h3><a href="/posts/short-title-b">Short title</a></h3>
-                <div class="subtitle"><a href="/posts?category[]=accessories">Accessories</a></div>
+                <div class="card-category-chips">
+                  <a class="chip color-pair-stone" href="/posts?category[]=accessories">Accessories</a>
+                </div>
               </div>
               <div class="card-excerpt">Another excerpt that is intentionally short.</div>
               <div class="card-date caption">October 2023</div>

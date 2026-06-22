@@ -30,6 +30,7 @@
             font-size: 12px;
             margin-bottom: 8px;
             display: inline-block;
+            white-space: nowrap;
         }
         .color-swatch {
             display: inline-block;
@@ -195,25 +196,26 @@
         <!-- Chips -->
         <section class="style-guide-section">
             <h2>Chips</h2>
-            
-            <div class="example-group">
-                <div class="example-label">.card-design-source-chip .card-design-source-chip--pattern (Orange)</div>
-                <div class="card-design-source-chip card-design-source-chip--pattern">Pattern</div>
-            </div>
+            {% set colourPairs = [
+                { class: 'color-pair-gold', label: 'Muted Gold' },
+                { class: 'color-pair-sand', label: 'Muted Sand' },
+                { class: 'color-pair-sage', label: 'Muted Sage' },
+                { class: 'color-pair-olive', label: 'Muted Olive' },
+                { class: 'color-pair-sky', label: 'Muted Sky' },
+                { class: 'color-pair-stone', label: 'Muted Stone' },
+                { class: 'color-pair-rose', label: 'Muted Rose' },
+                { class: 'color-pair-clay', label: 'Muted Clay' },
+                { class: 'color-pair-plum', label: 'Muted Plum' },
+                { class: 'color-pair-ink', label: 'Muted Ink' }
+            ] %}
 
-            <div class="example-group">
-                <div class="example-label">.card-design-source-chip .card-design-source-chip--file (Orange)</div>
-                <div class="card-design-source-chip card-design-source-chip--file">File</div>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">.card-design-source-chip .card-design-source-chip--original (Green)</div>
-                <div class="card-design-source-chip card-design-source-chip--original">Original</div>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">.card-design-source-chip .card-design-source-chip--reference (Blue)</div>
-                <div class="card-design-source-chip card-design-source-chip--reference">Reference</div>
+            <div class="example-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+                {% for pair in colourPairs %}
+                    <div class="example-group">
+                        <div class="example-label">.{{ pair.class }}</div>
+                        <div class="chip {{ pair.class }}">{{ pair.label }}</div>
+                    </div>
+                {% endfor %}
             </div>
         </section>
 
