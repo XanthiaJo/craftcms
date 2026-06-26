@@ -1,18 +1,10 @@
-<!DOCTYPE html>
-<html lang="en-US">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    {% set siteHeader = craft.app.globals.getSetByHandle('siteHeader') %}
-    {% set siteName = siteHeader and siteHeader.siteName ? siteHeader.siteName : '' %}
-    <title>Home - {{ siteName }}</title>
-    <meta name="description" content="Handmade makes, completed projects, and items needing new homes.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Open+Sans:wght@400;600;700&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/site.css">
-</head>
-<body>
+{% extends '_layouts/base.twig' %}
+
+{% block pageTitle %}
+    Home - {{ parent() }}
+{% endblock %}
+
+{% block pageContent %}
 {% set home = craft.app.globals.getSetByHandle('home') %}
 {% set highlightEntries = craft.entries.section('posts').type('post').with(['featuredImage']).orderBy('postDate desc').limit(3).all() %}
 {% set heroEntry = highlightEntries[0] ?? null %}
@@ -20,19 +12,18 @@
 {% set homeIntro = home and home.homeIntro ? home.homeIntro : '' %}
 {% set homeCards = home ? home.homeCards.all() : [] %}
 {% set heroImage = heroEntry and heroEntry.featuredImage ? heroEntry.featuredImage.one() : null %}
-{% include '_partials/site-header.twig' %}
 
 <section class="home-hero"{% if heroImage %} style="--home-hero-image: url('{{ heroImage.url }}');"{% endif %}>
     <div class="container home-hero-inner">
-        <h1 class="home-hero-title">Hello There!</h1>
-        <p class="home-hero-subtitle subtitle">I'm Karima</p>
+        <h1>Hello There!</h1>
+        <p class="subtitle">I'm Karima</p>
     </div>
 </section>
 
 <main class="home-main">
     <div class="container">
         <section class="home-intro">
-            <h2 class="home-intro-title">{{ homeHeading }}</h2>
+            <h2>{{ homeHeading }}</h2>
             <p>{{ homeIntro }}</p>
         </section>
 
@@ -50,7 +41,7 @@
                         {% if cardImage %}
                             <img class="thumb" src="{{ cardImage.url }}" alt="{{ cardImage.title ?: card.title }}">
                         {% endif %}
-                        <div class="home-project-content">
+                        <div style="padding: 18px">
                             <h3>{{ card.title }}</h3>
                             {% if cardText %}
                                 <p class="body">{{ cardText }}</p>
@@ -64,13 +55,9 @@
             {% endif %}
         </section>
 
-        <div class="home-center-cta">
+        <div style="text-align: center">
             <a class="button button-primary" href="/posts">See all projects!</a>
         </div>
     </div>
 </main>
-
-{% include '_partials/site-footer.twig' %}
-
-</body>
-</html>
+{% endblock %}

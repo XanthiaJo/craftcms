@@ -1,15 +1,10 @@
-<!DOCTYPE html>
-<html lang="en-US">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    {% set siteHeader = craft.app.globals.getSetByHandle('siteHeader') %}
-    {% set siteName = siteHeader and siteHeader.siteName ? siteHeader.siteName : '' %}
-    <title>CSS Style Guide - {{ siteName }}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Open+Sans:wght@400;600;700&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/site.css">
+{% extends '_layouts/base.twig' %}
+
+{% block pageTitle %}
+    CSS Style Guide - {{ parent() }}
+{% endblock %}
+
+{% block headExtra %}
     <style>
         .style-guide-section {
             margin-bottom: 48px;
@@ -50,15 +45,14 @@
             gap: 16px;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         }
-            </style>
-</head>
-<body>
-{% include '_partials/site-header.twig' %}
+    </style>
+{% endblock %}
 
+{% block pageContent %}
 <main class="page-main">
     <div class="container">
         <h1>CSS Style Guide</h1>
-        <p class="subtitle">Visual reference for all CSS classes and selectors</p>
+        <p class="subtitle">Visual reference for the site's generic element styles and shared classes</p>
 
         <!-- Typography -->
         <section class="style-guide-section">
@@ -105,8 +99,76 @@
             </div>
 
             <div class="example-group">
+                <div class="example-label">p (generic)</div>
+                <p>Regular paragraph text with the default body font, line height, and bottom spacing.</p>
+            </div>
+
+            <div class="example-group">
+                <div class="example-label">a (generic)</div>
+                <p><a href="#">A standard link</a> uses the primary color by default.</p>
+            </div>
+        </section>
+
+        <!-- Body Content -->
+        <section class="style-guide-section">
+            <h2>Body Content</h2>
+            <p>Content from Craft fields should render plain HTML and rely on generic element selectors.</p>
+
+            <div class="example-group">
+                <div class="example-label">ul / ol (generic)</div>
+                <ul>
+                    <li>Unordered list item</li>
+                    <li>Another item with <a href="#">a link</a></li>
+                </ul>
+                <ol>
+                    <li>Ordered list item</li>
+                    <li>Another ordered item</li>
+                </ol>
+            </div>
+
+            <div class="example-group">
+                <div class="example-label">blockquote (generic)</div>
+                <blockquote>
+                    A blockquote pulls out quoted content with a left border and light background.
+                </blockquote>
+            </div>
+
+            <div class="example-group">
+                <div class="example-label">pre / code (generic)</div>
+                <p>Inline code looks like <code>this</code>.</p>
+                <pre><code>// A preformatted code block
+function example() {
+    return true;
+}</code></pre>
+            </div>
+
+            <div class="example-group">
+                <div class="example-label">table (generic)</div>
+                <table>
+                    <thead>
+                        <tr><th>Heading</th><th>Heading</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Cell content</td><td>Cell content</td></tr>
+                        <tr><td>Cell content</td><td>Cell content</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="example-group">
+                <div class="example-label">img (generic)</div>
+                <img src="https://picsum.photos/400/200" alt="Example image">
+            </div>
+
+            <div class="example-group">
                 <div class="example-label">.body</div>
-                <div class="body">Body text - Main content text with proper line height and readability. This is how regular paragraphs and content should appear.</div>
+                <div class="body">
+                    <p>The <code>.body</code> class sets the container font size and line height. Generic child elements like paragraphs, lists, and tables pick up their own spacing from the global element selectors.</p>
+                    <ul>
+                        <li>Item one</li>
+                        <li>Item two</li>
+                    </ul>
+                </div>
             </div>
         </section>
 
@@ -132,11 +194,6 @@
                 <a href="#" class="button button-secondary">Secondary Link Button</a>
             </div>
 
-            <div class="example-group">
-                <div class="example-label">.button .button-sm</div>
-                <button class="button button-sm">Small Button</button>
-                <a href="#" class="button button-sm">Small Link Button</a>
-            </div>
         </section>
 
         <!-- Layout Components -->
@@ -147,20 +204,6 @@
                 <div class="example-label">.container</div>
                 <div class="container" style="background: var(--secondary-light); padding: 16px; border: 1px solid var(--border);">
                     Container - 80% width, centered
-                </div>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">.panel</div>
-                <div class="panel" style="position: static;">
-                    <h3>Panel Title</h3>
-                    <div class="panel-content">Panel content with sticky positioning and light background.</div>
-                    <div class="panel-sections">
-                        <div class="panel-section">
-                            <h4>Panel Section</h4>
-                            <div class="panel-content">Section content with border top.</div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -257,10 +300,6 @@
                 </div>
             </div>
 
-            <div class="example-group">
-                <div class="example-label">.back</div>
-                <a href="#" class="button back">← Back to Previous</a>
-            </div>
         </section>
 
         <!-- Color Variables -->
@@ -391,8 +430,4 @@
 
     </div>
 </main>
-
-{% include '_partials/site-footer.twig' %}
-
-</body>
-</html>
+{% endblock %}

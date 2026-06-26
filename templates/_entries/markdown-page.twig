@@ -40,7 +40,7 @@
                     <h3>Content URL</h3>
                     {% if entry.markdownSourceUrl %}
                         <div class="body panel-content">
-                            <a class="source-link" href="{{ entry.markdownSourceUrl }}" target="_blank" rel="noopener noreferrer">{{ entry.markdownSourceUrl }}</a>
+                            <a style="word-break: break-word" href="{{ entry.markdownSourceUrl }}" target="_blank" rel="noopener noreferrer">{{ entry.markdownSourceUrl }}</a>
                         </div>
                     {% else %}
                         <div class="body panel-content">No source URL set.</div>

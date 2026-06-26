@@ -2,9 +2,8 @@
   <section class="panel-section">
     <h2>Build Snapshot</h2>
     <div class="panel-actions">
-      <span class="chip color-pair-ink">Version v1.17.0</span>
-      <span class="chip color-pair-sage">Production v1.17.0</span>
-      <span class="chip color-pair-stone">64 commits</span>
+      <span class="chip color-pair-ink">Version v1.19.2.1</span>
+      <span class="chip color-pair-stone">74 commits</span>
     </div>
     <p class="body">Generated from conventional commits and git tags during the site build.</p>
   </section>
@@ -27,7 +26,29 @@
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-gold">Features</span>
-            <span class="caption">
+            <span class="caption">v1.19.0 - 
+7f75ee - 2026-06-22</span>
+          </div>
+          <h4>Add changeLogPage section, entry type, and template</h4>
+          <p class="panel-content">Add a new Single section (changeLogPage) and matching entry type to project config. The template includes the generated _generated/change-log.twig fragment produced by the build step, so the rendered page reflects the current git history without any runtime Craft queries.</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-gold">Features</span>
+            <span class="caption">v1.18.0 - 
+5f11e6 - 2026-06-22</span>
+          </div>
+          <h4>Add twig changelog output format to GenerateBuildInfo</h4>
+          <p class="panel-content">Parse conventional commit bodies alongside subjects to extract per-commit descriptions. Group commits by type (breaking, feature, fix, docs, refactor, test, chore, other) and render a static Twig fragment with chips, headings, and optional description paragraphs. Add --format=twig to the build-info composer script and a dedicated build-changelog alias.</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-gold">Features</span>
+            <span class="caption">v1.17.0 - 
 28deae - 2026-06-22</span>
           </div>
           <h4>Add reusable colour pairs to archive cards</h4>
@@ -38,7 +59,7 @@
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-gold">Features</span>
-            <span class="caption">
+            <span class="caption">v1.16.0 - 
 988178 - 2026-06-22</span>
           </div>
           <h4>Add the page directory selector field</h4>
@@ -49,7 +70,7 @@
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-gold">Features</span>
-            <span class="caption">
+            <span class="caption">v1.15.0 - 
 2fa695 - 2026-06-22</span>
           </div>
           <h4>Add admin-managed header submenus</h4>
@@ -60,7 +81,7 @@
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-gold">Features</span>
-            <span class="caption">
+            <span class="caption">v1.14.0 - 
 b79034 - 2026-06-22</span>
           </div>
           <h4>Add a reusable markdown page entry type</h4>
@@ -71,7 +92,7 @@ b79034 - 2026-06-22</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-gold">Features</span>
-            <span class="caption">
+            <span class="caption">v1.13.0 - 
 34ea18 - 2026-06-21</span>
           </div>
           <h4>Add GitHub webhook auto-deploy listener</h4>
@@ -82,7 +103,7 @@ b79034 - 2026-06-22</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-gold">Features</span>
-            <span class="caption">
+            <span class="caption">v1.12.0 - 
 5f6f3d - 2026-06-21</span>
           </div>
           <h4>Display build version in site footer</h4>
@@ -93,7 +114,7 @@ b79034 - 2026-06-22</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-gold">Features</span>
-            <span class="caption">
+            <span class="caption">v1.11.0 - 
 619427 - 2026-06-21</span>
           </div>
           <h4>Add cross-platform build info version generator</h4>
@@ -104,7 +125,7 @@ b79034 - 2026-06-22</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-gold">Features</span>
-            <span class="caption">
+            <span class="caption">v1.10.0 - 
 7cfb51 - 2026-06-21</span>
           </div>
           <h4>Enforce perpendicular line constraints</h4>
@@ -115,7 +136,7 @@ b79034 - 2026-06-22</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-gold">Features</span>
-            <span class="caption">
+            <span class="caption">v1.9.0 - 
 e9a1fd - 2026-06-21</span>
           </div>
           <h4>Improve sketch selection and constraints</h4>
@@ -126,7 +147,7 @@ e9a1fd - 2026-06-21</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-gold">Features</span>
-            <span class="caption">
+            <span class="caption">v1.8.0 - 
 c6f59a - 2026-06-14</span>
           </div>
           <h4>Wire knitstitch bootstrap</h4>
@@ -136,7 +157,7 @@ c6f59a - 2026-06-14</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-gold">Features</span>
-            <span class="caption">
+            <span class="caption">v1.7.0 - 
 3d1c7e - 2026-06-14</span>
           </div>
           <h4>Rebuild knitstitch editor</h4>
@@ -146,7 +167,7 @@ c6f59a - 2026-06-14</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-gold">Features</span>
-            <span class="caption">
+            <span class="caption">v1.6.0 - 
 ab351f - 2026-06-14</span>
           </div>
           <h4>Add project links to shared header</h4>
@@ -156,7 +177,7 @@ ab351f - 2026-06-14</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-gold">Features</span>
-            <span class="caption">
+            <span class="caption">v1.5.0 - 
 9b13b9 - 2026-06-13</span>
           </div>
           <h4>Integrate knitstitch into craftcms</h4>
@@ -166,7 +187,7 @@ ab351f - 2026-06-14</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-gold">Features</span>
-            <span class="caption">
+            <span class="caption">v1.4.0 - 
 fc0a03 - 2026-06-13</span>
           </div>
           <h4>Add knitstitch web app scaffold</h4>
@@ -176,7 +197,7 @@ fc0a03 - 2026-06-13</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-gold">Features</span>
-            <span class="caption">
+            <span class="caption">v1.3.0 - 
 1dcd3e - 2026-06-07</span>
           </div>
           <h4>Track uploads folder</h4>
@@ -186,7 +207,7 @@ fc0a03 - 2026-06-13</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-gold">Features</span>
-            <span class="caption">
+            <span class="caption">v1.2.0 - 
 81ad34 - 2026-06-07</span>
           </div>
           <h4>Add site header, category, and tag templates</h4>
@@ -196,7 +217,7 @@ fc0a03 - 2026-06-13</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-gold">Features</span>
-            <span class="caption">
+            <span class="caption">v1.1.0 - 
 3f0c49 - 2026-06-07</span>
           </div>
           <h4>Add project configuration for home cards, projects archive, and taxonomies</h4>
@@ -211,7 +232,29 @@ fc0a03 - 2026-06-13</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-sage">Fixes</span>
-            <span class="caption">
+            <span class="caption">v1.19.2 - 
+fed78a - 2026-06-22</span>
+          </div>
+          <h4>Reset generated buildInfo.js before git pull</h4>
+          <p class="panel-content">composer post-install-cmd regenerates web/js/buildInfo.js on the VPS, leaving it as a local modification that blocks the next pull. Prepend a git checkout to discard it cleanly before merging.</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-sage">Fixes</span>
+            <span class="caption">v1.19.1 - 
+7ea7e0 - 2026-06-22</span>
+          </div>
+          <h4>Vertically align panel-actions items</h4>
+          <p class="panel-content">Add align-items: center to .panel-actions so chips and captions sitting side-by-side in a flex row baseline correctly instead of top-aligning.</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-sage">Fixes</span>
+            <span class="caption">v1.13.2 - 
 daa1f7 - 2026-06-21</span>
           </div>
           <h4>Use shared site-footer partial on all pages</h4>
@@ -222,7 +265,7 @@ daa1f7 - 2026-06-21</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-sage">Fixes</span>
-            <span class="caption">
+            <span class="caption">v1.13.1 - 
 d150f4 - 2026-06-21</span>
           </div>
           <h4>Resolve git binary path for VPS where git is not in PHP&#039;s PATH</h4>
@@ -233,7 +276,7 @@ d150f4 - 2026-06-21</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-sage">Fixes</span>
-            <span class="caption">
+            <span class="caption">v1.6.1 - 
 749d98 - 2026-06-14</span>
           </div>
           <h4>Align homepage header overrides</h4>
@@ -243,7 +286,7 @@ d150f4 - 2026-06-21</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-sage">Fixes</span>
-            <span class="caption">
+            <span class="caption">v1.2.5 - 
 6c760d - 2026-06-07</span>
           </div>
           <h4>Add asset folder fix script to deployment workflow</h4>
@@ -253,7 +296,7 @@ d150f4 - 2026-06-21</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-sage">Fixes</span>
-            <span class="caption">
+            <span class="caption">v1.2.4 - 
 04fe73 - 2026-06-07</span>
           </div>
           <h4>Temporarily enable admin changes during deployment</h4>
@@ -263,7 +306,7 @@ d150f4 - 2026-06-21</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-sage">Fixes</span>
-            <span class="caption">
+            <span class="caption">v1.2.3 - 
 d129c5 - 2026-06-07</span>
           </div>
           <h4>Disable read-only mode and add content creation scripts to deployment</h4>
@@ -273,7 +316,7 @@ d129c5 - 2026-06-07</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-sage">Fixes</span>
-            <span class="caption">
+            <span class="caption">v1.2.2 - 
 a62e24 - 2026-06-07</span>
           </div>
           <h4>Add content creation scripts to deployment workflow</h4>
@@ -283,7 +326,7 @@ a62e24 - 2026-06-07</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-sage">Fixes</span>
-            <span class="caption">
+            <span class="caption">v1.2.1 - 
 62c14e - 2026-06-07</span>
           </div>
           <h4>Add project config sync to deployment workflow</h4>
@@ -293,7 +336,7 @@ a62e24 - 2026-06-07</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-sage">Fixes</span>
-            <span class="caption">
+            <span class="caption">v1.1.1 - 
 dbf912 - 2026-06-07</span>
           </div>
           <h4>Update post entry type and featured image field configuration</h4>
@@ -308,7 +351,40 @@ dbf912 - 2026-06-07</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-sky">Documentation</span>
-            <span class="caption">
+            <span class="caption">v1.19.1.4 - 
+887cdf - 2026-06-22</span>
+          </div>
+          <h4>Rewrite as human-facing portfolio overview</h4>
+          <p class="panel-content">Replace the agent-rules content with a description of the portfolio and the person behind it. Four creative disciplines are called out (crochet/fibre, sewing, parametric modelling, tools/software) with plain-language summaries. Dev conventions and agent rules remain in AGENTS.md; the README just points there.</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-sky">Documentation</span>
+            <span class="caption">v1.19.1.2 - 
+0d6db6 - 2026-06-22</span>
+          </div>
+          <h4>Document changeLogPage section in site structure</h4>
+          <p class="panel-content">Add the changeLogPage Single to the page inventory and the section table. Document the template path, its purpose, and its dependency on the generated changelog fragment.</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-sky">Documentation</span>
+            <span class="caption">v1.19.1.1 - 
+f17273 - 2026-06-22</span>
+          </div>
+          <h4>Add style reuse rules for existing semantic styles</h4>
+          <p class="panel-content">Clarify that new bespoke selectors or inline styles should not be introduced for one-off content blocks when the current default stylesheet already covers the need. Prefer existing semantic element styles and shared CSS classes.</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-sky">Documentation</span>
+            <span class="caption">v1.16.0.6 - 
 e9c139 - 2026-06-22</span>
           </div>
           <h4>Document local ddev php workflow</h4>
@@ -319,7 +395,7 @@ e9c139 - 2026-06-22</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-sky">Documentation</span>
-            <span class="caption">
+            <span class="caption">v1.16.0.3 - 
 ab3998 - 2026-06-22</span>
           </div>
           <h4>Document site structure and styling rules</h4>
@@ -329,7 +405,7 @@ ab3998 - 2026-06-22</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-sky">Documentation</span>
-            <span class="caption">
+            <span class="caption">v1.13.0.1 - 
 5a1bbe - 2026-06-21</span>
           </div>
           <h4>Update AGENT.md with build info and deploy documentation</h4>
@@ -340,7 +416,7 @@ ab3998 - 2026-06-22</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-sky">Documentation</span>
-            <span class="caption">
+            <span class="caption">v1.10.0.1 - 
 b99b14 - 2026-06-21</span>
           </div>
           <h4>Separate app and recovery agent guidance</h4>
@@ -351,7 +427,7 @@ b99b14 - 2026-06-21</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-sky">Documentation</span>
-            <span class="caption">
+            <span class="caption">v1.8.0.4 - 
 9315ab - 2026-06-14</span>
           </div>
           <h4>Remove playwright artifacts and add root readme</h4>
@@ -361,7 +437,7 @@ b99b14 - 2026-06-21</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-sky">Documentation</span>
-            <span class="caption">
+            <span class="caption">v1.8.0.1 - 
 9d6047 - 2026-06-14</span>
           </div>
           <h4>Update agent and knitstitch docs</h4>
@@ -371,7 +447,7 @@ b99b14 - 2026-06-21</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-sky">Documentation</span>
-            <span class="caption">
+            <span class="caption">v1.2.0.5 - 
 2c7713 - 2026-06-07</span>
           </div>
           <h4>Add AGENT.md and category groups configuration</h4>
@@ -386,7 +462,7 @@ b99b14 - 2026-06-21</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-stone">Refactors</span>
-            <span class="caption">
+            <span class="caption">v1.16.0.5 - 
 02871f - 2026-06-22</span>
           </div>
           <h4>Align shared templates and archive styling</h4>
@@ -397,7 +473,7 @@ b99b14 - 2026-06-21</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-stone">Refactors</span>
-            <span class="caption">
+            <span class="caption">v1.16.0.1 - 
 66a602 - 2026-06-22</span>
           </div>
           <h4>Split bootstrap, UI wiring, and sketch helpers</h4>
@@ -408,7 +484,7 @@ b99b14 - 2026-06-21</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-stone">Refactors</span>
-            <span class="caption">
+            <span class="caption">v1.15.0.1 - 
 436e55 - 2026-06-22</span>
           </div>
           <h4>Unify the shared layout and typography</h4>
@@ -419,7 +495,7 @@ b99b14 - 2026-06-21</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-stone">Refactors</span>
-            <span class="caption">
+            <span class="caption">v1.13.0.2 - 
 8a6ae6 - 2026-06-21</span>
           </div>
           <h4>Reorganize knitstitch sketch models and services</h4>
@@ -430,7 +506,7 @@ b99b14 - 2026-06-21</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-stone">Refactors</span>
-            <span class="caption">
+            <span class="caption">v1.9.0.2 - 
 f843ea - 2026-06-21</span>
           </div>
           <h4>Organize sketch models and services</h4>
@@ -440,7 +516,7 @@ f843ea - 2026-06-21</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-stone">Refactors</span>
-            <span class="caption">
+            <span class="caption">v1.3.0.1 - 
 d98294 - 2026-06-07</span>
           </div>
           <h4>Remove hardcoded content from home and header scripts</h4>
@@ -450,7 +526,7 @@ d98294 - 2026-06-07</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-stone">Refactors</span>
-            <span class="caption">
+            <span class="caption">v1.2.0.3 - 
 a2e19a - 2026-06-07</span>
           </div>
           <h4>Update post, sidebar, index, and posts templates</h4>
@@ -465,7 +541,18 @@ a2e19a - 2026-06-07</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-plum">Tests</span>
-            <span class="caption">
+            <span class="caption">v1.19.0.1 - 
+3dceec - 2026-06-22</span>
+          </div>
+          <h4>Add changelog page e2e and unit tests</h4>
+          <p class="panel-content">Cover the change-log-page template structure with a Playwright e2e spec and a unit test for the generated fragment. Tests verify the build-snapshot chip group, section headings, and per-entry chip/date/title markup.</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-plum">Tests</span>
+            <span class="caption">v1.16.0.4 - 
 1aa543 - 2026-06-22</span>
           </div>
           <h4>Add field-layout and archive contract coverage</h4>
@@ -476,7 +563,7 @@ a2e19a - 2026-06-07</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-plum">Tests</span>
-            <span class="caption">
+            <span class="caption">v1.9.0.1 - 
 ff3a00 - 2026-06-21</span>
           </div>
           <h4>Add browser sketch regressions</h4>
@@ -487,7 +574,7 @@ ff3a00 - 2026-06-21</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-plum">Tests</span>
-            <span class="caption">
+            <span class="caption">v1.8.0.2 - 
 bbde72 - 2026-06-14</span>
           </div>
           <h4>Add Playwright e2e coverage</h4>
@@ -502,7 +589,18 @@ bbde72 - 2026-06-14</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-olive">Maintenance</span>
-            <span class="caption">
+            <span class="caption">v1.19.1.3 - 
+446d40 - 2026-06-22</span>
+          </div>
+          <h4>Regenerate build info for v1.17.0</h4>
+          <p class="panel-content">Reflects the current HEAD after all changelog and colour-pair commits. Also strips the stray BOM from the previous generated output.</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-olive">Maintenance</span>
+            <span class="caption">v1.16.0.2 - 
 7d994c - 2026-06-22</span>
           </div>
           <h4>Ignore local tooling files</h4>
@@ -512,7 +610,7 @@ bbde72 - 2026-06-14</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-olive">Maintenance</span>
-            <span class="caption">
+            <span class="caption">v1.13.2.2 - 
 0896f6 - 2026-06-22</span>
           </div>
           <h4>Load .env.dev in local development</h4>
@@ -523,7 +621,7 @@ bbde72 - 2026-06-14</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-olive">Maintenance</span>
-            <span class="caption">
+            <span class="caption">v1.13.2.1 - 
 121ae0 - 2026-06-22</span>
           </div>
           <h4>Bump Craft CMS to 5.10.7</h4>
@@ -534,7 +632,7 @@ bbde72 - 2026-06-14</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-olive">Maintenance</span>
-            <span class="caption">
+            <span class="caption">v1.10.0.2 - 
 ddfed9 - 2026-06-21</span>
           </div>
           <h4>Un-ignore scripts directory and reorganize recovery scripts</h4>
@@ -545,7 +643,7 @@ ddfed9 - 2026-06-21</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-olive">Maintenance</span>
-            <span class="caption">
+            <span class="caption">v1.8.0.3 - 
 7c9be9 - 2026-06-14</span>
           </div>
           <h4>Remove stale deployment artifacts</h4>
@@ -555,7 +653,7 @@ ddfed9 - 2026-06-21</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-olive">Maintenance</span>
-            <span class="caption">
+            <span class="caption">v1.7.0.1 - 
 0acfa5 - 2026-06-14</span>
           </div>
           <h4>Refresh knitstitch bundle</h4>
@@ -565,7 +663,7 @@ ddfed9 - 2026-06-21</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-olive">Maintenance</span>
-            <span class="caption">
+            <span class="caption">v1.3.0.2 - 
 c4da20 - 2026-06-13</span>
           </div>
           <h4>Ignore local node_modules folders</h4>
@@ -575,7 +673,7 @@ c4da20 - 2026-06-13</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-olive">Maintenance</span>
-            <span class="caption">
+            <span class="caption">v1.2.0.4 - 
 e84fe4 - 2026-06-07</span>
           </div>
           <h4>Update project configuration</h4>
@@ -585,7 +683,7 @@ e84fe4 - 2026-06-07</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-olive">Maintenance</span>
-            <span class="caption">
+            <span class="caption">v1.2.0.2 - 
 04d361 - 2026-06-07</span>
           </div>
           <h4>Remove debug scripts</h4>
@@ -595,7 +693,7 @@ e84fe4 - 2026-06-07</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-olive">Maintenance</span>
-            <span class="caption">
+            <span class="caption">v1.2.0.1 - 
 df2f5e - 2026-06-07</span>
           </div>
           <h4>Add uploads directory gitignore</h4>
@@ -605,7 +703,7 @@ df2f5e - 2026-06-07</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-olive">Maintenance</span>
-            <span class="caption">
+            <span class="caption">v1.1.1.1 - 
 6fd050 - 2026-06-07</span>
           </div>
           <h4>Add content migration and restoration scripts</h4>
@@ -615,7 +713,7 @@ df2f5e - 2026-06-07</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-olive">Maintenance</span>
-            <span class="caption">
+            <span class="caption">v1.0.0.8 - 
 cbfe9c - 2026-06-07</span>
           </div>
           <h4>Update composer dependencies</h4>
@@ -630,7 +728,18 @@ cbfe9c - 2026-06-07</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-ink">Other changes</span>
-            <span class="caption">
+            <span class="caption">v1.19.2.1 - 
+05c97b - 2026-06-22</span>
+          </div>
+          <h4>Revert &quot;fix(deploy): reset generated buildInfo.js before git pull&quot;</h4>
+          <p class="panel-content">This reverts commit fed78a05e9bf0eb51dcaa88e9fc9f725724d76e4.</p>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-ink">Other changes</span>
+            <span class="caption">v1.2.5.1 - 
 569122 - 2026-06-07</span>
           </div>
           <h4>Remove scripts/.env from git tracking</h4>
@@ -640,7 +749,7 @@ cbfe9c - 2026-06-07</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-ink">Other changes</span>
-            <span class="caption">
+            <span class="caption">v1.2.2.1 - 
 2f54c2 - 2026-06-07</span>
           </div>
           <h4>Remove content creation scripts from deployment workflow</h4>
@@ -650,7 +759,7 @@ cbfe9c - 2026-06-07</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-ink">Other changes</span>
-            <span class="caption">
+            <span class="caption">v1.0.0.7 - 
 a00308 - 2026-06-01</span>
           </div>
           <h4>Improve database push script for CloudPanel</h4>
@@ -660,7 +769,7 @@ a00308 - 2026-06-01</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-ink">Other changes</span>
-            <span class="caption">
+            <span class="caption">v1.0.0.6 - 
 7b42a4 - 2026-05-31</span>
           </div>
           <h4>Refine content pages with sidebar layout</h4>
@@ -670,7 +779,7 @@ a00308 - 2026-06-01</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-ink">Other changes</span>
-            <span class="caption">
+            <span class="caption">v1.0.0.5 - 
 b7fe8c - 2026-05-31</span>
           </div>
           <h4>Clean imported post bodies and add DB push script</h4>
@@ -680,7 +789,7 @@ b7fe8c - 2026-05-31</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-ink">Other changes</span>
-            <span class="caption">
+            <span class="caption">v1.0.0.4 - 
 0d54a8 - 2026-05-31</span>
           </div>
           <h4>Remove SSH passphrase from deployment workflow</h4>
@@ -690,7 +799,7 @@ b7fe8c - 2026-05-31</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-ink">Other changes</span>
-            <span class="caption">
+            <span class="caption">v1.0.0.3 - 
 d86d9e - 2026-05-31</span>
           </div>
           <h4>Add passphrase support for SSH in deployment workflow</h4>
@@ -700,7 +809,7 @@ d86d9e - 2026-05-31</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-ink">Other changes</span>
-            <span class="caption">
+            <span class="caption">v1.0.0.2 - 
 a1164e - 2026-05-31</span>
           </div>
           <h4>Set up deployment workflow and homepage redesign</h4>
@@ -711,7 +820,7 @@ a1164e - 2026-05-31</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-ink">Other changes</span>
-            <span class="caption">e66b92c - 2026-05-31</span>
+            <span class="caption">v1.0.0.1 - e66b92c - 2026-05-31</span>
           </div>
           <h4>Initial commit</h4>
         </div>

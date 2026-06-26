@@ -1,24 +1,24 @@
-<!DOCTYPE html>
-<html lang="en-US">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    {% set siteHeader = craft.app.globals.getSetByHandle('siteHeader') %}
-    {% set siteName = siteHeader and siteHeader.siteName ? siteHeader.siteName : '' %}
-    {% set projectsArchivePage = craft.entries.section('projectsArchive').status(null).siteId(craft.app.sites.currentSite.id).one() %}
-    {% set projectsArchiveHeading = projectsArchivePage and attribute(projectsArchivePage, 'projectsArchiveHeading') is defined and projectsArchivePage.projectsArchiveHeading ? projectsArchivePage.projectsArchiveHeading : '' %}
-    {% set projectsArchiveMetaDescription = projectsArchivePage and attribute(projectsArchivePage, 'projectsArchiveMetaDescription') is defined and projectsArchivePage.projectsArchiveMetaDescription ? projectsArchivePage.projectsArchiveMetaDescription : '' %}
-    {% set projectsArchiveSidebarIntro = projectsArchivePage and attribute(projectsArchivePage, 'projectsArchiveSidebarIntro') is defined and projectsArchivePage.projectsArchiveSidebarIntro ? projectsArchivePage.projectsArchiveSidebarIntro : '' %}
-    <title>{{ projectsArchiveHeading }} - {{ siteName }}</title>
-    <meta name="description" content="{{ projectsArchiveMetaDescription|e('html_attr') }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Open+Sans:wght@400;600;700&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/site.css">
-</head>
-<body>
-{% include '_partials/site-header.twig' %}
-{% include '_partials/page-subheader.twig' with { pageName: projectsArchiveHeading } %}
+{% extends '_layouts/base.twig' %}
+
+{% set postsIndexUrl = '/posts' %}
+{% set projectsArchivePage = craft.entries.section('projectsArchive').status(null).siteId(craft.app.sites.currentSite.id).one() %}
+{% set projectsArchiveHeading = projectsArchivePage and attribute(projectsArchivePage, 'projectsArchiveHeading') is defined and projectsArchivePage.projectsArchiveHeading ? projectsArchivePage.projectsArchiveHeading : '' %}
+{% set projectsArchiveMetaDescription = projectsArchivePage and attribute(projectsArchivePage, 'projectsArchiveMetaDescription') is defined and projectsArchivePage.projectsArchiveMetaDescription ? projectsArchivePage.projectsArchiveMetaDescription : '' %}
+{% set projectsArchiveSidebarIntro = projectsArchivePage and attribute(projectsArchivePage, 'projectsArchiveSidebarIntro') is defined and projectsArchivePage.projectsArchiveSidebarIntro ? projectsArchivePage.projectsArchiveSidebarIntro : '' %}
+
+{% block pageTitle %}
+    {{ projectsArchiveHeading }} - {{ parent() }}
+{% endblock %}
+
+{% block pageDescription %}
+    {{ projectsArchiveMetaDescription|e('html_attr') }}
+{% endblock %}
+
+{% block pageSubheader %}
+    {% include '_partials/page-subheader.twig' with { pageName: projectsArchiveHeading } %}
+{% endblock %}
+
+{% block pageContent %}
 {% set postsIndexUrl = '/posts' %}
 {% set selectedCategorySlugs = craft.app.request.getQueryParam('category', []) %}
 {% set selectedProjectTypeSlugs = craft.app.request.getQueryParam('projectType', []) %}
@@ -129,7 +129,7 @@
 {% set hasActiveFilters = selectedCategorySlugs|length or selectedProjectTypeSlugs|length or selectedTagSlugs|length or selectedYears|length %}
 
 <main class="projects">
-    <div class="container content-with-sidebar">
+    <div class="container page-layout">
         <div class="content-main">
             <ul class="grid" aria-label="Completed project list">
                 {% for entry in entries %}
@@ -185,7 +185,7 @@
                                 {{ excerpt|slice(0, 145) ~ (excerpt|length > 145 ? '...' : '') }}
                             {% endif %}
                         </div>
-                        <div class="card-date caption">{{ entry.postDate|date('F Y') }}</div>
+                        <div class="caption">{{ entry.postDate|date('F Y') }}</div>
                     </div>
                     </li>
                 {% else %}
@@ -301,21 +301,19 @@
         </aside>
     </div>
 </main>
+{% endblock %}
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.querySelector('form[action="{{ postsIndexUrl }}"]');
-        const checkboxes = form.querySelectorAll('input[type="checkbox"]');
-        
-        checkboxes.forEach(function(checkbox) {
-            checkbox.addEventListener('change', function() {
-                form.submit();
+{% block scripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form[action="{{ postsIndexUrl }}"]');
+            const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+            
+            checkboxes.forEach(function(checkbox) {
+                checkbox.addEventListener('change', function() {
+                    form.submit();
+                });
             });
         });
-    });
-</script>
-
-{% include '_partials/site-footer.twig' %}
-
-</body>
-</html>
+    </script>
+{% endblock %}

@@ -1,15 +1,11 @@
 {# _partials/page-subheader.twig #}
 {% set currentPath = craft.app.request.pathInfo ? '/' ~ craft.app.request.pathInfo|trim('/') : '/' %}
 {% set pageName = pageName is defined ? pageName : '' %}
-{% set pageEyebrow = pageEyebrow is defined ? pageEyebrow : '' %}
 
 {% if currentPath != '/' %}
 <section class="page-subheader">
   <div class="container">
     <div class="page-subheader-inner">
-      {% if pageEyebrow %}
-        <p class="page-subheader-eyebrow">{{ pageEyebrow }}</p>
-      {% endif %}
       <h1>{{ pageName }}</h1>
     </div>
   </div>
