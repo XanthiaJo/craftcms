@@ -1,19 +1,14 @@
-<!DOCTYPE html>
-<html lang="en-US">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    {% set siteHeader = craft.app.globals.getSetByHandle('siteHeader') %}
-    {% set siteName = siteHeader and siteHeader.siteName ? siteHeader.siteName : '' %}
-    <title>{{ entry.title }} - {{ siteName }}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Open+Sans:wght@400;600;700&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/site.css">
-</head>
-<body>
-{% include '_partials/site-header.twig' %}
-{% include '_partials/page-subheader.twig' with { pageName: entry.title } %}
+{% extends '_layouts/base.twig' %}
+
+{% block pageTitle %}
+    {{ entry.title }} - {{ parent() }}
+{% endblock %}
+
+{% block pageSubheader %}
+    {% include '_partials/page-subheader.twig' with { pageName: entry.title } %}
+{% endblock %}
+
+{% block pageContent %}
 {% set postsIndexUrl = '/posts' %}
 
 <main class="page-main">
@@ -24,7 +19,7 @@
                 <img class="featured-image" src="{{ featuredImage.url }}" alt="{{ featuredImage.title ?: entry.title }}">
             {% endif %}
             <h1>{{ entry.title }}</h1>
-            <p class="caption meta">{{ entry.postDate|date('F j, Y') }}</p>
+            <p class="caption">{{ entry.postDate|date('F j, Y') }}</p>
             {% set rawEntryProjectTypes = attribute(entry, 'projectTypes') is defined and entry.projectTypes ? entry.projectTypes.all() : [] %}
             {% set entryProjectTypes = [] %}
             {% for projectType in rawEntryProjectTypes %}
@@ -76,18 +71,7 @@
                     {% endfor %}
                 </div>
             {% endif %}
-            {% if attribute(entry, 'resourceLinks') is defined and entry.resourceLinks|length %}
-                <div class="links">
-                    {% for row in entry.resourceLinks %}
-                        {% set url = row.url ?? row.col2 ?? null %}
-                        {% set label = row.label ?? row.col1 ?? '' %}
-                        {% if url %}
-                            <a class="button button-primary" href="{{ url }}" target="_blank" rel="noopener">{{ label }}</a>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-            {% endif %}
-            <a class="button back" href="/posts">Back to Completed Projects</a>
+            <a class="button" href="/posts">Back to Completed Projects</a>
         </div>
 
         {% set categoriesSidebarHtml %}
@@ -132,6 +116,19 @@
                 <ul class="list"><li class="cat-item-none">No tags</li></ul>
             {% endif %}
         {% endset %}
+        {% set resourceLinksSidebarHtml %}
+            {% if attribute(entry, 'resourceLinks') is defined and entry.resourceLinks|length %}
+                {% for row in entry.resourceLinks %}
+                    {% set url = row.url ?? row.col2 ?? null %}
+                    {% set label = row.label ?? row.col1 ?? '' %}
+                    {% if url %}
+                        <a class="button button-primary" href="{{ url }}" target="_blank" rel="noopener">{{ label }}</a>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <ul class="list"><li class="cat-item-none">No resource links</li></ul>
+            {% endif %}
+        {% endset %}
 
         {% include '_partials/sidebar.twig' with {
             title: 'Project details',
@@ -141,10 +138,10 @@
                 { title: 'Project Type', html: projectTypesSidebarHtml },
                 { title: 'Categories', html: categoriesSidebarHtml },
                 { title: 'Tags', html: tagsSidebarHtml },
-                { title: 'Year', text: entry.postDate|date('Y') }
+                { title: 'Year', text: entry.postDate|date('Y') },
+                { title: 'Links', html: resourceLinksSidebarHtml }
             ]
         } only %}
     </div>
 </main>
-</body>
-</html>
+{% endblock %}
