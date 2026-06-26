@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
 
-const rootDir = path.resolve(__dirname, '..', '..');
+const rootDir = path.resolve(__dirname, '..', '..', '..');
 
 function read(relativePath) {
   return fs.readFileSync(path.join(rootDir, relativePath), 'utf8');
@@ -42,17 +42,17 @@ test('post editor layout keeps the card-editable fields in Craft admin', () => {
   expectFileHasHandle('config/project/fields/postTags--5cfa4a6e-5fa2-43f3-a646-d35ea81d5d63.yaml', 'postTags');
   expectFileHasHandle('config/project/fields/designSource--dd7373ee-b1ce-4c8d-815d-03cfaed9bd88.yaml', 'designSource');
   expectFileHasHandle('config/project/fields/colourPair--3cb6b6d4-4bf5-4f4a-a9dc-0ef1fdbe6f2a.yaml', 'colourPair');
-  assert.match(chipField, /label:\s*Muted Gold/);
+  assert.match(chipField, /label:\s*['"]?Muted Gold['"]?/);
   assert.match(chipField, /value:\s*gold/);
-  assert.match(chipField, /label:\s*Muted Sand/);
+  assert.match(chipField, /label:\s*['"]?Muted Sand['"]?/);
   assert.match(chipField, /value:\s*sand/);
-  assert.match(chipField, /label:\s*Muted Ink/);
+  assert.match(chipField, /label:\s*['"]?Muted Ink['"]?/);
   assert.match(chipField, /value:\s*ink/);
   assert.match(chipField, /instructions:\s*'Choose a reusable muted colour pair for this term\.'/);
   assert.doesNotMatch(chipField, /value:\s*muted-/);
   assert.match(
     read('config/project/categoryGroups/postCategories--da5d8ca2-8f7f-4375-96fb-53ffeed1a4a2.yaml'),
-    /fieldUid:\s*3cb6b6d4-4bf5-4f4a-a9dc-0ef1fdbe6f2a\s+# Colour Pair/
+    /fieldUid:\s*3cb6b6d4-4bf5-4f4a-a9dc-0ef1fdbe6f2a/
   );
   assert.match(
     read('config/project/categoryGroups/postCategories--da5d8ca2-8f7f-4375-96fb-53ffeed1a4a2.yaml'),
@@ -60,11 +60,11 @@ test('post editor layout keeps the card-editable fields in Craft admin', () => {
   );
   assert.match(
     read('config/project/categoryGroups/projectTypes--1814cb28-7cb6-4a76-a95b-6b0829126ccc.yaml'),
-    /fieldUid:\s*3cb6b6d4-4bf5-4f4a-a9dc-0ef1fdbe6f2a\s+# Colour Pair/
+    /fieldUid:\s*3cb6b6d4-4bf5-4f4a-a9dc-0ef1fdbe6f2a/
   );
   assert.match(
     read('config/project/categoryGroups/designSources--fc08b7eb-9365-4b5b-98fd-193abc9cc1bb.yaml'),
-    /fieldUid:\s*3cb6b6d4-4bf5-4f4a-a9dc-0ef1fdbe6f2a\s+# Colour Pair/
+    /fieldUid:\s*3cb6b6d4-4bf5-4f4a-a9dc-0ef1fdbe6f2a/
   );
 });
 

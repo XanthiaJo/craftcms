@@ -2,7 +2,7 @@ const { expect, test } = require('@playwright/test');
 
 test.describe('change log page', () => {
   test('loads the generated changelog and exposes its sections', async ({ page }) => {
-    await page.goto('http://127.0.0.1:50686/change-log');
+    await page.goto('https://craftcms.ddev.site/change-log');
 
     await expect(page).toHaveTitle(/Change Log/);
     await expect(page.locator('body')).toContainText('Build Snapshot');
