@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * GenerateBuildInfo.php — Cross-platform build info generator.
  *
@@ -291,6 +291,7 @@ foreach (preg_split('/\x1e/', implode("\n", $logOutput)) ?: [] as $record) {
 
     $group = getChangelogGroup($subject);
     $changeGroups[$group][] = [
+        'version' => formatVersion($resolvedVersion, $revision),
         'sha' => substr($sha, 0, 7),
         'date' => $date,
         'subject' => humanizeCommitSubject($subject),
@@ -353,7 +354,6 @@ JS;
     $content .= "    <h2>Build Snapshot</h2>\n";
     $content .= "    <div class=\"panel-actions\">\n";
     $content .= '      <span class="chip color-pair-ink">Version ' . escapeHtml($displayVersion) . "</span>\n";
-    $content .= '      <span class="chip color-pair-sage">Production ' . escapeHtml($productionVersion) . "</span>\n";
     $content .= '      <span class="chip color-pair-stone">' . escapeHtml((string)$commitCount) . " commits</span>\n";
     $content .= "    </div>\n";
     $content .= "    <p class=\"body\">Generated from conventional commits and git tags during the site build.</p>\n";
@@ -390,7 +390,7 @@ JS;
             $content .= "        <div class=\"panel-content\">\n";
             $content .= "          <div class=\"panel-actions\">\n";
             $content .= '          <span class="chip color-pair-' . escapeHtml($chipColor) . '">' . escapeHtml($groupLabel) . "</span>\n";
-            $content .= '            <span class="caption">' . escapeHtml($item['sha']) . ' - ' . escapeHtml($item['date']) . "</span>\n";
+            $content .= '            <span class="caption">' . escapeHtml($item['version']) . ' - ' . escapeHtml($item['sha']) . ' - ' . escapeHtml($item['date']) . "</span>\n";
             $content .= "          </div>\n";
             $content .= '          <h4>' . escapeHtml(escapeTwigText($item['subject'])) . "</h4>\n";
             if (!empty($item['description'])) {
