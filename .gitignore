@@ -8,6 +8,7 @@
 /package-lock.json
 /package.json
 /vendor
+/docs/backup.sql
 /web/node_modules
 /web/knitstitch/node_modules
 /web/knitstitch/coverage
@@ -20,3 +21,5 @@ config/license.key
 web/knitstitch/test-results
 .github/workflows/deploy.yml
 node_modules/
+Folder.DotSettings.user
+test-results/
