@@ -39,7 +39,6 @@ settings:
             -
               - type
               - url
-  defaults: []
   maxRows: null
   minRows: null
   staticRows: false

@@ -39,7 +39,7 @@ fieldLayouts:
             editCondition: null
             elementCondition: null
             elementEditCondition: null
-            fieldUid: 3cb6b6d4-4bf5-4f4a-a9dc-0ef1fdbe6f2a # Colour Pair
+            fieldUid: 3cb6b6d4-4bf5-4f4a-a9dc-0ef1fdbe6f2a
             handle: null
             instructions: null
             label: 'Colour Pair'

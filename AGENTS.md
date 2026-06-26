@@ -14,6 +14,17 @@ Prefer modeling content and behavior in Craft CMS itself when that is a viable o
 - prefer the existing semantic element styles and shared CSS classes over new selectors, inline styles, or special-case page styling
 - if a page just needs normal headings, captions, lists, or body copy, render the plain HTML and let the current stylesheet handle it
 
+## CSS Selector Simplicity
+
+Prefer generic element selectors for common semantic elements. Class-qualified selectors like `.panel h3`, `.body p`, or `.card h3` should be avoided unless there is a specific reason to scope the style.
+
+- prefer `h3` over `.panel h3`, `.title h3`, `.table h3`, `.body h3`
+- prefer `p` over `.body p`, `.panel-content p`, `.card-excerpt p`
+- prefer `a` over `.list a`, `.subtitle a` when the link is already in a generic context
+- use shared CSS classes (e.g. `.subtitle`, `.caption`, `.body`, `.card-heading`) when a component needs distinct styling, rather than scoping element selectors under a parent class
+
+The test at [tests/craft-cms/unit/css-selector-simplicity.test.js](</E:/Coding Projects/craftcms/tests/craft-cms/unit/css-selector-simplicity.test.js>) reports all class-qualified selectors for typical elements so the team can decide which to keep, replace with a generic selector, or replace with a shared class.
+
 ## App-Specific Agent Files
 
 Keep root guidance DRY and repository-wide. When working inside a sub-project that has its own agent notes, use that file together with this root file.
@@ -35,6 +46,50 @@ Primary ownership in this repository:
   - `GenerateBuildInfo.ps1` - original PowerShell version (Windows-only). Kept for reference; the PHP version is the canonical one used by composer scripts.
 - [web/webhook.php](</E:/Coding Projects/craftcms/web/webhook.php>) - GitHub webhook listener for VPS auto-deploy. GitHub sends a push event, the VPS verifies the signature and runs `git pull` + `composer install`. Requires `GITHUB_WEBHOOK_SECRET` in `.env`. See deploy section below.
 - [README.md](</E:/Coding Projects/craftcms/README.md>) - project bootstrap notes
+
+## Template Layout
+
+All standard pages (except homepage and knitstitch) should extend the base layout template for consistency.
+
+- Base layout: [templates/_layouts/base.twig](</E:/Coding Projects/craftcms/templates/_layouts/base.twig>)
+- Provides shared HTML structure: DOCTYPE, head, body, site header/footer
+- Template blocks available for customization:
+  - `pageTitle` - page title (appends to site name)
+  - `pageDescription` - meta description
+  - `headExtra` - additional head content (CSS, etc.)
+  - `pageSubheader` - optional page subheader via `_partials/page-subheader.twig`
+  - `pageContent` - main page content
+  - `scripts` - page-specific JavaScript
+
+**Creating a new page:**
+
+```twig
+{% extends '_layouts/base.twig' %}
+
+{% block pageTitle %}
+    Your Page Title - {{ parent() }}
+{% endblock %}
+
+{% block pageDescription %}
+    Your page description
+{% endblock %}
+
+{% block pageSubheader %}
+    {% include '_partials/page-subheader.twig' with { pageName: 'Your Page' } %}
+{% endblock %}
+
+{% block pageContent %}
+    Your content here
+{% endblock %}
+```
+
+Pages that extend the base layout:
+- [templates/index.twig](</E:/Coding Projects/craftcms/templates/index.twig>) - homepage
+- [templates/posts.twig](</E:/Coding Projects/craftcms/templates/posts.twig>) - posts archive
+- [templates/_entries/post.twig](</E:/Coding Projects/craftcms/templates/_entries/post.twig>) - single post
+- [templates/category.twig](</E:/Coding Projects/craftcms/templates/category.twig>) - category pages
+- [templates/tag.twig](</E:/Coding Projects/craftcms/templates/tag.twig>) - tag pages
+- [templates/style-guide.twig](</E:/Coding Projects/craftcms/templates/style-guide.twig>) - style guide
 
 ## Local CLI Runtime
 

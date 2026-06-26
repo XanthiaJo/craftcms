@@ -2,7 +2,7 @@ defaultPlacement: end
 enableVersioning: true
 entryTypes:
   -
-    uid: 7da26bdd-69b5-40b9-8fb9-99992183e3fa # Change Log
+    uid: 7da26bdd-69b5-40b9-8fb9-99992183e3fa
 handle: changeLogPage
 maxAuthors: 1
 minAuthors: 1

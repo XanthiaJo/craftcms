@@ -62,6 +62,7 @@ meta:
   __names__:
     2c8cda87-8dae-4200-90ab-ee9059f6bcc2: 'Home Card Link' # Home Card Link
     2dbde0bb-7009-42ef-a06b-d3e854039012: 'Public Schema' # Public Schema
+    3a06dc53-056c-4456-af7e-d0a31bfa07b5: 'Submenu Links' # Submenu Links
     4fb2b3ef-47c1-4d31-836a-5f8f7f0f8c2f: Home # Home
     5b3aea98-6154-4441-b434-0ccff8aabf4c: 'Home Intro' # Home Intro
     5cfa4a6e-5fa2-43f3-a646-d35ea81d5d63: 'Post Tags' # Post Tags
@@ -71,6 +72,7 @@ meta:
     7a2cc7d6-44ed-42f9-ba98-82d4a58c0590: 'Projects Archive Sidebar Intro' # Projects Archive Sidebar Intro
     7c6b1435-4697-4f69-89da-0f52489f40c7: 'Site Header' # Site Header
     7e05d885-8a22-4531-b57e-12f3e9d7f469: Posts # Posts
+    11e3f2ab-984e-4f93-9f70-d9bcfdf52828: 'Navigation Item' # Navigation Item
     26b22827-3880-4070-a7dc-a3a2c7ca6815: Tags # Tags
     37ace21d-9659-4ab9-9eb8-4f9baf881c29: 'Navigation Label' # Navigation Label
     52d25c97-f091-4cfb-84f6-e2529d60f743: 'Post Categories' # Post Categories
@@ -78,16 +80,15 @@ meta:
     76c53e19-a060-468b-9dcb-6f2874cdcde4: 'Resource Links' # Resource Links
     79c2cc19-c161-4916-b859-98f211c101b5: 'Projects Archive Heading' # Projects Archive Heading
     101aedec-3a1b-481f-b8ae-4522481936b6: 'Home Card Text' # Home Card Text
-    ad486461-8a57-4496-bf13-b475d020d92f: 'Navigation URL' # Navigation URL
     501afdad-7ccc-463d-9bba-7fae94a5d8c3: 'Box of Dragons' # Box of Dragons
     672dca83-46cd-4ac4-aa4b-65e9d7430d7a: 'Home Card Image' # Home Card Image
     988f6d4d-f99d-4996-a981-d3f4e7569f59: Directory # Directory
     1814cb28-7cb6-4a76-a95b-6b0829126ccc: 'Project Types' # Project Types
     2380f0b5-e90e-4c9a-a859-2642a8780e71: 'Markdown Page' # Markdown Page
-    3a06dc53-056c-4456-af7e-d0a31bfa07b5: 'Submenu Links' # Submenu Links
     392516be-39ef-42d6-af30-f84123d033d9: 'Site Navigation' # Site Navigation
     895989d9-cefc-4582-bbad-6736c0c471b8: 'Post Images' # Post Images
     29579835-63db-4481-b347-52f1852e0eb9: 'Featured Image' # Featured Image
+    ad486461-8a57-4496-bf13-b475d020d92f: 'Navigation URL' # Navigation URL
     af6550e1-b206-4dcc-a2ff-a847082b77bc: Body # Body
     b0fd993f-201f-421a-973d-1c61f5c12903: 'Markdown Source URL' # Markdown Source URL
     b1f1f6d9-8df9-4c8c-9c38-f5f055b6db00: 'Home Card' # Home Card
@@ -104,7 +105,6 @@ meta:
     fc08b7eb-9365-4b5b-98fd-193abc9cc1bb: 'Design Sources' # Design Sources
     fd9b9dfd-058f-4810-a86c-3f74aa2d8f4c: 'Projects Archive' # Projects Archive
     fe57eae0-97a1-40b3-bf35-42f69f3d1203: 'Box of Dragons' # Box of Dragons
-    11e3f2ab-984e-4f93-9f70-d9bcfdf52828: 'Navigation Item' # Navigation Item
 plugins:
   cookie-consent-banner:
     edition: standard

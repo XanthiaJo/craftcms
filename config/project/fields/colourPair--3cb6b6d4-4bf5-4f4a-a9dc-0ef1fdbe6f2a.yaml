@@ -5,16 +5,46 @@ name: 'Colour Pair'
 searchable: false
 settings:
   options:
-    - { label: Muted Gold, value: gold, default: '1' }
-    - { label: Muted Sand, value: sand, default: '' }
-    - { label: Muted Sage, value: sage, default: '' }
-    - { label: Muted Olive, value: olive, default: '' }
-    - { label: Muted Sky, value: sky, default: '' }
-    - { label: Muted Stone, value: stone, default: '' }
-    - { label: Muted Rose, value: rose, default: '' }
-    - { label: Muted Clay, value: clay, default: '' }
-    - { label: Muted Plum, value: plum, default: '' }
-    - { label: Muted Ink, value: ink, default: '' }
+    -
+      default: '1'
+      label: 'Muted Gold'
+      value: gold
+    -
+      default: ''
+      label: 'Muted Sand'
+      value: sand
+    -
+      default: ''
+      label: 'Muted Sage'
+      value: sage
+    -
+      default: ''
+      label: 'Muted Olive'
+      value: olive
+    -
+      default: ''
+      label: 'Muted Sky'
+      value: sky
+    -
+      default: ''
+      label: 'Muted Stone'
+      value: stone
+    -
+      default: ''
+      label: 'Muted Rose'
+      value: rose
+    -
+      default: ''
+      label: 'Muted Clay'
+      value: clay
+    -
+      default: ''
+      label: 'Muted Plum'
+      value: plum
+    -
+      default: ''
+      label: 'Muted Ink'
+      value: ink
 translationKeyFormat: null
 translationMethod: none
 type: craft\fields\Dropdown
