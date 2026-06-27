@@ -4,16 +4,16 @@
     CSS Style Guide - {{ parent() }}
 {% endblock %}
 
+{% block pageDescription %}
+    Visual reference for the site's generic element styles and shared classes.
+{% endblock %}
+
+{% block pageSubheader %}
+    {% include '_partials/page-subheader.twig' with { pageName: 'CSS Style Guide' } %}
+{% endblock %}
+
 {% block headExtra %}
     <style>
-        .style-guide-section {
-            margin-bottom: 48px;
-            padding-bottom: 24px;
-            border-bottom: 1px solid var(--border);
-        }
-        .style-guide-section:last-child {
-            border-bottom: none;
-        }
         .example-group {
             margin-bottom: 24px;
         }
@@ -40,393 +40,456 @@
             display: inline-block;
             vertical-align: middle;
         }
-        .grid-example {
-            display: grid;
-            gap: 16px;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+
+        .example-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            align-items: flex-start;
+        }
+
+        .example-row > .example-group {
+            flex: 1 1 220px;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
         }
     </style>
 {% endblock %}
 
 {% block pageContent %}
 <main class="page-main">
-    <div class="container">
-        <h1>CSS Style Guide</h1>
-        <p class="subtitle">Visual reference for the site's generic element styles and shared classes</p>
+    <div class="container page-layout">
+        <div class="content-main">
+            <div class="panel">
 
-        <!-- Typography -->
-        <section class="style-guide-section">
-            <h2>Typography</h2>
-            
-            <div class="example-group">
-                <div class="example-label">h1</div>
-                <h1>Heading 1 - Main Page Title</h1>
-            </div>
+                <!-- Typography -->
+                <div class="card card--padded" id="typography">
+                    <h2>Typography</h2>
 
-            <div class="example-group">
-                <div class="example-label">h2</div>
-                <h2>Heading 2 - Section Title</h2>
-            </div>
+                    <div class="example-group">
+                        <div class="example-label">h1</div>
+                        <h1>Heading 1 - Main Page Title</h1>
+                    </div>
 
-            <div class="example-group">
-                <div class="example-label">h3</div>
-                <h3>Heading 3 - Subsection Title</h3>
-            </div>
+                    <div class="example-group">
+                        <div class="example-label">h2</div>
+                        <h2>Heading 2 - Section Title</h2>
+                    </div>
 
-            <div class="example-group">
-                <div class="example-label">h4</div>
-                <h4>Heading 4 - Component Title</h4>
-            </div>
+                    <div class="example-group">
+                        <div class="example-label">h3</div>
+                        <h3>Heading 3 - Subsection Title</h3>
+                    </div>
 
-            <div class="example-group">
-                <div class="example-label">h5</div>
-                <h5>Heading 5 - Small Title</h5>
-            </div>
+                    <div class="example-group">
+                        <div class="example-label">h4</div>
+                        <h4>Heading 4 - Component Title</h4>
+                    </div>
 
-            <div class="example-group">
-                <div class="example-label">h6</div>
-                <h6>Heading 6 - Micro Title</h6>
-            </div>
+                    <div class="example-group">
+                        <div class="example-label">h5</div>
+                        <h5>Heading 5 - Small Title</h5>
+                    </div>
 
-            <div class="example-group">
-                <div class="example-label">.subtitle</div>
-                <div class="subtitle">Subtitle text - 14px, uppercase, letter-spaced</div>
-            </div>
+                    <div class="example-group">
+                        <div class="example-label">h6</div>
+                        <h6>Heading 6 - Micro Title</h6>
+                    </div>
 
-            <div class="example-group">
-                <div class="example-label">.caption</div>
-                <div class="caption">Caption text - 12px, small supporting text</div>
-            </div>
+                    <div class="example-group">
+                        <div class="example-label">.subtitle</div>
+                        <div class="subtitle">Subtitle text - 14px, uppercase, letter-spaced</div>
+                    </div>
 
-            <div class="example-group">
-                <div class="example-label">p (generic)</div>
-                <p>Regular paragraph text with the default body font, line height, and bottom spacing.</p>
-            </div>
+                    <div class="example-group">
+                        <div class="example-label">.caption</div>
+                        <div class="caption">Caption text - 12px, small supporting text</div>
+                    </div>
 
-            <div class="example-group">
-                <div class="example-label">a (generic)</div>
-                <p><a href="#">A standard link</a> uses the primary color by default.</p>
-            </div>
-        </section>
+                    <div class="example-group">
+                        <div class="example-label">p (generic)</div>
+                        <p>Regular paragraph text with the default body font, line height, and bottom spacing.</p>
+                    </div>
 
-        <!-- Body Content -->
-        <section class="style-guide-section">
-            <h2>Body Content</h2>
-            <p>Content from Craft fields should render plain HTML and rely on generic element selectors.</p>
+                    <div class="example-group">
+                        <div class="example-label">a (generic)</div>
+                        <p><a href="#">A standard link</a> uses the primary color by default.</p>
+                    </div>
+                </div>
 
-            <div class="example-group">
-                <div class="example-label">ul / ol (generic)</div>
-                <ul>
-                    <li>Unordered list item</li>
-                    <li>Another item with <a href="#">a link</a></li>
-                </ul>
-                <ol>
-                    <li>Ordered list item</li>
-                    <li>Another ordered item</li>
-                </ol>
-            </div>
+                <!-- Body Content -->
+                <div class="card card--padded" id="body-content">
+                    <h2>Body Content</h2>
+                    <p>Content from Craft fields should render plain HTML and rely on generic element selectors.</p>
 
-            <div class="example-group">
-                <div class="example-label">blockquote (generic)</div>
-                <blockquote>
-                    A blockquote pulls out quoted content with a left border and light background.
-                </blockquote>
-            </div>
+                    <div class="example-group">
+                        <div class="example-label">ul / ol (generic)</div>
+                        <ul>
+                            <li>Unordered list item</li>
+                            <li>Another item with <a href="#">a link</a></li>
+                        </ul>
+                        <ol>
+                            <li>Ordered list item</li>
+                            <li>Another ordered item</li>
+                        </ol>
+                    </div>
 
-            <div class="example-group">
-                <div class="example-label">pre / code (generic)</div>
-                <p>Inline code looks like <code>this</code>.</p>
-                <pre><code>// A preformatted code block
+                    <div class="example-group">
+                        <div class="example-label">blockquote (generic)</div>
+                        <blockquote>
+                            A blockquote pulls out quoted content with a left border and light background.
+                        </blockquote>
+                    </div>
+
+                    <div class="example-group">
+                        <div class="example-label">pre / code (generic)</div>
+                        <p>Inline code looks like <code>this</code>.</p>
+                        <pre><code>// A preformatted code block
 function example() {
     return true;
 }</code></pre>
-            </div>
+                    </div>
 
-            <div class="example-group">
-                <div class="example-label">table (generic)</div>
-                <table>
-                    <thead>
-                        <tr><th>Heading</th><th>Heading</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>Cell content</td><td>Cell content</td></tr>
-                        <tr><td>Cell content</td><td>Cell content</td></tr>
-                    </tbody>
-                </table>
-            </div>
+                    <div class="example-group">
+                        <div class="example-label">table (generic)</div>
+                        <table>
+                            <thead>
+                                <tr><th>Heading</th><th>Heading</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Cell content</td><td>Cell content</td></tr>
+                                <tr><td>Cell content</td><td>Cell content</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-            <div class="example-group">
-                <div class="example-label">img (generic)</div>
-                <img src="https://picsum.photos/400/200" alt="Example image">
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">.body</div>
-                <div class="body">
-                    <p>The <code>.body</code> class sets the container font size and line height. Generic child elements like paragraphs, lists, and tables pick up their own spacing from the global element selectors.</p>
-                    <ul>
-                        <li>Item one</li>
-                        <li>Item two</li>
-                    </ul>
-                </div>
-            </div>
-        </section>
-
-        <!-- Buttons -->
-        <section class="style-guide-section">
-            <h2>Buttons</h2>
-            
-            <div class="example-group">
-                <div class="example-label">.button</div>
-                <button class="button">Default Button</button>
-                <a href="#" class="button">Link as Button</a>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">.button .button-primary</div>
-                <button class="button button-primary">Primary Button</button>
-                <a href="#" class="button button-primary">Primary Link Button</a>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">.button .button-secondary</div>
-                <button class="button button-secondary">Secondary Button</button>
-                <a href="#" class="button button-secondary">Secondary Link Button</a>
-            </div>
-
-        </section>
-
-        <!-- Layout Components -->
-        <section class="style-guide-section">
-            <h2>Layout Components</h2>
-            
-            <div class="example-group">
-                <div class="example-label">.container</div>
-                <div class="container" style="background: var(--secondary-light); padding: 16px; border: 1px solid var(--border);">
-                    Container - 80% width, centered
-                </div>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">.panel</div>
-                <div class="panel" style="position: static;">
-                    <h3>Panel Title</h3>
-                    <div class="panel-content">Panel content with sticky positioning and light background.</div>
-                    <div class="panel-sections">
-                        <div class="panel-section">
-                            <h4>Panel Section</h4>
-                            <div class="panel-content">Section content with border top.</div>
+                    <div class="example-group">
+                        <div class="example-label">.body</div>
+                        <div class="body">
+                            <p>The <code>.body</code> class sets the container font size and line height. Generic child elements like paragraphs, lists, and tables pick up their own spacing from the global element selectors.</p>
+                            <ul>
+                                <li>Item one</li>
+                                <li>Item two</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
 
-        <!-- Lists -->
-        <section class="style-guide-section">
-            <h2>Lists</h2>
-            
-            <div class="example-group">
-                <div class="example-label">.list</div>
-                <ul class="list">
-                    <li><a href="#">List item 1</a> <span class="caption">(5)</span></li>
-                    <li><a href="#">List item 2</a> <span class="caption">(3)</span></li>
-                    <li><a href="#">List item 3</a> <span class="caption">(12)</span></li>
-                </ul>
-            </div>
-        </section>
+                <!-- Layout -->
+                <div class="card card--padded" id="layout">
+                    <h2>Layout</h2>
 
-        <!-- Chips -->
-        <section class="style-guide-section">
-            <h2>Chips</h2>
-            {% set colourPairs = [
-                { class: 'color-pair-gold', label: 'Muted Gold' },
-                { class: 'color-pair-sand', label: 'Muted Sand' },
-                { class: 'color-pair-sage', label: 'Muted Sage' },
-                { class: 'color-pair-olive', label: 'Muted Olive' },
-                { class: 'color-pair-sky', label: 'Muted Sky' },
-                { class: 'color-pair-stone', label: 'Muted Stone' },
-                { class: 'color-pair-rose', label: 'Muted Rose' },
-                { class: 'color-pair-clay', label: 'Muted Clay' },
-                { class: 'color-pair-plum', label: 'Muted Plum' },
-                { class: 'color-pair-ink', label: 'Muted Ink' }
-            ] %}
-
-            <div class="example-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
-                {% for pair in colourPairs %}
                     <div class="example-group">
-                        <div class="example-label">.{{ pair.class }}</div>
-                        <div class="chip {{ pair.class }}">{{ pair.label }}</div>
+                        <div class="example-label">.container</div>
+                        <div class="container" style="background: var(--secondary-light); padding: 16px; border: 1px solid var(--border);">
+                            Container - 80% width, centered
+                        </div>
                     </div>
-                {% endfor %}
-            </div>
-        </section>
 
-        <!-- Images -->
-        <section class="style-guide-section">
-            <h2>Images</h2>
-            
-            <div class="example-group">
-                <div class="example-label">.featured-image</div>
-                <img class="featured-image" src="https://picsum.photos/400/300" alt="Featured image example">
-            </div>
+                    <div class="example-group">
+                        <div class="example-label">.panel</div>
+                        <div class="panel" style="position: static;">
+                            <h3>Panel Title</h3>
+                            <div class="panel-content">Panel content with sticky positioning and light background.</div>
+                            <div class="panel-sections">
+                                <div class="panel-section">
+                                    <h4>Panel Section</h4>
+                                    <div class="panel-content">Section content with border top.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-            <div class="example-group">
-                <div class="example-label">.gallery</div>
-                <div class="gallery">
-                    <img class="gallery-image" src="https://picsum.photos/200/150" alt="Gallery image 1">
-                    <img class="gallery-image" src="https://picsum.photos/200/150" alt="Gallery image 2">
-                    <img class="gallery-image" src="https://picsum.photos/200/150" alt="Gallery image 3">
-                    <img class="gallery-image" src="https://picsum.photos/200/150" alt="Gallery image 4">
+                    <div class="example-group">
+                        <div class="example-label">.list</div>
+                        <ul class="list">
+                            <li><a href="#">List item 1</a> <span class="caption">(5)</span></li>
+                            <li><a href="#">List item 2</a> <span class="caption">(3)</span></li>
+                            <li><a href="#">List item 3</a> <span class="caption">(12)</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Cards & Images -->
+                <div class="card card--padded" id="cards-images">
+                    <h2>Cards & Images</h2>
+
+                    <div class="example-group">
+                        <div class="example-label">.card.card--padded</div>
+                        <div class="card card--padded">
+                            <h3>Padded card</h3>
+                            <p>A card with 24px padding, used for grouped content inside a panel.</p>
+                        </div>
+                        <div class="card card--padded">
+                            <h3>Second padded card</h3>
+                            <p>Consecutive cards inside a panel get a 28px gap between them automatically.</p>
+                        </div>
+                    </div>
+
+                    <div class="example-group">
+                        <div class="example-label">.card.card--image-top</div>
+                        <div class="card card--image-top">
+                            <img class="thumb" src="https://picsum.photos/600/300" alt="Image top example">
+                            <div class="card-body">
+                                <h3>Image-top card</h3>
+                                <p>The <code>--image-top</code> modifier removes card padding so the image bleeds to the edges. The <code>.card-body</code> wrapper re-adds padding around the text content below the image.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="example-group">
+                        <div class="example-label">.thumb</div>
+                        <img class="thumb" src="https://picsum.photos/400/300" alt="Thumb image example">
+                    </div>
+
+                    <div class="example-group">
+                        <div class="example-label">.gallery</div>
+                        <div class="gallery">
+                            <img class="gallery-image" src="https://picsum.photos/200/150" alt="Gallery image 1">
+                            <img class="gallery-image" src="https://picsum.photos/200/150" alt="Gallery image 2">
+                            <img class="gallery-image" src="https://picsum.photos/200/150" alt="Gallery image 3">
+                            <img class="gallery-image" src="https://picsum.photos/200/150" alt="Gallery image 4">
+                        </div>
+                    </div>
+
+                    <div class="example-group">
+                        <div class="example-label">.grid</div>
+                        <div class="grid">
+                            <article class="card card--image-top">
+                                <img class="thumb" src="https://picsum.photos/200/150" alt="Card thumbnail">
+                                <div class="card-body">
+                                    <div class="card-chips">
+                                        <span class="chip color-pair-gold">Project Type</span>
+                                        <span class="chip color-pair-ink">Design Source</span>
+                                    </div>
+                                    <div class="card-heading">
+                                        <h3><a href="#">Card Title</a></h3>
+                                        <div class="card-category-chips">
+                                            <span class="chip color-pair-sage">Category</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-excerpt">A short excerpt that shows the card body text truncation and line clamp behaviour.</div>
+                                    <div class="caption">June 2026</div>
+                                </div>
+                            </article>
+                            <article class="card card--image-top">
+                                <img class="thumb" src="https://picsum.photos/200/150" alt="Card thumbnail">
+                                <div class="card-body">
+                                    <div class="card-chips">
+                                        <span class="chip color-pair-sky">Another Type</span>
+                                    </div>
+                                    <div class="card-heading">
+                                        <h3><a href="#">Second Card</a></h3>
+                                    </div>
+                                    <div class="card-excerpt">Another excerpt to demonstrate how cards sit in the grid.</div>
+                                    <div class="caption">May 2026</div>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="card card--padded" id="buttons">
+                    <h2>Buttons</h2>
+
+                    <div class="example-row">
+                        <div class="example-group">
+                            <div class="example-label">.button</div>
+                            <button class="button">Default Button</button>
+                        </div>
+
+                        <div class="example-group">
+                            <div class="example-label">.button-primary</div>
+                            <button class="button button-primary">Primary Button</button>
+                        </div>
+
+                        <div class="example-group">
+                            <div class="example-label">.button-secondary</div>
+                            <button class="button button-secondary">Secondary Button</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chips -->
+                <div class="card card--padded" id="chips">
+                    <h2>Chips</h2>
+                    {% set colourPairs = [
+                        { class: 'color-pair-gold', label: 'Muted Gold' },
+                        { class: 'color-pair-sand', label: 'Muted Sand' },
+                        { class: 'color-pair-sage', label: 'Muted Sage' },
+                        { class: 'color-pair-olive', label: 'Muted Olive' },
+                        { class: 'color-pair-sky', label: 'Muted Sky' },
+                        { class: 'color-pair-stone', label: 'Muted Stone' },
+                        { class: 'color-pair-rose', label: 'Muted Rose' },
+                        { class: 'color-pair-clay', label: 'Muted Clay' },
+                        { class: 'color-pair-plum', label: 'Muted Plum' },
+                        { class: 'color-pair-ink', label: 'Muted Ink' },
+                        { class: 'color-pair-moss', label: 'Muted Moss' },
+                        { class: 'color-pair-lavender', label: 'Muted Lavender' },
+                        { class: 'color-pair-peach', label: 'Muted Peach' },
+                        { class: 'color-pair-slate', label: 'Muted Slate' },
+                        { class: 'color-pair-rust', label: 'Muted Rust' },
+                        { class: 'color-pair-berry', label: 'Muted Berry' }
+                    ] %}
+
+                    <div class="example-row">
+                        {% for pair in colourPairs %}
+                            <div class="example-group">
+                                <div class="example-label">.{{ pair.class }}</div>
+                                <div class="chip {{ pair.class }}">{{ pair.label }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Design Tokens -->
+                <div class="card card--padded" id="design-tokens">
+                    <h2>Design Tokens</h2>
+
+                    <h3>Color Variables</h3>
+
+                    <div class="example-group">
+                        <div class="example-label">--primary</div>
+                        <div class="color-swatch" style="background: var(--primary);"></div>
+                        <div class="color-info">Primary color for links and accents</div>
+                    </div>
+
+                    <div class="example-group">
+                        <div class="example-label">--primary-dark</div>
+                        <div class="color-swatch" style="background: var(--primary-dark);"></div>
+                        <div class="color-info">Dark variant of primary</div>
+                    </div>
+
+                    <div class="example-group">
+                        <div class="example-label">--secondary</div>
+                        <div class="color-swatch" style="background: var(--secondary);"></div>
+                        <div class="color-info">Secondary color</div>
+                    </div>
+
+                    <div class="example-group">
+                        <div class="example-label">--secondary-light</div>
+                        <div class="color-swatch" style="background: var(--secondary-light);"></div>
+                        <div class="color-info">Light background for panels</div>
+                    </div>
+
+                    <div class="example-group">
+                        <div class="example-label">--secondary-dark</div>
+                        <div class="color-swatch" style="background: var(--secondary-dark);"></div>
+                        <div class="color-info">Dark variant of secondary</div>
+                    </div>
+
+                    <div class="example-group">
+                        <div class="example-label">--tertiary</div>
+                        <div class="color-swatch" style="background: var(--tertiary);"></div>
+                        <div class="color-info">Tertiary background color</div>
+                    </div>
+
+                    <div class="example-group">
+                        <div class="example-label">--tertiary-dark</div>
+                        <div class="color-swatch" style="background: var(--tertiary-dark);"></div>
+                        <div class="color-info">Dark variant of tertiary</div>
+                    </div>
+
+                    <div class="example-group">
+                        <div class="example-label">--body</div>
+                        <div class="color-swatch" style="background: var(--body);"></div>
+                        <div class="color-info">Main body text color</div>
+                    </div>
+
+                    <div class="example-group">
+                        <div class="example-label">--body-dark</div>
+                        <div class="color-swatch" style="background: var(--body-dark);"></div>
+                        <div class="color-info">Dark body text</div>
+                    </div>
+
+                    <div class="example-group">
+                        <div class="example-label">--body-light</div>
+                        <div class="color-swatch" style="background: var(--body-light);"></div>
+                        <div class="color-info">Light body text</div>
+                    </div>
+
+                    <div class="example-group">
+                        <div class="example-label">--border</div>
+                        <div class="color-swatch" style="background: var(--border);"></div>
+                        <div class="color-info">Border color</div>
+                    </div>
+
+                    <h3>Typography Size Variables</h3>
+
+                    <div class="example-group">
+                        <div class="example-label">--type-h1</div>
+                        <div style="font-size: var(--type-h1);">Heading 1 Size</div>
+                    </div>
+
+                    <div class="example-group">
+                        <div class="example-label">--type-h2</div>
+                        <div style="font-size: var(--type-h2);">Heading 2 Size</div>
+                    </div>
+
+                    <div class="example-group">
+                        <div class="example-label">--type-h3</div>
+                        <div style="font-size: var(--type-h3);">Heading 3 Size</div>
+                    </div>
+
+                    <div class="example-group">
+                        <div class="example-label">--type-h4</div>
+                        <div style="font-size: var(--type-h4);">Heading 4 Size</div>
+                    </div>
+
+                    <div class="example-group">
+                        <div class="example-label">--type-h5</div>
+                        <div style="font-size: var(--type-h5);">Heading 5 Size</div>
+                    </div>
+
+                    <div class="example-group">
+                        <div class="example-label">--type-h6</div>
+                        <div style="font-size: var(--type-h6);">Heading 6 Size</div>
+                    </div>
+
+                    <div class="example-group">
+                        <div class="example-label">--type-subtitle</div>
+                        <div style="font-size: var(--type-subtitle);">Subtitle Size</div>
+                    </div>
+
+                    <div class="example-group">
+                        <div class="example-label">--type-body</div>
+                        <div style="font-size: var(--type-body);">Body Size</div>
+                    </div>
+
+                    <div class="example-group">
+                        <div class="example-label">--type-caption</div>
+                        <div style="font-size: var(--type-caption);">Caption Size</div>
+                    </div>
+
+                    <div class="example-group">
+                        <div class="example-label">--type-button</div>
+                        <div style="font-size: var(--type-button);">Button Size</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <aside class="panel panel--sticky">
+            <h2>Contents</h2>
+            <ul class="list">
+                <li><a href="#typography">Typography</a></li>
+                <li><a href="#body-content">Body Content</a></li>
+                <li><a href="#layout">Layout</a></li>
+                <li><a href="#cards-images">Cards & Images</a></li>
+                <li><a href="#buttons">Buttons</a></li>
+                <li><a href="#chips">Chips</a></li>
+                <li><a href="#design-tokens">Design Tokens</a></li>
+            </ul>
+            <div class="panel-sections">
+                <div class="panel-section">
+                    <h3>About</h3>
+                    <div class="panel-content">This page documents the site's generic element styles and shared CSS classes. Prefer plain HTML elements over bespoke classes.</div>
                 </div>
             </div>
-
-            <div class="example-group">
-                <div class="example-label">.thumb</div>
-                <img class="thumb" src="https://picsum.photos/100/100" alt="Thumbnail example">
-            </div>
-        </section>
-
-        <!-- Links and Actions -->
-        <section class="style-guide-section">
-            <h2>Links and Actions</h2>
-            
-            <div class="example-group">
-                <div class="example-label">.links</div>
-                <div class="links">
-                    <a href="#" class="button button-primary">Link 1</a>
-                    <a href="#" class="button button-primary">Link 2</a>
-                    <a href="#" class="button button-secondary">Link 3</a>
-                </div>
-            </div>
-
-        </section>
-
-        <!-- Color Variables -->
-        <section class="style-guide-section">
-            <h2>Color Variables</h2>
-            
-            <div class="example-group">
-                <div class="example-label">--primary</div>
-                <div class="color-swatch" style="background: var(--primary);"></div>
-                <div class="color-info">Primary color for links and accents</div>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">--primary-dark</div>
-                <div class="color-swatch" style="background: var(--primary-dark);"></div>
-                <div class="color-info">Dark variant of primary</div>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">--secondary</div>
-                <div class="color-swatch" style="background: var(--secondary);"></div>
-                <div class="color-info">Secondary color</div>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">--secondary-light</div>
-                <div class="color-swatch" style="background: var(--secondary-light);"></div>
-                <div class="color-info">Light background for panels</div>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">--secondary-dark</div>
-                <div class="color-swatch" style="background: var(--secondary-dark);"></div>
-                <div class="color-info">Dark variant of secondary</div>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">--tertiary</div>
-                <div class="color-swatch" style="background: var(--tertiary);"></div>
-                <div class="color-info">Tertiary background color</div>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">--tertiary-dark</div>
-                <div class="color-swatch" style="background: var(--tertiary-dark);"></div>
-                <div class="color-info">Dark variant of tertiary</div>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">--body</div>
-                <div class="color-swatch" style="background: var(--body);"></div>
-                <div class="color-info">Main body text color</div>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">--body-dark</div>
-                <div class="color-swatch" style="background: var(--body-dark);"></div>
-                <div class="color-info">Dark body text</div>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">--body-light</div>
-                <div class="color-swatch" style="background: var(--body-light);"></div>
-                <div class="color-info">Light body text</div>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">--border</div>
-                <div class="color-swatch" style="background: var(--border);"></div>
-                <div class="color-info">Border color</div>
-            </div>
-        </section>
-
-        <!-- Typography Sizes -->
-        <section class="style-guide-section">
-            <h2>Typography Size Variables</h2>
-            
-            <div class="example-group">
-                <div class="example-label">--type-h1</div>
-                <div style="font-size: var(--type-h1);">Heading 1 Size</div>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">--type-h2</div>
-                <div style="font-size: var(--type-h2);">Heading 2 Size</div>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">--type-h3</div>
-                <div style="font-size: var(--type-h3);">Heading 3 Size</div>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">--type-h4</div>
-                <div style="font-size: var(--type-h4);">Heading 4 Size</div>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">--type-h5</div>
-                <div style="font-size: var(--type-h5);">Heading 5 Size</div>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">--type-h6</div>
-                <div style="font-size: var(--type-h6);">Heading 6 Size</div>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">--type-subtitle</div>
-                <div style="font-size: var(--type-subtitle);">Subtitle Size</div>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">--type-body</div>
-                <div style="font-size: var(--type-body);">Body Size</div>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">--type-caption</div>
-                <div style="font-size: var(--type-caption);">Caption Size</div>
-            </div>
-
-            <div class="example-group">
-                <div class="example-label">--type-button</div>
-                <div style="font-size: var(--type-button);">Button Size</div>
-            </div>
-        </section>
+        </aside>
 
     </div>
 </main>
