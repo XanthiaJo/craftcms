@@ -1,4 +1,4 @@
-dateModified: 1782133259
+dateModified: 1782579828
 elementSources:
   craft\elements\Entry:
     -
@@ -87,6 +87,7 @@ meta:
     2380f0b5-e90e-4c9a-a859-2642a8780e71: 'Markdown Page' # Markdown Page
     392516be-39ef-42d6-af30-f84123d033d9: 'Site Navigation' # Site Navigation
     895989d9-cefc-4582-bbad-6736c0c471b8: 'Post Images' # Post Images
+    961722dc-6fd7-4b48-a2bf-e4d0162ece37: Image # Image
     29579835-63db-4481-b347-52f1852e0eb9: 'Featured Image' # Featured Image
     ad486461-8a57-4496-bf13-b475d020d92f: 'Navigation URL' # Navigation URL
     af6550e1-b206-4dcc-a2ff-a847082b77bc: Body # Body
@@ -100,6 +101,7 @@ meta:
     da5d8ca2-8f7f-4375-96fb-53ffeed1a4a2: Categories # Categories
     dd7373ee-b1ce-4c8d-815d-03cfaed9bd88: 'Design Source' # Design Source
     e7c37c0b-1ba6-4e81-ab3c-5098fcf9218d: 'Home Heading' # Home Heading
+    e658df5a-6730-4006-8252-088fed617ae2: 'Instruction Step' # Instruction Step
     e937e671-7ee5-4111-8c6f-440df087bae6: 'Home Cards' # Home Cards
     fbd053e2-d25f-4b04-9271-c37fc5366685: 'Markdown Page' # Markdown Page
     fc08b7eb-9365-4b5b-98fd-193abc9cc1bb: 'Design Sources' # Design Sources
