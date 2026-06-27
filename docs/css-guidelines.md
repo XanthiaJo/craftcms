@@ -51,8 +51,16 @@ Before adding a new wrapper or spacing rule, check whether an existing layout cl
 
 Surface rules:
 
-- `.card` is the shared white surface for repeated card grids
+- `.card` is the shared white surface for cards (archive grid, panel inception, homepage)
+- `.card--padded` adds 24px padding for standalone cards inside a panel
+- `.card--image-top` removes padding so an image bleeds to the card edges
+- `.card-body` is the padded content wrapper inside an image-top card
 - `.panel` is the shared colored surface for the page subheader, general content pages, and sidebars
+- `.panel--sticky` makes a sidebar panel stick below the site header
+
+### Panel Inception
+
+Cards can sit inside panels to create grouped content sections. This is the pattern used on single post pages and the style guide. Consecutive `.card` elements inside a `.panel` get a 28px gap automatically.
 
 ## Markdown And Rich Text
 
@@ -76,16 +84,28 @@ Cards should use the shared card classes and chip classes rather than per-templa
 
 Use the existing pattern:
 
-- `.card`
-- `.card-content`
-- `.card-heading`
-- `.card-chips`
-- `.card-type-chip`
-- `.card-design-source-chip`
+- `.card` — base (white bg, border, radius, flex column)
+- `.card--padded` — 24px padding modifier
+- `.card--image-top` — image-top modifier (padding: 0)
+- `.card-body` — padded content wrapper inside image-top cards
+- `.card-heading` — heading wrapper inside a card body
+- `.card-excerpt` — clamped excerpt text (3-line truncation)
+- `.card-chips` — chip row inside a card body
+- `.card-category-chips` — category chip row inside a card heading
+
+### Images
+
+- `.thumb` — 4/3 aspect ratio cover image that fills its container
+- `.gallery` — responsive auto-fill grid for image galleries
+- `.gallery-image` — gallery image with border, radius, and background fill
+
+### Lists
+
+Generic `ul` and `ol` are styled by default — no classes needed. Use `.list` only when you need a markerless list (sidebar navigation, tag clouds).
 
 If a page needs a white content box, add `card` to the wrapper and keep any page-specific layout class separate.
 
-If a new chip color is needed, add a named variant in `site.css` rather than using inline background colors.
+If a new chip color is needed, add a named `color-pair-*` variant in `site.css` rather than using inline background colors.
 
 ## Templates
 
