@@ -23,3 +23,6 @@ web/knitstitch/test-results
 node_modules/
 Folder.DotSettings.user
 test-results/
+.playwright-mcp/
+debug_out.txt
+.ddev/docker-compose.wordpress.yaml
