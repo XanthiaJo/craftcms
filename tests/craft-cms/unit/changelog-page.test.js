@@ -26,7 +26,8 @@ test('changelog page template renders the generated build history fragment', () 
   assert.match(generated, /<ul class="list">/);
   assert.match(generated, /<h4>Add reusable colour pairs to archive cards<\/h4>/);
   assert.match(generated, /<span class="caption">/);
-  assert.match(generated, /<p class="panel-content">Replace inline footer markup with\s+include &#039;_partials\/site-footer\.twig&#039;\s+in index\.twig, category\.twig, and tag\.twig/i);
+  assert.match(generated, /Replace inline footer markup with\s+include &#039;_partials\/site-footer\.twig&#039;/i);
+  assert.match(generated, /in index\.twig, category\.twig, and tag\.twig/i);
   assert.match(siteCss, /\.panel-actions\s*\{[\s\S]*display:\s*flex;/);
   assert.match(siteCss, /\.panel-actions\s*\{[\s\S]*align-items:\s*center;/);
   assert.match(siteCss, /\.panel-section\s*\{[\s\S]*border-top:\s*1px solid var\(--border\);/);

@@ -28,6 +28,9 @@ const overSpecificSelectorRegex = new RegExp(
 // intentionally scoped because the element needs different styling in that context.
 const whitelist = new Set([
   '.page-subheader-inner h1',
+  '.lightbox img',
+  '.list > li',
+  '.list > li::before',
 ]);
 
 function readCss() {

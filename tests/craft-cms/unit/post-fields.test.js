@@ -40,6 +40,61 @@ test('body field is a PlainText field with the correct handle and name', () => {
   assert.match(field, /multiline:\s*true/);
 });
 
+test('instructions field is a Matrix field with the instructionSection entry type', () => {
+  const field = read('config/project/fields/instructions--53cdc25e-21c1-4998-a258-79e3ec30f36c.yaml');
+  assert.match(field, /^handle:\s*instructions$/m);
+  assert.match(field, /^name:\s*Instructions$/m);
+  assert.match(field, /^type:\s*craft\\fields\\Matrix$/m);
+  assert.match(field, /uid\n\s+- e507c3b9-be64-43ba-8f46-f3630adbaa68/);
+});
+
+test('instructionSection entry type has heading, subheading, text, and nested steps fields', () => {
+  const entryType = read('config/project/entryTypes/instructionSection--e507c3b9-be64-43ba-8f46-f3630adbaa68.yaml');
+  assert.match(entryType, /handle:\s*instructionSection/);
+  assert.match(entryType, /fieldUid:\s*de28d2f7-8a33-44e7-801e-e65a0c589c14/);
+  assert.match(entryType, /fieldUid:\s*c00d971d-29eb-48e9-af14-1438acd199a0/);
+  assert.match(entryType, /fieldUid:\s*3b128811-957e-40d4-aeb7-ca8c63f7e1de/);
+  assert.match(entryType, /fieldUid:\s*770e7672-f720-4f28-8d28-ec42a350e7c8/);
+});
+
+test('instructionSteps field is a nested Matrix field with the instructionStep entry type', () => {
+  const field = read('config/project/fields/instructionSteps--770e7672-f720-4f28-8d28-ec42a350e7c8.yaml');
+  assert.match(field, /^handle:\s*instructionSteps$/m);
+  assert.match(field, /^name:\s*'Instruction Steps'$/m);
+  assert.match(field, /^type:\s*craft\\fields\\Matrix$/m);
+  assert.match(field, /uid\n\s+- e658df5a-6730-4006-8252-088fed617ae2/);
+});
+
+test('instructionStep entry type has heading and text blocks matrix fields', () => {
+  const entryType = read('config/project/entryTypes/instructionStep--e658df5a-6730-4006-8252-088fed617ae2.yaml');
+  assert.match(entryType, /handle:\s*instructionStep/);
+  assert.match(entryType, /fieldUid:\s*2eeb9770-728d-420e-8988-faf46168b929/);
+  assert.match(entryType, /fieldUid:\s*88e54dd6-f463-4cc9-9d1f-a3014a370157/);
+  assert.doesNotMatch(entryType, /fieldUid:\s*961722dc-6fd7-4b48-a2bf-e4d0162ece37/);
+});
+
+test('instructionStepTextBlock entry type has text and image fields', () => {
+  const entryType = read('config/project/entryTypes/instructionStepTextBlock--ade117cc-4dd2-4d57-a69a-4742a3be244d.yaml');
+  assert.match(entryType, /handle:\s*instructionStepTextBlock/);
+  assert.match(entryType, /fieldUid:\s*032a993a-a5cc-43f7-8810-a33f792f56fe/);
+  assert.match(entryType, /fieldUid:\s*d998cee5-1798-49ad-9624-6db8706315c2/);
+});
+
+test('instructionStepTexts field is a Matrix field with the instructionStepTextBlock entry type', () => {
+  const field = read('config/project/fields/instructionStepTexts--88e54dd6-f463-4cc9-9d1f-a3014a370157.yaml');
+  assert.match(field, /^handle:\s*instructionStepTexts$/m);
+  assert.match(field, /^name:\s*'Text Blocks'$/m);
+  assert.match(field, /^type:\s*craft\\fields\\Matrix$/m);
+  assert.match(field, /uid\n\s+- ade117cc-4dd2-4d57-a69a-4742a3be244d/);
+});
+
+test('instructionStepImage field allows multiple assets per step', () => {
+  const field = read('config/project/fields/instructionStepImage--961722dc-6fd7-4b48-a2bf-e4d0162ece37.yaml');
+  assert.match(field, /^handle:\s*instructionStepImage$/m);
+  assert.match(field, /^type:\s*craft\\fields\\Assets$/m);
+  assert.match(field, /maxRelations:\s*null/);
+});
+
 test('resourceLinks field is a Table field with label and url columns', () => {
   const field = read('config/project/fields/resourceLinks--76c53e19-a060-468b-9dcb-6f2874cdcde4.yaml');
   assert.match(field, /^handle:\s*resourceLinks$/m);
@@ -94,6 +149,7 @@ test('post entry type layout includes every custom field by UID', () => {
   const uids = {
     'Featured Image': '29579835-63db-4481-b347-52f1852e0eb9',
     'Body': 'af6550e1-b206-4dcc-a2ff-a847082b77bc',
+    'Instructions': '53cdc25e-21c1-4998-a258-79e3ec30f36c',
     'Resource Links': '76c53e19-a060-468b-9dcb-6f2874cdcde4',
     'Post Images': '895989d9-cefc-4582-bbad-6736c0c471b8',
     'Project Types': 'c8ae7352-3ab5-47e7-b586-a001fbe07430',
@@ -114,7 +170,7 @@ test('single post template renders the title', () => {
 
 test('single post template renders the featured image', () => {
   assert.match(postTemplate, /entry\.featuredImage\s*\?\s*entry\.featuredImage\.one\(\)\s*:\s*null/);
-  assert.match(postTemplate, /<img class="featured-image" src="\{\{\s*featuredImage\.url\s*\}\}" alt="\{\{\s*featuredImage\.title\s*\?:\s*entry\.title\s*\}\}">/);
+  assert.match(postTemplate, /<img class="thumb" src="\{\{\s*featuredImage\.url\s*\}\}" alt="\{\{\s*featuredImage\.title\s*\?:\s*entry\.title\s*\}\}">/);
 });
 
 test('single post template renders the post date', () => {
@@ -126,11 +182,34 @@ test('single post template renders the body content', () => {
   assert.match(postTemplate, /entry\.body\|nl2br/);
 });
 
+test('single post template renders the instructions matrix with nested sections', () => {
+  assert.match(postTemplate, /attribute\(entry,\s*'instructions'\)/);
+  assert.match(postTemplate, /entry\.instructions\s*\?\s*entry\.instructions\.all\(\)/);
+  assert.match(postTemplate, /class="instructions"/);
+  assert.match(postTemplate, /instructionSections/);
+  assert.match(postTemplate, /section\.instructionSectionHeading/);
+  assert.match(postTemplate, /section\.instructionSectionSubheading/);
+  assert.match(postTemplate, /section\.instructionSectionText\|nl2br/);
+  assert.match(postTemplate, /section\.instructionSteps\s*\?\s*section\.instructionSteps\.all\(\)/);
+  assert.match(postTemplate, /class="panel-sections"/);
+  assert.match(postTemplate, /class="panel-section"/);
+  assert.match(postTemplate, /<ol>/);
+  assert.match(postTemplate, /<li>/);
+  assert.match(postTemplate, /step\.instructionStepTexts\s*\?\s*step\.instructionStepTexts\.all\(\)/);
+  assert.match(postTemplate, /for\s+textBlock\s+in\s+textBlocks/);
+  assert.match(postTemplate, /<ol>/);
+  assert.match(postTemplate, /textBlock\.instructionStepTextLine\|nl2br/);
+  assert.match(postTemplate, /textBlock\.instructionStepTextImage\s*\?\s*textBlock\.instructionStepTextImage\.all\(\)/);
+  assert.match(postTemplate, /for\s+blockImage\s+in\s+blockImages/);
+  assert.match(postTemplate, /<div\s+class="gallery">/);
+  assert.match(postTemplate, /<img\s+class="gallery-image"\s+src="\{\{\s*blockImage\.url\s*\}\}"\s+alt="\{\{\s*blockImage\.title\s*\?:\s*textBlock\.instructionStepTextLine\s*\?:\s*'Instruction image'\s*\}\}"\s+data-full="\{\{\s*blockImage\.url\s*\}\}">/);
+});
+
 test('single post template renders the post images gallery', () => {
   assert.match(postTemplate, /attribute\(entry,\s*'postImages'\)/);
   assert.match(postTemplate, /entry\.postImages\s*\?\s*entry\.postImages\.all\(\)/);
   assert.match(postTemplate, /class="gallery"/);
-  assert.match(postTemplate, /<img class="gallery-image" src="\{\{\s*galleryImage\.url\s*\}\}" alt="\{\{\s*galleryImage\.title\s*\?:\s*entry\.title\s*\}\}">/);
+  assert.match(postTemplate, /<img class="gallery-image" src="\{\{\s*galleryImage\.url\s*\}\}" alt="\{\{\s*galleryImage\.title\s*\?:\s*entry\.title\s*\}\}"\s+data-full="\{\{\s*galleryImage\.url\s*\}\}">/);
 });
 
 test('single post template renders resource links as buttons in the sidebar', () => {

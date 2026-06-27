@@ -26,6 +26,7 @@ test('post editor layout keeps the card-editable fields in Craft admin', () => {
   assert.match(postLayout, /type:\s*craft\\fieldlayoutelements\\entries\\EntryTitleField/);
   expectFileHasLabel('config/project/entryTypes/post--d7835db0-9bc7-4ee6-8ad8-acd09625daf0.yaml', 'Featured Image');
   expectFileHasLabel('config/project/entryTypes/post--d7835db0-9bc7-4ee6-8ad8-acd09625daf0.yaml', 'Body');
+  expectFileHasLabel('config/project/entryTypes/post--d7835db0-9bc7-4ee6-8ad8-acd09625daf0.yaml', 'Instructions');
   expectFileHasLabel('config/project/entryTypes/post--d7835db0-9bc7-4ee6-8ad8-acd09625daf0.yaml', 'Resource Links');
   expectFileHasLabel('config/project/entryTypes/post--d7835db0-9bc7-4ee6-8ad8-acd09625daf0.yaml', 'Post Images');
   expectFileHasLabel('config/project/entryTypes/post--d7835db0-9bc7-4ee6-8ad8-acd09625daf0.yaml', 'Project Types');
@@ -35,6 +36,7 @@ test('post editor layout keeps the card-editable fields in Craft admin', () => {
 
   expectFileHasHandle('config/project/fields/featuredImage--29579835-63db-4481-b347-52f1852e0eb9.yaml', 'featuredImage');
   expectFileHasHandle('config/project/fields/body--af6550e1-b206-4dcc-a2ff-a847082b77bc.yaml', 'body');
+  expectFileHasHandle('config/project/fields/instructions--53cdc25e-21c1-4998-a258-79e3ec30f36c.yaml', 'instructions');
   expectFileHasHandle('config/project/fields/resourceLinks--76c53e19-a060-468b-9dcb-6f2874cdcde4.yaml', 'resourceLinks');
   expectFileHasHandle('config/project/fields/postImages--895989d9-cefc-4582-bbad-6736c0c471b8.yaml', 'postImages');
   expectFileHasHandle('config/project/fields/projectTypes--c8ae7352-3ab5-47e7-b586-a001fbe07430.yaml', 'projectTypes');
@@ -48,6 +50,18 @@ test('post editor layout keeps the card-editable fields in Craft admin', () => {
   assert.match(chipField, /value:\s*sand/);
   assert.match(chipField, /label:\s*['"]?Muted Ink['"]?/);
   assert.match(chipField, /value:\s*ink/);
+  assert.match(chipField, /label:\s*['"]?Muted Moss['"]?/);
+  assert.match(chipField, /value:\s*moss/);
+  assert.match(chipField, /label:\s*['"]?Muted Lavender['"]?/);
+  assert.match(chipField, /value:\s*lavender/);
+  assert.match(chipField, /label:\s*['"]?Muted Peach['"]?/);
+  assert.match(chipField, /value:\s*peach/);
+  assert.match(chipField, /label:\s*['"]?Muted Slate['"]?/);
+  assert.match(chipField, /value:\s*slate/);
+  assert.match(chipField, /label:\s*['"]?Muted Rust['"]?/);
+  assert.match(chipField, /value:\s*rust/);
+  assert.match(chipField, /label:\s*['"]?Muted Berry['"]?/);
+  assert.match(chipField, /value:\s*berry/);
   assert.match(chipField, /instructions:\s*'Choose a reusable muted colour pair for this term\.'/);
   assert.doesNotMatch(chipField, /value:\s*muted-/);
   assert.match(
