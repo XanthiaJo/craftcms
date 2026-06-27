@@ -23,7 +23,16 @@ git commit
 - The **description** should be lowercase, imperative, and concise.
 - The **body** is optional but encouraged unless it causes duplication of the description.
   - Bullet points are preferred.
-  
+
+### Footers
+
+Avoid adding non-functional footers such as `Generated with [Devin](https://devin.ai)` or `Co-Authored-By: Devin ...` to commit messages. These are not part of the project's conventional commit format and add noise to the changelog.
+
+Functional footers are allowed only when they carry meaning for the project:
+
+- `BREAKING CHANGE:` to signal a breaking change
+- `Signed-off-by:` if the project requires DCO sign-off
+
 ## Commit Types and Version Impact
 
 | Type                                  | Version bump | Changelog group                  |
