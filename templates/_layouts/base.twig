@@ -19,5 +19,25 @@
 {% block pageContent %}{% endblock %}
 {% include '_partials/site-footer.twig' %}
 {% block scripts %}{% endblock %}
+<script>
+(function () {
+    document.addEventListener('click', function (e) {
+        var img = e.target.closest('img.gallery-image[data-full]');
+        if (!img) return;
+        e.preventDefault();
+        var overlay = document.createElement('div');
+        overlay.className = 'lightbox';
+        var full = document.createElement('img');
+        full.src = img.dataset.full;
+        full.alt = img.alt;
+        overlay.appendChild(full);
+        overlay.addEventListener('click', function () { overlay.remove(); });
+        document.addEventListener('keydown', function esc (ev) {
+            if (ev.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', esc); }
+        });
+        document.body.appendChild(overlay);
+    });
+})();
+</script>
 </body>
 </html>

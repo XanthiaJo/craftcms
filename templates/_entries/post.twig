@@ -11,67 +11,134 @@
 {% block pageContent %}
 {% set postsIndexUrl = '/posts' %}
 
+{% set featuredImage = entry.featuredImage ? entry.featuredImage.one() : null %}
+{% set rawEntryProjectTypes = attribute(entry, 'projectTypes') is defined and entry.projectTypes ? entry.projectTypes.all() : [] %}
+{% set entryProjectTypes = [] %}
+{% for projectType in rawEntryProjectTypes %}
+    {% set entryProjectTypes = entryProjectTypes|merge([projectType]) %}
+{% endfor %}
+{% set rawEntryDesignSource = attribute(entry, 'designSource') is defined and entry.designSource ? entry.designSource.all() : [] %}
+{% set entryDesignSource = rawEntryDesignSource[0] ?? null %}
+{% set rawEntryCategories = attribute(entry, 'postCategories') is defined and entry.postCategories ? entry.postCategories.all() : [] %}
+{% set entryCategories = [] %}
+{% for category in rawEntryCategories %}
+    {% if not (category.title matches '/^\\d{4}$/') %}
+        {% set entryCategories = entryCategories|merge([category]) %}
+    {% endif %}
+{% endfor %}
+{% set entryTags = attribute(entry, 'postTags') is defined and entry.postTags ? entry.postTags.all() : [] %}
+{% set instructionSections = attribute(entry, 'instructions') is defined and entry.instructions ? entry.instructions.all() : [] %}
+{% set galleryImages = attribute(entry, 'postImages') is defined and entry.postImages ? entry.postImages.all() : [] %}
+{% set allGalleryImages = [] %}
+{% if featuredImage %}
+    {% set allGalleryImages = allGalleryImages|merge([featuredImage]) %}
+{% endif %}
+{% if galleryImages|length %}
+    {% set allGalleryImages = allGalleryImages|merge(galleryImages) %}
+{% endif %}
+
 <main class="page-main">
     <div class="container page-layout">
         <div class="panel">
-            {% set featuredImage = entry.featuredImage ? entry.featuredImage.one() : null %}
-            {% if featuredImage %}
-                <img class="featured-image" src="{{ featuredImage.url }}" alt="{{ featuredImage.title ?: entry.title }}">
-            {% endif %}
-            <h1>{{ entry.title }}</h1>
-            <p class="caption">{{ entry.postDate|date('F j, Y') }}</p>
-            {% set rawEntryProjectTypes = attribute(entry, 'projectTypes') is defined and entry.projectTypes ? entry.projectTypes.all() : [] %}
-            {% set entryProjectTypes = [] %}
-            {% for projectType in rawEntryProjectTypes %}
-                {% set entryProjectTypes = entryProjectTypes|merge([projectType]) %}
-            {% endfor %}
-            {% set rawEntryDesignSource = attribute(entry, 'designSource') is defined and entry.designSource ? entry.designSource.all() : [] %}
-            {% set entryDesignSource = rawEntryDesignSource[0] ?? null %}
-            {% set rawEntryCategories = attribute(entry, 'postCategories') is defined and entry.postCategories ? entry.postCategories.all() : [] %}
-            {% set entryCategories = [] %}
-            {% for category in rawEntryCategories %}
-                {% if not (category.title matches '/^\\d{4}$/') %}
-                    {% set entryCategories = entryCategories|merge([category]) %}
+
+            {# ===== Top card: featured image (bleeds to edges) + header + body + gallery ===== #}
+            <div class="card card--image-top">
+                {% if featuredImage %}
+                    <img class="thumb" src="{{ featuredImage.url }}" alt="{{ featuredImage.title ?: entry.title }}">
                 {% endif %}
-            {% endfor %}
-            {% if entryCategories|length %}
-                <div class="subtitle">
-                    {% for category in entryCategories %}
-                        <a href="{{ postsIndexUrl }}?category[]={{ category.slug|url_encode }}">{{ category.title }}</a>{% if not loop.last %}, {% endif %}
-                    {% endfor %}
+                <div class="card-body">
+                    <div class="panel-sections">
+                        <div class="panel-section">
+                            <h1>{{ entry.title }}</h1>
+                            <p class="caption">{{ entry.postDate|date('F j, Y') }}</p>
+                            {% if entryCategories|length %}
+                                <div class="subtitle">
+                                    {% for category in entryCategories %}
+                                        <a href="{{ postsIndexUrl }}?category[]={{ category.slug|url_encode }}">{{ category.title }}</a>{% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            {% if entryTags|length %}
+                                <div class="subtitle">
+                                    {% for tag in entryTags %}
+                                        <a href="{{ postsIndexUrl }}?tag[]={{ tag.slug|url_encode }}">{{ tag.title }}</a>{% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="panel-section">
+                            <div class="body">
+                                {% if entry.body %}
+                                    {{ entry.body|nl2br }}
+                                {% endif %}
+                            </div>
+                            {% if allGalleryImages|length %}
+                                <div class="gallery" aria-label="Post image gallery">
+                                    {% for galleryImage in allGalleryImages %}
+                                        <img class="gallery-image" src="{{ galleryImage.url }}" alt="{{ galleryImage.title ?: entry.title }}" data-full="{{ galleryImage.url }}">
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <a class="button" href="/posts">Back to Completed Projects</a>
+                        </div>
+                    </div>
                 </div>
-            {% endif %}
-            {% set entryTags = attribute(entry, 'postTags') is defined and entry.postTags ? entry.postTags.all() : [] %}
-            {% if entryTags|length %}
-                <div class="subtitle">
-                    {% for tag in entryTags %}
-                        <a href="{{ postsIndexUrl }}?tag[]={{ tag.slug|url_encode }}">{{ tag.title }}</a>{% if not loop.last %}, {% endif %}
-                    {% endfor %}
-                </div>
-            {% endif %}
-            <div class="body">
-                {% if entry.body %}
-                    {{ entry.body|nl2br }}
-                {% endif %}
             </div>
-            {% set galleryImages = attribute(entry, 'postImages') is defined and entry.postImages ? entry.postImages.all() : [] %}
-            {% set allGalleryImages = [] %}
-            {% if featuredImage %}
-                {% set allGalleryImages = allGalleryImages|merge([featuredImage]) %}
-            {% endif %}
-            {% if galleryImages|length %}
-                {% set allGalleryImages = allGalleryImages|merge(galleryImages) %}
-            {% endif %}
-            {% if allGalleryImages|length %}
-                <div class="gallery" aria-label="Post image gallery">
-                    {% for galleryImage in allGalleryImages %}
-                        <a href="{{ galleryImage.url }}" target="_blank" rel="noopener">
-                            <img class="gallery-image" src="{{ galleryImage.url }}" alt="{{ galleryImage.title ?: entry.title }}">
-                        </a>
-                    {% endfor %}
+
+            {# ===== Bottom card: instructions ===== #}
+            {% if instructionSections|length %}
+                <div class="card card--padded">
+                    <section class="instructions" aria-label="Instructions">
+                        <h2>Instructions</h2>
+                        <div class="panel-sections">
+                            {% for section in instructionSections %}
+                                <div class="panel-section">
+                                    {% if section.instructionSectionHeading %}
+                                        <h3>{{ section.instructionSectionHeading }}</h3>
+                                    {% endif %}
+                                    {% if section.instructionSectionSubheading %}
+                                        <p class="subtitle">{{ section.instructionSectionSubheading }}</p>
+                                    {% endif %}
+                                    {% if section.instructionSectionText %}
+                                        <div class="body">{{ section.instructionSectionText|nl2br }}</div>
+                                    {% endif %}
+                                    {% set sectionSteps = section.instructionSteps ? section.instructionSteps.all() : [] %}
+                                    {% if sectionSteps|length %}
+                                        <ol>
+                                            {% for step in sectionSteps %}
+                                                <li>
+                                                    {% if step.instructionStepHeading %}
+                                                        <h4>{{ step.instructionStepHeading }}</h4>
+                                                    {% endif %}
+                                                    {% set textBlocks = step.instructionStepTexts ? step.instructionStepTexts.all() : [] %}
+                                                    {% if textBlocks|length %}
+                                                        <ol>
+                                                            {% for textBlock in textBlocks %}
+                                                                <li>
+                                                                    {{ textBlock.instructionStepTextLine|nl2br }}
+                                                                    {% set blockImages = textBlock.instructionStepTextImage ? textBlock.instructionStepTextImage.all() : [] %}
+                                                                    {% if blockImages|length %}
+                                                                        <div class="gallery">
+                                                                            {% for blockImage in blockImages %}
+                                                                                <img class="gallery-image" src="{{ blockImage.url }}" alt="{{ blockImage.title ?: textBlock.instructionStepTextLine ?: 'Instruction image' }}" data-full="{{ blockImage.url }}">
+                                                                            {% endfor %}
+                                                                        </div>
+                                                                    {% endif %}
+                                                                </li>
+                                                            {% endfor %}
+                                                        </ol>
+                                                    {% endif %}
+                                                </li>
+                                            {% endfor %}
+                                        </ol>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </section>
                 </div>
             {% endif %}
-            <a class="button" href="/posts">Back to Completed Projects</a>
+
         </div>
 
         {% set categoriesSidebarHtml %}

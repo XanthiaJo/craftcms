@@ -16,29 +16,27 @@
 <main class="projects">
     <div class="container">
         {% set entries = craft.entries.section('posts').type('post').relatedTo(tag).orderBy('postDate desc').all() %}
-        <ul class="grid" aria-label="{{ tag.title }} posts">
+        <div class="grid" aria-label="{{ tag.title }} posts">
             {% for entry in entries %}
                 {% set image = entry.featuredImage ? entry.featuredImage.one() : null %}
-                <li class="card">
+                <article class="card card--image-top">
                     {% if image %}
                         <img class="thumb" src="{{ image.url }}" alt="{{ image.title ?: entry.title }}">
                     {% endif %}
-                    <div class="card-content">
+                    <div class="card-body">
                         <h3><a href="{{ entry.url }}">{{ entry.title }}</a></h3>
                         {% if entry.body %}
                             <div>{{ entry.body|striptags|trim|slice(0, 145) ~ '...' }}</div>
                         {% endif %}
                     </div>
-                </li>
+                </article>
             {% else %}
-                <li class="card">
-                    <div class="card-content">
-                        <h3>No posts in this tag yet</h3>
-                        <div>Check back after more posts are tagged.</div>
-                    </div>
-                </li>
+                <article class="card card--padded">
+                    <h3>No posts in this tag yet</h3>
+                    <div>Check back after more posts are tagged.</div>
+                </article>
             {% endfor %}
-        </ul>
+        </div>
     </div>
 </main>
 {% endblock %}

@@ -131,16 +131,16 @@
 <main class="projects">
     <div class="container page-layout">
         <div class="content-main">
-            <ul class="grid" aria-label="Completed project list">
+            <div class="grid" aria-label="Completed project list">
                 {% for entry in entries %}
                     {% set image = entry.featuredImage ? entry.featuredImage.one() : null %}
-                    <li class="card">
+                    <article class="card card--image-top">
                     {% if image %}
                         <a href="{{ entry.url }}" aria-label="View {{ entry.title }}">
                             <img class="thumb" src="{{ image.url }}" alt="{{ image.title ?: entry.title }}">
                         </a>
                     {% endif %}
-                    <div class="card-content">
+                    <div class="card-body">
                         {% set rawEntryDesignSource = attribute(entry, 'designSource') is defined and entry.designSource ? entry.designSource.all() : [] %}
                         {% set entryDesignSource = rawEntryDesignSource[0] ?? null %}
                         <div class="card-chips">
@@ -187,17 +187,15 @@
                         </div>
                         <div class="caption">{{ entry.postDate|date('F Y') }}</div>
                     </div>
-                    </li>
+                    </article>
                 {% else %}
-                    <li class="card">
-                        <div class="card-content">
-                            <h3>No posts imported yet</h3>
-                            <div>Run the WordPress import script to populate this page.</div>
-                            <div class="caption">Awaiting content</div>
-                        </div>
-                    </li>
+                    <article class="card card--padded">
+                        <h3>No posts imported yet</h3>
+                        <div>Run the WordPress import script to populate this page.</div>
+                        <div class="caption">Awaiting content</div>
+                    </article>
                 {% endfor %}
-            </ul>
+            </div>
         </div>
 
         {% set archiveCategories = craft.app.categories.getGroupByHandle('postCategories') ? craft.categories.group('postCategories').orderBy('title asc').all() : [] %}

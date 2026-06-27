@@ -37,11 +37,11 @@
                     {% if cardLink %}
                         <a class="home-project-card-link" href="{{ cardLink }}">
                     {% endif %}
-                    <article class="card">
+                    <article class="card card--image-top">
                         {% if cardImage %}
                             <img class="thumb" src="{{ cardImage.url }}" alt="{{ cardImage.title ?: card.title }}">
                         {% endif %}
-                        <div style="padding: 18px">
+                        <div class="card-body">
                             <h3>{{ card.title }}</h3>
                             {% if cardText %}
                                 <p class="body">{{ cardText }}</p>
