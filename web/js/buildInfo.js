@@ -1,6 +1,6 @@
 window.BUILD_INFO = {
-  version: "v1.17.0",
-  productionVersion: "v1.17.0",
-  commit: "28deae6",
-  commitCount: "64"
+  version: "v1.20.1",
+  productionVersion: "v1.20.1",
+  commit: "e19766d",
+  commitCount: "86"
 };

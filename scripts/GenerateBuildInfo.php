@@ -151,13 +151,58 @@ function humanizeCommitSubject(string $subject): string {
     return strtoupper($summary[0]) . substr($summary, 1);
 }
 
-function cleanCommitDescription(string $subject, string $body): ?string {
+function cleanCommitDescription(string $subject, string $body): string|array|null {
     $body = trim($body);
     if ($body === '') {
         return null;
     }
 
     $lines = preg_split('/\R+/', $body) ?: [];
+
+    // Detect bullet-style body lines
+    $hasBullets = false;
+    foreach ($lines as $line) {
+        $trimmed = trim($line);
+        if ($trimmed === '' || preg_match('/^(Signed-off-by:|Co-authored-by:|Reviewed-by:|Acked-by:)/i', $trimmed)) {
+            continue;
+        }
+        if (preg_match('/^[-*]\s/', $trimmed)) {
+            $hasBullets = true;
+            break;
+        }
+    }
+
+    if ($hasBullets) {
+        $bullets = [];
+        foreach ($lines as $line) {
+            $trimmed = trim($line);
+            if ($trimmed === '' || preg_match('/^(Signed-off-by:|Co-authored-by:|Reviewed-by:|Acked-by:)/i', $trimmed)) {
+                continue;
+            }
+            $trimmed = preg_replace('/^[-*]\s+/', '', $trimmed);
+            $trimmed = trim(preg_replace('/\s+/', ' ', $trimmed) ?? '');
+            if ($trimmed === '') {
+                continue;
+            }
+            if (preg_match('/^(?:[a-z]+(?:\([^)]+\))?:\s*|BREAKING CHANGE:?\s*)/i', $trimmed, $match)) {
+                $summary = trim(substr($trimmed, strlen($match[0])));
+                if ($summary !== '') {
+                    $trimmed = $summary;
+                }
+            }
+            $summaryPrefix = preg_replace('/^(?:[a-z]+(?:\([^)]+\))?:\s*|BREAKING CHANGE:?\s*)/i', '', $subject);
+            $summaryPrefix = trim((string)$summaryPrefix);
+            if ($summaryPrefix !== '' && strncasecmp($trimmed, $summaryPrefix, strlen($summaryPrefix)) === 0) {
+                $trimmed = trim(substr($trimmed, strlen($summaryPrefix)));
+            }
+            if ($trimmed === '') {
+                continue;
+            }
+            $bullets[] = $trimmed;
+        }
+        return $bullets ?: null;
+    }
+
     $paragraphs = [];
     $current = [];
 
@@ -394,7 +439,15 @@ JS;
             $content .= "          </div>\n";
             $content .= '          <h4>' . escapeHtml(escapeTwigText($item['subject'])) . "</h4>\n";
             if (!empty($item['description'])) {
-                $content .= '          <p class="panel-content">' . escapeHtml(escapeTwigText($item['description'])) . "</p>\n";
+                if (is_array($item['description'])) {
+                    $content .= "          <ul>\n";
+                    foreach ($item['description'] as $bullet) {
+                        $content .= '            <li>' . escapeHtml(escapeTwigText($bullet)) . "</li>\n";
+                    }
+                    $content .= "          </ul>\n";
+                } else {
+                    $content .= '          <p class="panel-content">' . escapeHtml(escapeTwigText($item['description'])) . "</p>\n";
+                }
             }
             $content .= "        </div>\n";
             $content .= "      </li>\n";

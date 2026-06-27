@@ -2,8 +2,8 @@
   <section class="panel-section">
     <h2>Build Snapshot</h2>
     <div class="panel-actions">
-      <span class="chip color-pair-ink">Version v1.19.2.1</span>
-      <span class="chip color-pair-stone">74 commits</span>
+      <span class="chip color-pair-ink">Version v1.20.1</span>
+      <span class="chip color-pair-stone">86 commits</span>
     </div>
     <p class="body">Generated from conventional commits and git tags during the site build.</p>
   </section>
@@ -22,6 +22,22 @@
   <section class="panel-section" id="feature-changes">
     <h3>Features</h3>
     <ul class="list">
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-gold">Features</span>
+            <span class="caption">v1.20.0 - 
+67f03b - 2026-06-26</span>
+          </div>
+          <h4>Add WordPress content migration scripts</h4>
+          <ul>
+            <li>Add import_post_content.php to extract post body and resource links from WordPress DB</li>
+            <li>Add list_posts.php to audit Craft entry field completeness</li>
+            <li>Strip Elementor HTML/CSS to clean plain text for the body field</li>
+            <li>Match WordPress posts to Craft entries by normalized title</li>
+          </ul>
+        </div>
+      </li>
       <li>
         <div class="panel-content">
           <div class="panel-actions">
@@ -52,7 +68,11 @@
 28deae - 2026-06-22</span>
           </div>
           <h4>Add reusable colour pairs to archive cards</h4>
-          <p class="panel-content">add the reusable colourPair term field to all category groups switch archive cards and filters to colour-pair utility classes update the style guide, tests, and card layout spacing to match the new system</p>
+          <ul>
+            <li>add the reusable colourPair term field to all category groups</li>
+            <li>switch archive cards and filters to colour-pair utility classes</li>
+            <li>update the style guide, tests, and card layout spacing to match the new system</li>
+          </ul>
         </div>
       </li>
       <li>
@@ -96,7 +116,12 @@ b79034 - 2026-06-22</span>
 34ea18 - 2026-06-21</span>
           </div>
           <h4>Add GitHub webhook auto-deploy listener</h4>
-          <p class="panel-content">Add web/webhook.php with HMAC-SHA256 signature verification VPS pulls from GitHub on push to master (VPS-initiated, not push) Runs git pull + composer install (which triggers build-info via post-install-cmd) Add GITHUB_WEBHOOK_SECRET to .env.example.production and .env.example.staging</p>
+          <ul>
+            <li>Add web/webhook.php with HMAC-SHA256 signature verification</li>
+            <li>VPS pulls from GitHub on push to master (VPS-initiated, not push)</li>
+            <li>Runs git pull + composer install (which triggers build-info via post-install-cmd)</li>
+            <li>Add GITHUB_WEBHOOK_SECRET to .env.example.production and .env.example.staging</li>
+          </ul>
         </div>
       </li>
       <li>
@@ -107,7 +132,11 @@ b79034 - 2026-06-22</span>
 5f6f3d - 2026-06-21</span>
           </div>
           <h4>Display build version in site footer</h4>
-          <p class="panel-content">Add version display element to footer bottom-right Load web/js/buildInfo.js and populate version + commit hash Add .footer-version CSS (muted grey, right-aligned)</p>
+          <ul>
+            <li>Add version display element to footer bottom-right</li>
+            <li>Load web/js/buildInfo.js and populate version + commit hash</li>
+            <li>Add .footer-version CSS (muted grey, right-aligned)</li>
+          </ul>
         </div>
       </li>
       <li>
@@ -118,7 +147,15 @@ b79034 - 2026-06-22</span>
 619427 - 2026-06-21</span>
           </div>
           <h4>Add cross-platform build info version generator</h4>
-          <p class="panel-content">Add GenerateBuildInfo.php (PHP, cross-platform) as canonical generator Add GenerateBuildInfo.ps1 (PowerShell, Windows) as alternative Both derive version from git tags and conventional commit messages feat: bumps minor, fix: bumps patch, BREAKING CHANGE bumps major Other commits (ui:, test:, etc.) bump revision (4th number) Add composer build-info script and post-install-cmd hook Generate web/js/buildInfo.js with window.BUILD_INFO object</p>
+          <ul>
+            <li>Add GenerateBuildInfo.php (PHP, cross-platform) as canonical generator</li>
+            <li>Add GenerateBuildInfo.ps1 (PowerShell, Windows) as alternative</li>
+            <li>Both derive version from git tags and conventional commit messages</li>
+            <li>bumps minor, fix: bumps patch, BREAKING CHANGE bumps major</li>
+            <li>Other commits (ui:, test:, etc.) bump revision (4th number)</li>
+            <li>Add composer build-info script and post-install-cmd hook</li>
+            <li>Generate web/js/buildInfo.js with window.BUILD_INFO object</li>
+          </ul>
         </div>
       </li>
       <li>
@@ -232,6 +269,20 @@ fc0a03 - 2026-06-13</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-sage">Fixes</span>
+            <span class="caption">v1.20.1 - 
+e19766 - 2026-06-26</span>
+          </div>
+          <h4>Reset all tracked files before git pull</h4>
+          <ul>
+            <li>Use git checkout -- . instead of listing specific generated files</li>
+            <li>Prevents pull conflicts when VPS has local changes to any tracked file</li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-sage">Fixes</span>
             <span class="caption">v1.19.2 - 
 fed78a - 2026-06-22</span>
           </div>
@@ -258,7 +309,11 @@ fed78a - 2026-06-22</span>
 daa1f7 - 2026-06-21</span>
           </div>
           <h4>Use shared site-footer partial on all pages</h4>
-          <p class="panel-content">Replace inline footer markup with  include &#039;_partials/site-footer.twig&#039;  in index.twig, category.twig, and tag.twig Ensures version display and buildInfo.js load consistently across all pages</p>
+          <ul>
+            <li>Replace inline footer markup with  include &#039;_partials/site-footer.twig&#039; </li>
+            <li>in index.twig, category.twig, and tag.twig</li>
+            <li>Ensures version display and buildInfo.js load consistently across all pages</li>
+          </ul>
         </div>
       </li>
       <li>
@@ -269,7 +324,11 @@ daa1f7 - 2026-06-21</span>
 d150f4 - 2026-06-21</span>
           </div>
           <h4>Resolve git binary path for VPS where git is not in PHP&#039;s PATH</h4>
-          <p class="panel-content">Add findGit() to locate git binary in common paths Add PATH export in webhook.php for exec() calls Fixes &#039;sh: 1: git: not found&#039; on VPS during post-install-cmd</p>
+          <ul>
+            <li>Add findGit() to locate git binary in common paths</li>
+            <li>Add PATH export in webhook.php for exec() calls</li>
+            <li>Fixes &#039;sh: 1: git: not found&#039; on VPS during post-install-cmd</li>
+          </ul>
         </div>
       </li>
       <li>
@@ -351,6 +410,21 @@ dbf912 - 2026-06-07</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-sky">Documentation</span>
+            <span class="caption">v1.19.2.3 - 
+df3c81 - 2026-06-26</span>
+          </div>
+          <h4>Add conventional commit rules and versioning guide</h4>
+          <ul>
+            <li>Document commit format, types, and version impact</li>
+            <li>Include examples and common scopes</li>
+            <li>Explain how GenerateBuildInfo.php derives versions from tags and commits</li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-sky">Documentation</span>
             <span class="caption">v1.19.1.4 - 
 887cdf - 2026-06-22</span>
           </div>
@@ -388,7 +462,11 @@ f17273 - 2026-06-22</span>
 e9c139 - 2026-06-22</span>
           </div>
           <h4>Document local ddev php workflow</h4>
-          <p class="panel-content">record the DDEV PHP convention for Craft CLI work in AGENTS.md add a roadmap note that colour pair previews belong in a future module or plugin update recovery commands to use ddev exec php</p>
+          <ul>
+            <li>record the DDEV PHP convention for Craft CLI work in AGENTS.md</li>
+            <li>add a roadmap note that colour pair previews belong in a future module or plugin</li>
+            <li>update recovery commands to use ddev exec php</li>
+          </ul>
         </div>
       </li>
       <li>
@@ -409,7 +487,11 @@ ab3998 - 2026-06-22</span>
 5a1bbe - 2026-06-21</span>
           </div>
           <h4>Update AGENT.md with build info and deploy documentation</h4>
-          <p class="panel-content">Document GenerateBuildInfo.php and .ps1 scripts Document webhook auto-deploy flow and VPS setup Document manual deploy fallback</p>
+          <ul>
+            <li>Document GenerateBuildInfo.php and .ps1 scripts</li>
+            <li>Document webhook auto-deploy flow and VPS setup</li>
+            <li>Document manual deploy fallback</li>
+          </ul>
         </div>
       </li>
       <li>
@@ -462,11 +544,46 @@ b99b14 - 2026-06-21</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-stone">Refactors</span>
+            <span class="caption">v1.20.0.3 - 
+fd28fb - 2026-06-26</span>
+          </div>
+          <h4>Update templates and add base layout</h4>
+          <ul>
+            <li>Add templates/_layouts/base.twig for shared page structure</li>
+            <li>Update post, archive, category, tag, index, and style-guide templates to extend base layout</li>
+            <li>Remove inline page-subheader markup in favour of partial include</li>
+            <li>Regenerate change-log.twig with latest commit history</li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-stone">Refactors</span>
+            <span class="caption">v1.20.0.1 - 
+bf5371 - 2026-06-26</span>
+          </div>
+          <h4>Move resource links to sidebar</h4>
+          <ul>
+            <li>Remove resource link buttons from the main content panel</li>
+            <li>Add a Links section to the project details sidebar</li>
+            <li>Update test to verify links render in the sidebar context</li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-stone">Refactors</span>
             <span class="caption">v1.16.0.5 - 
 02871f - 2026-06-22</span>
           </div>
           <h4>Align shared templates and archive styling</h4>
-          <p class="panel-content">update the home, archive, header, sidebar, and entry templates together tighten archive card and sidebar presentation in the shared stylesheet refresh CSS guidance notes to match the current visual system</p>
+          <ul>
+            <li>update the home, archive, header, sidebar, and entry templates together</li>
+            <li>tighten archive card and sidebar presentation in the shared stylesheet</li>
+            <li>refresh CSS guidance notes to match the current visual system</li>
+          </ul>
         </div>
       </li>
       <li>
@@ -499,7 +616,13 @@ b99b14 - 2026-06-21</span>
 8a6ae6 - 2026-06-21</span>
           </div>
           <h4>Reorganize knitstitch sketch models and services</h4>
-          <p class="panel-content">Remove old SketchModel classes (SketchColorOption, SketchConstraint, SketchDimension, SketchLine, SketchPoint) Remove old SketchService.js (replaced by services/sketch/SketchService.js) Update ConstraintSolver, StorePersistence, and main.js Update affected tests</p>
+          <ul>
+            <li>Remove old SketchModel classes (SketchColorOption, SketchConstraint,</li>
+            <li>SketchDimension, SketchLine, SketchPoint)</li>
+            <li>Remove old SketchService.js (replaced by services/sketch/SketchService.js)</li>
+            <li>Update ConstraintSolver, StorePersistence, and main.js</li>
+            <li>Update affected tests</li>
+          </ul>
         </div>
       </li>
       <li>
@@ -541,6 +664,24 @@ a2e19a - 2026-06-07</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-plum">Tests</span>
+            <span class="caption">v1.20.0.2 - 
+0ed2a0 - 2026-06-26</span>
+          </div>
+          <h4>Restructure test directories and add field coverage</h4>
+          <ul>
+            <li>Move craft-cms tests under tests/craft-cms/ with unit and e2e subdirs</li>
+            <li>Move knit-stitch tests under tests/knit-stitch/ with unit and e2e subdirs</li>
+            <li>Add post-fields.test.js covering all admin-editable fields</li>
+            <li>Add css-selector-simplicity.test.js with whitelist support</li>
+            <li>Remove old test files from tests/e2e/, tests/unit/, and web/knitstitch/tests/</li>
+            <li>Update playwright.config.js for new test layout</li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-plum">Tests</span>
             <span class="caption">v1.19.0.1 - 
 3dceec - 2026-06-22</span>
           </div>
@@ -556,7 +697,11 @@ a2e19a - 2026-06-07</span>
 1aa543 - 2026-06-22</span>
           </div>
           <h4>Add field-layout and archive contract coverage</h4>
-          <p class="panel-content">pin Craft admin field layouts for posts, archive, home, and header globals assert template dependencies for archive cards, single posts, and navigation add Playwright coverage for the rendered posts archive card layout</p>
+          <ul>
+            <li>pin Craft admin field layouts for posts, archive, home, and header globals</li>
+            <li>assert template dependencies for archive cards, single posts, and navigation</li>
+            <li>add Playwright coverage for the rendered posts archive card layout</li>
+          </ul>
         </div>
       </li>
       <li>
@@ -585,6 +730,77 @@ bbde72 - 2026-06-14</span>
   <section class="panel-section" id="chore-changes">
     <h3>Maintenance</h3>
     <ul class="list">
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-olive">Maintenance</span>
+            <span class="caption">v1.20.0.8 - 
+2a2817 - 2026-06-26</span>
+          </div>
+          <h4>Remove tracked test-results file</h4>
+          <ul>
+            <li>Remove .last-run.json from tracking now that test-results/ is gitignored</li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-olive">Maintenance</span>
+            <span class="caption">v1.20.0.7 - 
+87188e - 2026-06-26</span>
+          </div>
+          <h4>Update package config and README</h4>
+          <ul>
+            <li>Update package.json dependencies</li>
+            <li>Update README with current project structure</li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-olive">Maintenance</span>
+            <span class="caption">v1.20.0.6 - 
+59208b - 2026-06-26</span>
+          </div>
+          <h4>Update webhook and build info generator</h4>
+          <ul>
+            <li>Add twig output format to GenerateBuildInfo.php</li>
+            <li>Update webhook.php with minor adjustments</li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-olive">Maintenance</span>
+            <span class="caption">v1.20.0.5 - 
+6e5c2d - 2026-06-26</span>
+          </div>
+          <h4>Update project config and agent docs</h4>
+          <ul>
+            <li>Update category group and entry type YAML configs</li>
+            <li>Update project.yaml with new sections and fields</li>
+            <li>Expand AGENTS.md with content model, template layout, and CSS rules</li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-olive">Maintenance</span>
+            <span class="caption">v1.19.2.2 - 
+ee23f9 - 2026-06-26</span>
+          </div>
+          <h4>Exclude IDE settings and test artifacts</h4>
+          <ul>
+            <li>Add Folder.DotSettings.user to ignored files</li>
+            <li>Add test-results/ chromium screenshots to ignored files</li>
+            <li>Add docs/backup.sql to ignored files</li>
+          </ul>
+        </div>
+      </li>
       <li>
         <div class="panel-content">
           <div class="panel-actions">
@@ -636,7 +852,12 @@ bbde72 - 2026-06-14</span>
 ddfed9 - 2026-06-21</span>
           </div>
           <h4>Un-ignore scripts directory and reorganize recovery scripts</h4>
-          <p class="panel-content">Remove /scripts from .gitignore so scripts are tracked in the repo Move legacy recovery/import scripts to scripts/recovery_scripts/ Add .aiassistant and web/knitstitch/test-results to .gitignore Add scripts/.env to .gitignore (contains DB credentials)</p>
+          <ul>
+            <li>Remove /scripts from .gitignore so scripts are tracked in the repo</li>
+            <li>Move legacy recovery/import scripts to scripts/recovery_scripts/</li>
+            <li>Add .aiassistant and web/knitstitch/test-results to .gitignore</li>
+            <li>Add scripts/.env to .gitignore (contains DB credentials)</li>
+          </ul>
         </div>
       </li>
       <li>
@@ -728,6 +949,21 @@ cbfe9c - 2026-06-07</span>
         <div class="panel-content">
           <div class="panel-actions">
           <span class="chip color-pair-ink">Other changes</span>
+            <span class="caption">v1.20.0.4 - 
+21fa1c - 2026-06-26</span>
+          </div>
+          <h4>Update site styles for layout and components</h4>
+          <ul>
+            <li>Refactor card, panel, and gallery styles</li>
+            <li>Add colour pair utility classes</li>
+            <li>Simplify selectors per CSS simplicity guidelines</li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <div class="panel-content">
+          <div class="panel-actions">
+          <span class="chip color-pair-ink">Other changes</span>
             <span class="caption">v1.19.2.1 - 
 05c97b - 2026-06-22</span>
           </div>
@@ -813,7 +1049,11 @@ d86d9e - 2026-05-31</span>
 a1164e - 2026-05-31</span>
           </div>
           <h4>Set up deployment workflow and homepage redesign</h4>
-          <p class="panel-content">Added GitHub Actions workflow for production deployment via SSH. Redesigned the homepage with a new layout, styles, and visual improvements. Updated `.env.example.production` to unset default database user.</p>
+          <ul>
+            <li>Added GitHub Actions workflow for production deployment via SSH.</li>
+            <li>Redesigned the homepage with a new layout, styles, and visual improvements.</li>
+            <li>Updated `.env.example.production` to unset default database user.</li>
+          </ul>
         </div>
       </li>
       <li>
