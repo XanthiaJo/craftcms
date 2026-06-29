@@ -51,6 +51,7 @@ Short summaries of the main project files.
 | `src/services/sketch/deleteSketchSelection.js` | Removes selected sketch items and dependent geometry. |
 | `src/services/sketch/sketchSnapshot.js` | Captures and restores full sketch state for undo/redo. |
 | `src/services/sketch/sketchStateHelpers.js` | Shared sketch state, selection, and store-sync helpers. |
+| `src/services/sketch/styleOptions.js` | Default stroke colours, thickness defaults, and slider limits. |
 | `src/state/store.js` | Small reactive state store used across the app. |
 | `src/state/storePersistence.js` | Hydrates and saves app state to localStorage. |
 | `src/ui/mainUi.js` | Main UI bootstrap — binds sidebar inputs and subscribes to store. |
