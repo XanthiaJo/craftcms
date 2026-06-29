@@ -41,12 +41,15 @@ Short summaries of the main project files.
 | `src/services/finishedSizeCalculator.js` | Calculates finished size from gauge and pattern dimensions. |
 | `src/services/gridService.js` | Builds grid preview cells and calculates cell sizing. |
 | `src/services/sketch/constraintSolver.js` | Applies constraint rules when points move. |
-| `src/services/sketch/constraintTool.js` | Owns the perpendicular constraint creation workflow. |
+| `src/services/sketch/constraintTool.js` | Owns perpendicular and midpoint constraint creation workflows. |
 | `src/services/sketch/dimensionTool.js` | Owns the dimension placement, edit overlay, and driven-value workflow. |
-| `src/services/sketch/sketchService.js` | Coordinator: dispatches tools, manages line drawing, selection, and lifecycle. |
+| `src/services/sketch/historyManager.js` | Action-based undo/redo stack for sketch state. |
+| `src/services/sketch/lineTool.js` | Owns the line/polyline drawing workflow. |
+| `src/services/sketch/sketchService.js` | Coordinator: dispatches tools, manages selection, and lifecycle. |
 | `src/services/sketch/buildSketchObjects.js` | Builds the sidebar object list from sketch state. |
 | `src/services/sketch/constants.js` | Shared sketch tool, mode, and object constants. |
 | `src/services/sketch/deleteSketchSelection.js` | Removes selected sketch items and dependent geometry. |
+| `src/services/sketch/sketchSnapshot.js` | Captures and restores full sketch state for undo/redo. |
 | `src/services/sketch/sketchStateHelpers.js` | Shared sketch state, selection, and store-sync helpers. |
 | `src/state/store.js` | Small reactive state store used across the app. |
 | `src/state/storePersistence.js` | Hydrates and saves app state to localStorage. |
