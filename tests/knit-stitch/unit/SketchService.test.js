@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
-import { Store } from '../src/state/Store.js';
-import { ConstraintSubMode, SketchObjectKind, SketchService, SketchTool } from '../src/services/sketch/SketchService.js';
-import { SketchConstraint } from '../src/models/sketch/SketchConstraint.js';
+import { Store } from '../../../web/knitstitch/src/state/store.js';
+import { ConstraintSubMode, SketchObjectKind, SketchService, SketchTool } from '../../../web/knitstitch/src/services/sketch/sketchService.js';
+import { SketchConstraint } from '../../../web/knitstitch/src/models/sketch/sketchConstraint.js';
 
 describe('SketchService', () => {
   function makeService() {
@@ -777,17 +777,23 @@ describe('SketchService', () => {
       service.activeTool = SketchTool.Constraint;
       service.constraintSubMode = ConstraintSubMode.Perpendicular;
 
+      // First pair: lines[0] ⊥ lines[1] — allowed
       service.onConstraintLineClick(store.state.sketch.lines[0]);
       service.onConstraintLineClick(store.state.sketch.lines[1]);
+      expect(store.state.sketch.constraints).toHaveLength(1);
+
+      // Second pair: lines[1] ⊥ lines[2] — rejected because lines[0] and lines[2]
+      // share a point and would be forced parallel (triangle over-constraint)
       service.onConstraintLineClick(store.state.sketch.lines[1]);
       service.onConstraintLineClick(store.state.sketch.lines[2]);
-      expect(store.state.sketch.constraints).toHaveLength(2);
+      expect(store.state.sketch.constraints).toHaveLength(1);
+      expect(store.state.sketch.cursorMessage?.text).toBe('Constraint not possible');
 
-      service.onConstraintLineClick(store.state.sketch.lines[0]);
+      // Direct call also returns false
       const created = service._tryCreatePerpendicularConstraint(store.state.sketch.lines[0], store.state.sketch.lines[2]);
 
       expect(created).toBe(false);
-      expect(store.state.sketch.constraints).toHaveLength(2);
+      expect(store.state.sketch.constraints).toHaveLength(1);
     });
   });
 });
