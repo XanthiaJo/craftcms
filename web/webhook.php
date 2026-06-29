@@ -94,6 +94,8 @@ $commands = [
     'git fetch origin master 2>&1',
     'git reset --hard origin/master 2>&1',
     'composer install --no-dev --optimize-autoloader 2>&1',
+    // Build the KnitStitch front-end bundle. Requires Node.js/npm on the VPS.
+    'cd web/knitstitch && npm ci && npm run build 2>&1',
 ];
 
 $output = [];

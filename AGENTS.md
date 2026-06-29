@@ -47,7 +47,7 @@ Primary ownership in this repository:
 - [scripts/](</E:/Coding Projects/craftcms/scripts/>) - maintenance, recovery, and import scripts; not part of the normal request path
   - `GenerateBuildInfo.php` - cross-platform build info generator. Reads git tags and conventional commit messages to derive a version. Supports `--format=js` (outputs `window.BUILD_INFO` object), `--format=twig` (outputs changelog template), and `--format=csharp` (outputs C# `BuildInfo` class, default). Run via `composer build-info` or `composer build-changelog` from the repo root. Also runs automatically after `composer install` via `post-install-cmd`.
   - `GenerateBuildInfo.ps1` - original PowerShell version (Windows-only). Kept for reference; the PHP version is the canonical one used by composer scripts.
-- [web/webhook.php](</E:/Coding Projects/craftcms/web/webhook.php>) - GitHub webhook listener for VPS auto-deploy. GitHub sends a push event, the VPS verifies the signature and runs `git pull` + `composer install`. Requires `GITHUB_WEBHOOK_SECRET` in `.env`. See deploy section below.
+- [web/webhook.php](</E:/Coding Projects/craftcms/web/webhook.php>) - GitHub webhook listener for VPS auto-deploy. GitHub sends a push event, the VPS verifies the signature and runs `git pull` + `composer install` + `npm ci && npm run build` in `web/knitstitch`. Requires `GITHUB_WEBHOOK_SECRET` in `.env` and Node.js/npm on the VPS. See deploy section below.
 - [README.md](</E:/Coding Projects/craftcms/README.md>) - project bootstrap notes
 
 ## Template Layout
@@ -101,6 +101,9 @@ SSH into the VPS and run:
 cd /var/www/craftcms
 git pull origin master
 composer install --no-dev --optimize-autoloader
+cd web/knitstitch
+npm ci
+npm run build
 ```
 
-`composer build-info` runs automatically via `post-install-cmd`.
+`composer build-info` runs automatically via `post-install-cmd`, and the KnitStitch bundle is built from source during deploy.
