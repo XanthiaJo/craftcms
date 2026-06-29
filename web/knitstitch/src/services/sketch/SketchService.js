@@ -1,14 +1,13 @@
-import { SketchPoint } from '../../models/sketch/sketchPoint.js';
-import { SketchLine } from '../../models/sketch/sketchLine.js';
 import { SketchColorOption } from '../../models/sketch/sketchColorOption.js';
 import { ConstraintSolver } from './constraintSolver.js';
 import { DimensionTool } from './dimensionTool.js';
 import { ConstraintTool } from './constraintTool.js';
-import { nearestPoint, applyAngleSnap } from '../../utils/geometry.js';
-import { captureSketchSnapshot, restoreSketchSnapshot, snapshotsEqual } from './sketchSnapshot.js';
+import { LineTool } from './lineTool.js';
+import { HistoryManager } from './historyManager.js';
+import { nearestPoint } from '../../utils/geometry.js';
+import { restoreSketchSnapshot } from './sketchSnapshot.js';
 import {
   ConstraintSubMode,
-  SNAP_ANGLE_DEG,
   SNAP_RADIUS,
   SketchObjectKind,
   SketchTool,
@@ -41,7 +40,6 @@ export class SketchService {
     this._nextLineId = 0;
     this._nextDimId = 0;
     this._nextConstraintId = 0;
-    this._pendingStart = null;
     this._dimPendingA = null;
     this._constraintPendingLine = null;
     this._selectedPoints = new Set();
@@ -50,10 +48,8 @@ export class SketchService {
     this._constraintSolver = new ConstraintSolver();
     this._dimensionTool = new DimensionTool(this);
     this._constraintTool = new ConstraintTool(this);
-
-    this._history = [];
-    this._historyLimit = 50;
-    this._dragSnapshot = null;
+    this._lineTool = new LineTool(this);
+    this._history = new HistoryManager(this);
 
     this.strokeColorOptions = [
       new SketchColorOption('Red', '#E63946'),
@@ -83,17 +79,19 @@ export class SketchService {
   }
 
   _recordSnapshot(description) {
-    this._history.push({
-      description,
-      snapshot: captureSketchSnapshot(this.store.state.sketch, this),
-    });
-    if (this._history.length > this._historyLimit) {
-      this._history.shift();
-    }
+    this._history.record(description);
   }
 
   _nextId(items) {
     return nextSketchId(items);
+  }
+
+  get _pendingStart() {
+    return this._lineTool.pendingStart;
+  }
+
+  set _pendingStart(value) {
+    this._lineTool.pendingStart = value;
   }
 
   get isActive() {
@@ -146,7 +144,7 @@ export class SketchService {
     }
     switch (this.activeTool) {
       case SketchTool.Line:
-        this._onLineClick(position, modifiers);
+        this._lineTool.onLineClick(position, modifiers);
         break;
       case SketchTool.Select:
         this.clearSelection();
@@ -164,7 +162,7 @@ export class SketchService {
     if (!this.isActive) return;
     switch (this.activeTool) {
       case SketchTool.Line:
-        this._onLineMouseMove(position, modifiers);
+        this._lineTool.onLineMouseMove(position, modifiers);
         break;
       case SketchTool.Select:
         this._onSelectMouseMove(position, modifiers);
@@ -193,28 +191,16 @@ export class SketchService {
     if (near) {
       this._dragPoint = near;
       this.selectPoint(near);
-      this._dragSnapshot = captureSketchSnapshot(this.store.state.sketch, this);
+      this._history.beginDrag();
     } else {
       this._dragPoint = null;
-      this._dragSnapshot = null;
+      this._history.cancelDrag();
     }
   }
 
   onCanvasMouseUp() {
-    if (this._dragSnapshot && this._dragPoint) {
-      const current = captureSketchSnapshot(this.store.state.sketch, this);
-      if (!snapshotsEqual(current, this._dragSnapshot)) {
-        this._history.push({
-          description: 'Move point',
-          snapshot: this._dragSnapshot,
-        });
-        if (this._history.length > this._historyLimit) {
-          this._history.shift();
-        }
-      }
-    }
+    this._history.endDrag();
     this._dragPoint = null;
-    this._dragSnapshot = null;
   }
 
   _onSelectMouseMove(position, modifiers = {}) {
@@ -243,18 +229,13 @@ export class SketchService {
   }
 
   cancelCurrentLine() {
-    if (this._pendingStart) {
-      this._removeOrphanPoint(this._pendingStart);
-      this._pendingStart = null;
-    }
+    this._lineTool.cancel();
     if (this._dimPendingA) {
       this._removeOrphanPoint(this._dimPendingA);
       this._dimPendingA = null;
       this.clearSelection();
     }
     this._constraintPendingLine = null;
-    setSketchPreviewLine(this, null);
-    setSketchSnapCandidate(this, null);
     this.store.set('sketch.pendingDimEdit', null);
   }
 
@@ -268,7 +249,7 @@ export class SketchService {
     // If there is an in-progress drag, complete it without recording it, then
     // continue with the next undo.
     this._dragPoint = null;
-    this._dragSnapshot = null;
+    this._history.cancelDrag();
 
     const action = this._history.pop();
     if (action) {
@@ -317,52 +298,9 @@ export class SketchService {
     this.store.set('sketch.constraints', []);
   }
 
-  _onLineClick(position, modifiers = {}) {
-    this._recordSnapshot('Draw line');
-    const snapEnabled = modifiers.snapEnabled !== false;
-    if (!this._pendingStart) {
-      this._pendingStart = this._resolveOrCreatePoint(position, snapEnabled);
-      const temp = new SketchPoint(-1, position.x, position.y);
-      setSketchPreviewLine(this, new SketchLine(-1, this._pendingStart, temp));
-      setSketchSnapCandidate(this, null);
-    } else {
-      const near = this._findNearestPoint(position, snapEnabled);
-      let resolved = near ? { x: near.x, y: near.y } : this._applyAngleSnap(this._pendingStart, position);
-      const end = this._resolveOrCreatePoint(resolved, snapEnabled);
-      this._commitLine(this._pendingStart, end);
-      this._pendingStart = end;
-      const temp = new SketchPoint(-1, end.x, end.y);
-      setSketchPreviewLine(this, new SketchLine(-1, this._pendingStart, temp));
-      setSketchSnapCandidate(this, null);
-    }
-  }
-
-  _onLineMouseMove(position, modifiers = {}) {
-    const snapEnabled = modifiers.snapEnabled !== false;
-    if (!this._pendingStart) return;
-    const near = this._findNearestPoint(position, snapEnabled);
-    setSketchSnapCandidate(this, near ?? null);
-    const resolved = near ? { x: near.x, y: near.y } : this._applyAngleSnap(this._pendingStart, position);
-    const temp = new SketchPoint(-1, resolved.x, resolved.y);
-    setSketchPreviewLine(this, new SketchLine(-1, this._pendingStart, temp));
-  }
-
-  _resolveOrCreatePoint(position, snapEnabled = true) {
-    return snapEnabled
-      ? this._findNearestPoint(position, true) ?? this._createPoint(position)
-      : this._createPoint(position);
-  }
-
   _findNearestPoint(position, allowSnap = true, excludePoint = null) {
     const snapRadius = allowSnap ? SNAP_RADIUS : 0.001;
     return nearestPoint(this.store.state.sketch.points, position, snapRadius, excludePoint);
-  }
-
-  _createPoint(position) {
-    const p = new SketchPoint(this._nextPointId++, position.x, position.y);
-    this.store.state.sketch.points.push(p);
-    this.store.set('sketch.points', [...this.store.state.sketch.points]);
-    return p;
   }
 
   _removeOrphanPoint(point) {
@@ -382,13 +320,6 @@ export class SketchService {
       sketch.points.splice(idx, 1);
       this.store.set('sketch.points', [...sketch.points]);
     }
-  }
-
-  _commitLine(start, end) {
-    const line = new SketchLine(this._nextLineId++, start, end);
-    this.store.state.sketch.lines.push(line);
-    this.store.set('sketch.lines', [...this.store.state.sketch.lines]);
-    this._rebuildObjects();
   }
 
   onConstraintLineClick(line, multiSelect = false, position = null) {
