@@ -1,8 +1,8 @@
-import { GaugeSettings } from '../models/GaugeSettings.js';
-import { PatternDimensions } from '../models/PatternDimensions.js';
-import { FinishedSizeCalculator } from '../services/FinishedSizeCalculator.js';
-import { rebuildPreviewCells, updateCellSizing } from '../services/GridService.js';
-import { SketchTool } from '../services/sketch/SketchService.js';
+import { GaugeSettings } from '../models/gaugeSettings.js';
+import { PatternDimensions } from '../models/patternDimensions.js';
+import { FinishedSizeCalculator } from '../services/finishedSizeCalculator.js';
+import { rebuildPreviewCells, updateCellSizing } from '../services/gridService.js';
+import { SketchTool } from '../services/sketch/sketchService.js';
 
 function getElement(documentObj, id) {
   return documentObj?.getElementById?.(id) ?? null;

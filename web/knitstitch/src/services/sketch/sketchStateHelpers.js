@@ -1,5 +1,27 @@
 import { buildSketchObjects } from './buildSketchObjects.js';
 
+let cursorMessageTimeout = null;
+
+export function showCursorMessage(service, message, position) {
+  const store = service.store;
+  if (cursorMessageTimeout) {
+    clearTimeout(cursorMessageTimeout);
+  }
+  store.set('sketch.cursorMessage', { text: message, position: position ? { ...position } : null });
+  cursorMessageTimeout = setTimeout(() => {
+    store.set('sketch.cursorMessage', null);
+    cursorMessageTimeout = null;
+  }, 2000);
+}
+
+export function clearCursorMessage(service) {
+  if (cursorMessageTimeout) {
+    clearTimeout(cursorMessageTimeout);
+    cursorMessageTimeout = null;
+  }
+  service.store.set('sketch.cursorMessage', null);
+}
+
 export function syncSketchStateToStore(store) {
   const sketch = store.get('sketch');
   store.set('sketch.lines', sketch.lines);
@@ -40,6 +62,14 @@ export function findSharedPoint(lineA, lineB) {
   if (lineA.start === lineB.start || lineA.start === lineB.end) return lineA.start;
   if (lineA.end === lineB.start || lineA.end === lineB.end) return lineA.end;
   return null;
+}
+
+export function flushSketchArrays(service) {
+  const sketch = service.store.state.sketch;
+  service.store.set('sketch.points', [...sketch.points]);
+  service.store.set('sketch.lines', [...sketch.lines]);
+  service.store.set('sketch.dimensions', [...sketch.dimensions]);
+  service.store.set('sketch.constraints', [...sketch.constraints]);
 }
 
 export function rebuildSketchObjects(service) {

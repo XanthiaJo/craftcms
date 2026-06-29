@@ -1,11 +1,11 @@
 // main.js - App bootstrap, stage setup, and top-level UI wiring
 
 import '../css/app.css';
-import { AppStage } from './konva/AppStage.js';
-import { Store } from './state/Store.js';
-import { StorePersistence } from './state/StorePersistence.js';
-import { rebuildPreviewCells, fitGridToCanvas } from './services/GridService.js';
-import { SketchService } from './services/sketch/SketchService.js';
+import { AppStage } from './konva/appStage.js';
+import { Store } from './state/store.js';
+import { StorePersistence } from './state/storePersistence.js';
+import { rebuildPreviewCells, fitGridToCanvas } from './services/gridService.js';
+import { SketchService } from './services/sketch/sketchService.js';
 import { setupMainUi } from './ui/mainUi.js';
 
 const store = new Store();
