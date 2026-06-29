@@ -7,6 +7,7 @@ Short summaries of current test coverage. All test files live directly under `te
 | `tests/constraintSolver.test.js` | `canAddPerpendicularConstraint` — shared-point requirement, no-duplicate, triangle over-constraint, independent quad. |
 | `tests/undoHistory.test.js` | Undo/redo history for lines, dimensions, constraints, point moves, deletions, and clear. |
 | `tests/midpointConstraint.test.js` | Midpoint constraint creation, solver enforcement, and endpoint/midpoint dragging. |
+| `tests/equalConstraint.test.js` | Equal length constraint creation, solver enforcement, and undo. |
 
 ## Planned coverage
 

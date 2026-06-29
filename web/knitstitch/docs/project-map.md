@@ -41,7 +41,7 @@ Short summaries of the main project files.
 | `src/services/finishedSizeCalculator.js` | Calculates finished size from gauge and pattern dimensions. |
 | `src/services/gridService.js` | Builds grid preview cells and calculates cell sizing. |
 | `src/services/sketch/constraintSolver.js` | Applies constraint rules when points move. |
-| `src/services/sketch/constraintTool.js` | Owns perpendicular and midpoint constraint creation workflows. |
+| `src/services/sketch/constraintTool.js` | Owns perpendicular, midpoint, and equal length constraint creation workflows. |
 | `src/services/sketch/dimensionTool.js` | Owns the dimension placement, edit overlay, and driven-value workflow. |
 | `src/services/sketch/historyManager.js` | Action-based undo/redo stack for sketch state. |
 | `src/services/sketch/lineTool.js` | Owns the line/polyline drawing workflow. |

@@ -15,6 +15,7 @@ The current UI has active support for:
 - Dimension
 - Perpendicular constraint mode
 - Midpoint constraint mode
+- Equal length constraint mode
 
 ### Midpoint
 
@@ -24,13 +25,20 @@ The current UI has active support for:
 - [x] add unit coverage for creation and dragging
 - [ ] add e2e coverage for creation and dragging
 
+### Equal length
+
+- [x] add the equal length creation workflow in `constraintTool.js`
+- [x] add solver support in `constraintSolver.js` so constrained lines stay the same length
+- [x] render equal constraints in the sketch object list and canvas overlay
+- [x] add unit coverage for creation, dragging, and undo
+- [ ] add e2e coverage for creation and dragging
+
 ### Future constraint buttons
 
 These are candidate controls for later phases:
 
 - Coincident
 - Parallel
-- Equal length
 - Fixed angle
 - Horizontal lock
 - Vertical lock
