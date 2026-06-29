@@ -118,4 +118,5 @@ Keep these untracked:
 - `coverage/`
 - `test-results/`
 - `vite.config.js.timestamp-*.mjs`
+- `web/dist/` (built by `npm run build` and generated during deploy)
 

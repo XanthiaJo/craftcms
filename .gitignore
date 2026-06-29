@@ -19,6 +19,7 @@ config/license.key
 .aiassistant
 .ai/
 web/knitstitch/test-results
+/web/dist
 .github/workflows/deploy.yml
 node_modules/
 Folder.DotSettings.user
