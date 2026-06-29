@@ -409,6 +409,8 @@ export class SketchLayer {
         this._renderPerpendicularIcon(group, constraint);
       } else if (constraint?.type === 'Midpoint') {
         this._renderMidpointIcon(group, constraint);
+      } else if (constraint?.type === 'Equal') {
+        this._renderEqualIcon(group, constraint);
       }
     }
   }
@@ -487,6 +489,44 @@ export class SketchLayer {
       closed: true,
       fill: 'rgba(0,0,0,0)',
       hitStrokeWidth: 18,
+      listening: true,
+    }));
+    iconGroup.on('click tap', (e) => {
+      e.cancelBubble = true;
+      this.service.selectConstraint(constraint, e.evt.ctrlKey);
+    });
+    group.add(iconGroup);
+  }
+
+  _renderEqualIcon(group, constraint) {
+    const line = constraint.lineA;
+    if (!line) return;
+
+    const midX = (line.start.x + line.end.x) / 2;
+    const midY = (line.start.y + line.end.y) / 2;
+    const iconColor = constraint.isSelected ? '#0078D7' : '#2D9E4F';
+    const iconSize = 6;
+
+    const iconGroup = new Konva.Group({ listening: true });
+    iconGroup.add(new Konva.Line({
+      points: [midX - iconSize, midY - 2, midX + iconSize, midY - 2],
+      stroke: iconColor,
+      strokeWidth: 2,
+      lineCap: 'round',
+      listening: true,
+    }));
+    iconGroup.add(new Konva.Line({
+      points: [midX - iconSize, midY + 2, midX + iconSize, midY + 2],
+      stroke: iconColor,
+      strokeWidth: 2,
+      lineCap: 'round',
+      listening: true,
+    }));
+    iconGroup.add(new Konva.Circle({
+      x: midX,
+      y: midY,
+      radius: 10,
+      fill: 'rgba(0,0,0,0)',
       listening: true,
     }));
     iconGroup.on('click tap', (e) => {

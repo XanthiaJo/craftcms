@@ -21,6 +21,7 @@ export class ConstraintSolver {
     this._propagateCoincidentConstraints(sketch, movedPoint);
     this._applyPerpendicularConstraints(sketch, movedPoint, originalPosition);
     this._applyMidpointConstraints(sketch, movedPoint, originalPosition);
+    this._applyEqualConstraints(sketch, movedPoint, originalPosition);
 
     if (!sketch.dimensions?.length) return;
 
@@ -294,6 +295,85 @@ export class ConstraintSolver {
     point.x = (line.start.x + line.end.x) / 2;
     point.y = (line.start.y + line.end.y) / 2;
     return true;
+  }
+
+  enforceEqualConstraint(sketch, constraint, preferredLineToMove = null) {
+    if (constraint?.type !== 'Equal') return false;
+
+    const lineA = constraint.lineA;
+    const lineB = constraint.lineB;
+    if (!lineA || !lineB) return false;
+    if (lineA === lineB) return false;
+
+    const reference = preferredLineToMove === lineB ? lineA : lineB;
+    const movable = preferredLineToMove === lineB ? lineB : lineA;
+    const targetLength = Math.hypot(
+      reference.end.x - reference.start.x,
+      reference.end.y - reference.start.y
+    );
+    this._scaleLineToLength(movable, targetLength);
+    return true;
+  }
+
+  _applyEqualConstraints(sketch, movedPoint, originalPosition = null) {
+    if (!originalPosition || !sketch.constraints?.length) return;
+
+    const updatedPoints = new Set();
+
+    for (const line of sketch.lines || []) {
+      if (line.start !== movedPoint && line.end !== movedPoint) continue;
+
+      const originalLength = Math.hypot(
+        (line.start === movedPoint ? originalPosition.x : line.start.x)
+          - (line.end === movedPoint ? originalPosition.x : line.end.x),
+        (line.start === movedPoint ? originalPosition.y : line.start.y)
+          - (line.end === movedPoint ? originalPosition.y : line.end.y)
+      );
+      const newLength = Math.hypot(
+        line.end.x - line.start.x,
+        line.end.y - line.start.y
+      );
+      if (Math.abs(newLength - originalLength) < EPSILON) continue;
+
+      const updatedLines = new Set();
+      for (const constraint of sketch.constraints) {
+        if (constraint?.type !== 'Equal') continue;
+        const otherLine = constraint.lineA === line
+          ? constraint.lineB
+          : constraint.lineB === line
+            ? constraint.lineA
+            : null;
+        if (!otherLine || otherLine === line) continue;
+        if (updatedLines.has(otherLine)) continue;
+        this._scaleLineToLength(otherLine, newLength);
+        updatedLines.add(otherLine);
+        updatedPoints.add(otherLine.start);
+        updatedPoints.add(otherLine.end);
+      }
+    }
+
+    for (const pt of updatedPoints) {
+      this._propagateCoincidentConstraints(sketch, pt);
+    }
+  }
+
+  _scaleLineToLength(line, targetLength) {
+    if (!line) return;
+    const dx = line.end.x - line.start.x;
+    const dy = line.end.y - line.start.y;
+    const currentLength = Math.hypot(dx, dy);
+    if (currentLength < EPSILON) return;
+
+    const midX = (line.start.x + line.end.x) / 2;
+    const midY = (line.start.y + line.end.y) / 2;
+    const half = targetLength / 2;
+    const ux = dx / currentLength;
+    const uy = dy / currentLength;
+
+    line.start.x = midX - ux * half;
+    line.start.y = midY - uy * half;
+    line.end.x = midX + ux * half;
+    line.end.y = midY + uy * half;
   }
 
   _applyMidpointConstraints(sketch, movedPoint, originalPosition = null) {

@@ -40,6 +40,7 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
     toolDimensionBtn: getElement(documentObj, 'tool-dimension'),
     toolPerpendicularBtn: getElement(documentObj, 'tool-perpendicular'),
     toolMidpointBtn: getElement(documentObj, 'tool-midpoint'),
+    toolEqualBtn: getElement(documentObj, 'tool-equal'),
     overlayFileInput: getElement(documentObj, 'overlay-file'),
     overlayBrowseBtn: getElement(documentObj, 'overlay-browse'),
     overlayClearBtn: getElement(documentObj, 'overlay-clear'),
@@ -104,13 +105,22 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
       refs.toolMidpointBtn,
       sketch.activeTool === SketchTool.Constraint && sketch.constraintSubMode === 'Midpoint'
     );
+    toggleActive(
+      refs.toolEqualBtn,
+      sketch.activeTool === SketchTool.Constraint && sketch.constraintSubMode === 'Equal'
+    );
 
     if (refs.sketchObjectList) {
       refs.sketchObjectList.innerHTML = sketch.objects.map((o) =>
         `<li class="${o.isSelected ? 'selected' : ''} ${o.refType ? 'is-selectable' : 'is-readonly'}"
              data-ref-type="${o.refType ?? ''}"
              data-ref-id="${o.refId ?? ''}">
-          <span>${o.kind === 'Line' ? '&#9473;' : o.kind === 'Perpendicular' ? '&#8869;' : '&#9679;'}</span> ${o.label}
+          <span>${
+            o.kind === 'Line' ? '&#9473;'
+              : o.kind === 'Perpendicular' ? '&#8869;'
+              : o.kind === 'Equal' ? '&#8801;'
+              : '&#9679;'
+          }</span> ${o.label}
         </li>`
       ).join('');
     }
@@ -196,6 +206,11 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
   bindIfPresent(refs.toolMidpointBtn, 'click', () => {
     sketchService.activeTool = SketchTool.Constraint;
     sketchService.constraintSubMode = 'Midpoint';
+  });
+
+  bindIfPresent(refs.toolEqualBtn, 'click', () => {
+    sketchService.activeTool = SketchTool.Constraint;
+    sketchService.constraintSubMode = 'Equal';
   });
 
   bindIfPresent(refs.overlayBrowseBtn, 'click', () => refs.overlayFileInput?.click());

@@ -57,6 +57,13 @@ export function buildSketchObjects(sketch, { findSharedPoint }) {
         ? `Midpoint P${pt.id + 1} on L${line.id + 1}  @ (${pt.x.toFixed(0)},${pt.y.toFixed(0)})`
         : `Midpoint ${constraint.description}`;
       kind = SketchObjectKind.Midpoint;
+    } else if (constraint?.type === 'Equal') {
+      const a = constraint.lineA;
+      const b = constraint.lineB;
+      label = a && b
+        ? `Equal L${a.id + 1} & L${b.id + 1}`
+        : `Equal ${constraint.description}`;
+      kind = SketchObjectKind.Equal;
     }
 
     objects.push({

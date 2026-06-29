@@ -11,7 +11,8 @@ export const SketchTool = {
 export const ConstraintSubMode = {
   None: 'None',
   Perpendicular: 'Perpendicular',
-  Midpoint: 'Midpoint'
+  Midpoint: 'Midpoint',
+  Equal: 'Equal'
 };
 
 export const SketchObjectKind = {
@@ -21,4 +22,5 @@ export const SketchObjectKind = {
   Dimension: 'Dimension',
   Perpendicular: 'Perpendicular',
   Midpoint: 'Midpoint',
+  Equal: 'Equal',
 };

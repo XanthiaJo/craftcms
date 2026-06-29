@@ -23,6 +23,9 @@ export class SketchConstraint {
     if (this.type === 'Midpoint' && this.lineA && this.pointA) {
       return `Midpoint P${this.pointA.id + 1} on L${this.lineA.id + 1}`;
     }
+    if (this.type === 'Equal' && this.lineA && this.lineB) {
+      return `Equal L${this.lineA.id + 1} & L${this.lineB.id + 1}`;
+    }
     if (this.type === 'Coincident') return 'Coincident';
     return this.type ?? 'Constraint';
   }

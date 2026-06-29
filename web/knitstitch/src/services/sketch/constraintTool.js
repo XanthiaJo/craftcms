@@ -34,28 +34,20 @@ export class ConstraintTool {
     }
 
     if (constraintSubMode === ConstraintSubMode.Midpoint) {
-      if (!this.service._constraintPendingLine) {
-        this.service._constraintPendingLine = line;
-        this.service.selectLine(line);
-        return;
-      }
-
-      if (this.service._constraintPendingLine === line) {
-        this.service._constraintPendingLine = null;
-        this.service.clearSelection();
-        return;
-      }
-
-      // In midpoint mode the second pick is a point, not a line.
-      showCursorMessage(this.service, 'Select a point for the midpoint', position);
+      this._onMidpointLineClick(line, position);
       return;
     }
 
-    if (constraintSubMode !== ConstraintSubMode.Perpendicular) {
-      this.service.selectLine(line, multiSelect);
+    if (constraintSubMode === ConstraintSubMode.Perpendicular
+      || constraintSubMode === ConstraintSubMode.Equal) {
+      this._onLinePairConstraintClick(line, constraintSubMode, position);
       return;
     }
 
+    this.service.selectLine(line, multiSelect);
+  }
+
+  _onMidpointLineClick(line, position = null) {
     if (!this.service._constraintPendingLine) {
       this.service._constraintPendingLine = line;
       this.service.selectLine(line);
@@ -68,9 +60,33 @@ export class ConstraintTool {
       return;
     }
 
+    // In midpoint mode the second pick is a point, not a line.
+    showCursorMessage(this.service, 'Select a point for the midpoint', position);
+  }
+
+  _onLinePairConstraintClick(line, subMode, position = null) {
+    if (!this.service._constraintPendingLine) {
+      this.service._constraintPendingLine = line;
+      this.service.selectLine(line);
+      return;
+    }
+
+    if (this.service._constraintPendingLine === line) {
+      this.service._constraintPendingLine = null;
+      this.service.clearSelection();
+      if (subMode === ConstraintSubMode.Equal) {
+        showCursorMessage(this.service, 'Cannot constrain a line to itself', position);
+      }
+      return;
+    }
+
     const firstLine = this.service._constraintPendingLine;
     this.service._constraintPendingLine = null;
-    this._tryCreatePerpendicularConstraint(firstLine, line, position);
+    if (subMode === ConstraintSubMode.Perpendicular) {
+      this._tryCreatePerpendicularConstraint(firstLine, line, position);
+    } else if (subMode === ConstraintSubMode.Equal) {
+      this._tryCreateEqualConstraint(firstLine, line, position);
+    }
   }
 
   onConstraintPointClick(point, multiSelect = false, position = null) {
@@ -179,6 +195,51 @@ export class ConstraintTool {
   _findPerpendicularConstraint(lineA, lineB) {
     return this.store.state.sketch.constraints.find((constraint) => {
       if (constraint?.type !== 'Perpendicular') return false;
+      return (
+        (constraint.lineA === lineA && constraint.lineB === lineB)
+        || (constraint.lineA === lineB && constraint.lineB === lineA)
+      );
+    }) ?? null;
+  }
+
+  _tryCreateEqualConstraint(firstLine, secondLine, position = null) {
+    if (!firstLine || !secondLine) return false;
+    if (firstLine === secondLine) {
+      this.service.clearSelection();
+      showCursorMessage(this.service, 'Cannot constrain a line to itself', position);
+      return false;
+    }
+
+    const existing = this._findEqualConstraint(firstLine, secondLine);
+    if (existing) {
+      this.service.selectConstraint(existing);
+      return true;
+    }
+
+    this.service._recordSnapshot('Add equal constraint');
+    const constraint = new SketchConstraint(
+      'Equal',
+      null,
+      null,
+      firstLine,
+      secondLine,
+      this.service._nextConstraintId++
+    );
+    this.store.state.sketch.constraints.push(constraint);
+    assignConstraintIds(this.service);
+    this.service._constraintSolver.enforceEqualConstraint(
+      this.store.state.sketch, constraint, secondLine
+    );
+    for (const dim of this.store.state.sketch.dimensions) dim.recompute();
+    this.service.selectConstraint(constraint);
+    flushSketchArrays(this.service);
+    rebuildSketchObjects(this.service);
+    return true;
+  }
+
+  _findEqualConstraint(lineA, lineB) {
+    return this.store.state.sketch.constraints.find((constraint) => {
+      if (constraint?.type !== 'Equal') return false;
       return (
         (constraint.lineA === lineA && constraint.lineB === lineB)
         || (constraint.lineA === lineB && constraint.lineB === lineA)
