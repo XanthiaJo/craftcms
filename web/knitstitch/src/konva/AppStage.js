@@ -1,9 +1,9 @@
 // AppStage.js - Stage + layer composition + event wiring
 
 import Konva from 'konva';
-import { GridLayer } from './GridLayer.js';
-import { OverlayLayer } from './OverlayLayer.js';
-import { SketchLayer } from './SketchLayer.js';
+import { GridLayer } from './gridLayer.js';
+import { OverlayLayer } from './overlayLayer.js';
+import { SketchLayer } from './sketchLayer.js';
 
 export class AppStage {
   constructor(containerId, store, sketchService) {

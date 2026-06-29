@@ -1,9 +1,9 @@
 // StorePersistence.js - localStorage persistence layer for Store
 
-import { SketchPoint } from '../models/sketch/SketchPoint.js';
-import { SketchLine } from '../models/sketch/SketchLine.js';
-import { SketchDimension } from '../models/sketch/SketchDimension.js';
-import { SketchConstraint } from '../models/sketch/SketchConstraint.js';
+import { SketchPoint } from '../models/sketch/sketchPoint.js';
+import { SketchLine } from '../models/sketch/sketchLine.js';
+import { SketchDimension } from '../models/sketch/sketchDimension.js';
+import { SketchConstraint } from '../models/sketch/sketchConstraint.js';
 
 const STORAGE_KEY = 'knitstitch_state';
 const DEBOUNCE_MS = 300;

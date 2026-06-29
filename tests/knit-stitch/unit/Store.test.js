@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { Store } from '../src/state/Store.js';
+import { Store } from '../../../web/knitstitch/src/state/store.js';
 
 describe('Store', () => {
   it('should get top-level and nested values', () => {

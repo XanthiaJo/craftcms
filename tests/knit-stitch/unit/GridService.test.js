@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { Store } from '../src/state/Store.js';
-import { rebuildPreviewCells, togglePreviewCell, fitGridToCanvas, updateCellSizing } from '../src/services/GridService.js';
+import { Store } from '../../../web/knitstitch/src/state/store.js';
+import { rebuildPreviewCells, togglePreviewCell, fitGridToCanvas, updateCellSizing } from '../../../web/knitstitch/src/services/gridService.js';
 
 describe('GridService', () => {
   function makeStore() {

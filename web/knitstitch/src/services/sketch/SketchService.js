@@ -1,9 +1,11 @@
-import { SketchPoint } from '../../models/sketch/SketchPoint.js';
-import { SketchLine } from '../../models/sketch/SketchLine.js';
-import { SketchColorOption } from '../../models/sketch/SketchColorOption.js';
-import { SketchDimension } from '../../models/sketch/SketchDimension.js';
-import { SketchConstraint } from '../../models/sketch/SketchConstraint.js';
-import { ConstraintSolver } from '../ConstraintSolver.js';
+import { SketchPoint } from '../../models/sketch/sketchPoint.js';
+import { SketchLine } from '../../models/sketch/sketchLine.js';
+import { SketchColorOption } from '../../models/sketch/sketchColorOption.js';
+import { ConstraintSolver } from './constraintSolver.js';
+import { DimensionTool } from './dimensionTool.js';
+import { ConstraintTool } from './constraintTool.js';
+import { nearestPoint, applyAngleSnap } from '../../utils/geometry.js';
+import { captureSketchSnapshot, restoreSketchSnapshot, snapshotsEqual } from './sketchSnapshot.js';
 import {
   ConstraintSubMode,
   SNAP_ANGLE_DEG,
@@ -16,6 +18,7 @@ import {
   assignConstraintIds as assignSketchConstraintIds,
   clearSelection as clearSketchSelection,
   findSharedPoint as findSketchSharedPoint,
+  flushSketchArrays as flushSketchArraysInStore,
   nextId as nextSketchId,
   rebuildSketchObjects as rebuildSketchObjectsInStore,
   seedIdCountersFromSketch as seedSketchIdCountersFromSketch,
@@ -45,6 +48,12 @@ export class SketchService {
     this._selectedLines = new Set();
     this._suppressNextClick = false;
     this._constraintSolver = new ConstraintSolver();
+    this._dimensionTool = new DimensionTool(this);
+    this._constraintTool = new ConstraintTool(this);
+
+    this._history = [];
+    this._historyLimit = 50;
+    this._dragSnapshot = null;
 
     this.strokeColorOptions = [
       new SketchColorOption('Red', '#E63946'),
@@ -71,6 +80,16 @@ export class SketchService {
 
   _seedIdCountersFromSketch() {
     seedSketchIdCountersFromSketch(this);
+  }
+
+  _recordSnapshot(description) {
+    this._history.push({
+      description,
+      snapshot: captureSketchSnapshot(this.store.state.sketch, this),
+    });
+    if (this._history.length > this._historyLimit) {
+      this._history.shift();
+    }
   }
 
   _nextId(items) {
@@ -133,10 +152,10 @@ export class SketchService {
         this.clearSelection();
         break;
       case SketchTool.Dimension:
-        this._onDimensionClick(position, modifiers);
+        this._dimensionTool.onDimensionClick(position, modifiers);
         break;
       case SketchTool.Constraint:
-        this._onConstraintClick(position, modifiers);
+        this._constraintTool.onConstraintClick(position, modifiers);
         break;
     }
   }
@@ -174,13 +193,28 @@ export class SketchService {
     if (near) {
       this._dragPoint = near;
       this.selectPoint(near);
+      this._dragSnapshot = captureSketchSnapshot(this.store.state.sketch, this);
     } else {
       this._dragPoint = null;
+      this._dragSnapshot = null;
     }
   }
 
   onCanvasMouseUp() {
+    if (this._dragSnapshot && this._dragPoint) {
+      const current = captureSketchSnapshot(this.store.state.sketch, this);
+      if (!snapshotsEqual(current, this._dragSnapshot)) {
+        this._history.push({
+          description: 'Move point',
+          snapshot: this._dragSnapshot,
+        });
+        if (this._history.length > this._historyLimit) {
+          this._history.shift();
+        }
+      }
+    }
     this._dragPoint = null;
+    this._dragSnapshot = null;
   }
 
   _onSelectMouseMove(position, modifiers = {}) {
@@ -196,9 +230,7 @@ export class SketchService {
     );
     assignSketchConstraintIds(this);
     for (const dim of this.store.state.sketch.dimensions) dim.recompute();
-    this.store.set('sketch.points', [...this.store.state.sketch.points]);
-    this.store.set('sketch.dimensions', [...this.store.state.sketch.dimensions]);
-    this.store.set('sketch.constraints', [...this.store.state.sketch.constraints]);
+    flushSketchArraysInStore(this);
     rebuildSketchObjectsInStore(this);
   }
 
@@ -233,8 +265,26 @@ export class SketchService {
   }
 
   undo() {
+    // If there is an in-progress drag, complete it without recording it, then
+    // continue with the next undo.
+    this._dragPoint = null;
+    this._dragSnapshot = null;
+
+    const action = this._history.pop();
+    if (action) {
+      restoreSketchSnapshot(action.snapshot, this);
+      return;
+    }
+
+    // Fallback for empty history: cancel an in-progress line.
     const sketch = this.store.state.sketch;
-    if (sketch.lines.length > 0) {
+    if (this._pendingStart) {
+      this._removeOrphanPoint(this._pendingStart);
+      this._pendingStart = null;
+      setSketchPreviewLine(this, null);
+      setSketchSnapCandidate(this, null);
+      rebuildSketchObjectsInStore(this);
+    } else if (sketch.lines.length > 0) {
       const last = sketch.lines[sketch.lines.length - 1];
       sketch.lines.pop();
       this._removeOrphanPoint(last.start);
@@ -242,16 +292,10 @@ export class SketchService {
       rebuildSketchObjectsInStore(this);
       this.store.set('sketch.lines', [...sketch.lines]);
     }
-    if (this._pendingStart) {
-      this._removeOrphanPoint(this._pendingStart);
-      this._pendingStart = null;
-      setSketchPreviewLine(this, null);
-      setSketchSnapCandidate(this, null);
-      rebuildSketchObjectsInStore(this);
-    }
   }
 
   clear() {
+    this._recordSnapshot('Clear sketch');
     const sketch = this.store.state.sketch;
     sketch.lines = [];
     sketch.points = [];
@@ -274,6 +318,7 @@ export class SketchService {
   }
 
   _onLineClick(position, modifiers = {}) {
+    this._recordSnapshot('Draw line');
     const snapEnabled = modifiers.snapEnabled !== false;
     if (!this._pendingStart) {
       this._pendingStart = this._resolveOrCreatePoint(position, snapEnabled);
@@ -310,18 +355,7 @@ export class SketchService {
 
   _findNearestPoint(position, allowSnap = true, excludePoint = null) {
     const snapRadius = allowSnap ? SNAP_RADIUS : 0.001;
-    const points = this.store.state.sketch.points;
-    let best = null;
-    let bestDist = snapRadius;
-    for (const p of points) {
-      if (p === excludePoint) continue;
-      const d = Math.sqrt((p.x - position.x) ** 2 + (p.y - position.y) ** 2);
-      if (d < bestDist) {
-        bestDist = d;
-        best = p;
-      }
-    }
-    return best;
+    return nearestPoint(this.store.state.sketch.points, position, snapRadius, excludePoint);
   }
 
   _createPoint(position) {
@@ -357,118 +391,21 @@ export class SketchService {
     this._rebuildObjects();
   }
 
-  _onDimensionClick(position, modifiers = {}) {
-    const snapped = this._findNearestPoint(position, modifiers.snapEnabled !== false);
-    if (!snapped) return;
-    const pt = snapped;
-
-    if (!this._dimPendingA) {
-      this._dimPendingA = pt;
-      this.selectPoint(pt);
-      setSketchSnapCandidate(this, null);
-    } else {
-      if (!Object.is(this._dimPendingA, pt)) {
-        this._commitDimension(this._dimPendingA, pt);
-      }
-      this._dimPendingA = null;
-      this.clearSelection();
-      setSketchSnapCandidate(this, null);
-    }
+  onConstraintLineClick(line, multiSelect = false, position = null) {
+    this._constraintTool.onConstraintLineClick(line, multiSelect, position);
   }
 
-  _onConstraintClick(position, modifiers = {}) {
-    if (this.constraintSubMode !== ConstraintSubMode.Perpendicular) return;
-    this._setSnapCandidate(null);
-  }
-
-  onConstraintLineClick(line, multiSelect = false) {
-    if (this.activeTool !== SketchTool.Constraint || this.constraintSubMode !== ConstraintSubMode.Perpendicular) {
-      this.selectLine(line, multiSelect);
-      return;
-    }
-
-    if (!this._constraintPendingLine) {
-      this._constraintPendingLine = line;
-      this.selectLine(line);
-      return;
-    }
-
-    if (this._constraintPendingLine === line) {
-      this._constraintPendingLine = null;
-      this.clearSelection();
-      return;
-    }
-
-    const firstLine = this._constraintPendingLine;
-    this._constraintPendingLine = null;
-    this._tryCreatePerpendicularConstraint(firstLine, line);
-  }
-
-  _commitDimension(a, b) {
-    const dim = new SketchDimension(this._nextDimId++, a, b);
-    this.store.state.sketch.dimensions.push(dim);
-    this.store.set('sketch.dimensions', [...this.store.state.sketch.dimensions]);
-    this._rebuildObjects();
-    this._openDimEdit(dim);
-  }
-
+  // Proxies so sketchLayer and tests can call these without knowing the sub-tool classes
   _openDimEdit(dim) {
-    this.store.set('sketch.pendingDimEdit', {
-      dimId:      dim.id,
-      initialText: dim.labelText.replace(/^[^\d.]*/, ''),
-      labelPos:   { ...dim.labelPos },
-      onConfirm:  (value) => {
-        this._applyDimConstraint(dim, value);
-        this.store.set('sketch.pendingDimEdit', null);
-      },
-      onCancel: () => {
-        const sketch = this.store.state.sketch;
-        sketch.dimensions = sketch.dimensions.filter((candidate) => candidate !== dim);
-        this.clearSelection();
-        this.store.set('sketch.dimensions', [...sketch.dimensions]);
-        this.store.set('sketch.pendingDimEdit', null);
-        this._rebuildObjects();
-      },
-    });
+    this._dimensionTool.openDimEdit(dim);
   }
 
   _applyDimConstraint(dim, targetPx) {
-    const usageA = this._countLineUsage(dim.a);
-    const usageB = this._countLineUsage(dim.b);
-    const free   = usageA < usageB ? dim.a : dim.b;
-    const fixed  = usageA < usageB ? dim.b : dim.a;
-
-    if (dim.kind === 'Horizontal') {
-      const signX = Math.sign(free.x - fixed.x) || 1;
-      free.x = fixed.x + signX * targetPx;
-    } else if (dim.kind === 'Vertical') {
-      const signY = Math.sign(free.y - fixed.y) || 1;
-      free.y = fixed.y + signY * targetPx;
-    } else {
-      const dx = free.x - fixed.x;
-      const dy = free.y - fixed.y;
-      const len = Math.sqrt(dx * dx + dy * dy);
-      if (len >= 0.001) {
-        free.x = fixed.x + (dx / len) * targetPx;
-        free.y = fixed.y + (dy / len) * targetPx;
-      }
-    }
-
-    dim.setDrivenValue(targetPx);
-    for (const d of this.store.state.sketch.dimensions) {
-      if (!Object.is(d, dim) && (Object.is(d.a, free) || Object.is(d.b, free)))
-        d.recompute();
-    }
-    this.store.set('sketch.dimensions', [...this.store.state.sketch.dimensions]);
-    this.store.set('sketch.points', [...this.store.state.sketch.points]);
-    this._rebuildObjects();
+    this._dimensionTool._applyDimConstraint(dim, targetPx);
   }
 
-  _countLineUsage(pt) {
-    let count = 0;
-    for (const line of this.store.state.sketch.lines)
-      if (Object.is(line.start, pt) || Object.is(line.end, pt)) count++;
-    return count;
+  _tryCreatePerpendicularConstraint(lineA, lineB, position = null) {
+    return this._constraintTool._tryCreatePerpendicularConstraint(lineA, lineB, position);
   }
 
   _setPreviewLine(line) {
@@ -504,6 +441,8 @@ export class SketchService {
   }
 
   deleteSelected() {
+    if (!this.hasSelection) return;
+    this._recordSnapshot('Delete selection');
     const sketch = this.store.state.sketch;
     const { dimsToRemove, linesToRemove } = deleteSketchSelection({
       sketch,
@@ -527,20 +466,11 @@ export class SketchService {
     this._selectedLines.clear();
     setSketchSnapCandidate(this, null);
     rebuildSketchObjectsInStore(this);
-
-    this.store.set('sketch.lines', [...sketch.lines]);
-    this.store.set('sketch.points', [...sketch.points]);
-    this.store.set('sketch.dimensions', [...sketch.dimensions]);
-    this.store.set('sketch.constraints', [...sketch.constraints]);
+    flushSketchArraysInStore(this);
   }
 
   _applyAngleSnap(start, end) {
-    const dx = end.x - start.x;
-    const dy = end.y - start.y;
-    const angleDeg = Math.abs(Math.atan2(Math.abs(dy), Math.abs(dx)) * 180 / Math.PI);
-    if (angleDeg <= SNAP_ANGLE_DEG) return { x: end.x, y: start.y };
-    if (angleDeg >= 90 - SNAP_ANGLE_DEG) return { x: start.x, y: end.y };
-    return { x: end.x, y: end.y };
+    return applyAngleSnap(start, end, SNAP_ANGLE_DEG);
   }
 
   _rebuildObjects() {
@@ -549,58 +479,6 @@ export class SketchService {
 
   _findLinesForPoint(point) {
     return this.store.state.sketch.lines.filter((line) => line.start === point || line.end === point);
-  }
-
-  _tryCreatePerpendicularConstraint(firstLine, secondLine) {
-    if (!firstLine || !secondLine) return false;
-    if (this._findPerpendicularConstraint(firstLine, secondLine)) {
-      this.selectConstraint(this._findPerpendicularConstraint(firstLine, secondLine));
-      return true;
-    }
-
-    if (!this._constraintSolver.canAddPerpendicularConstraint(this.store.state.sketch, firstLine, secondLine)) {
-      this.clearSelection();
-      return false;
-    }
-
-    const anchor = this._findSharedPoint(firstLine, secondLine);
-    if (!anchor) {
-      this.clearSelection();
-      return false;
-    }
-
-    const constraint = new SketchConstraint(
-      'Perpendicular',
-      anchor,
-      null,
-      firstLine,
-      secondLine,
-      this._nextConstraintId++
-    );
-    this.store.state.sketch.constraints.push(constraint);
-    assignSketchConstraintIds(this);
-    this._constraintSolver.enforcePerpendicularConstraint(this.store.state.sketch, constraint, secondLine);
-    for (const dim of this.store.state.sketch.dimensions) dim.recompute();
-    this.selectConstraint(constraint);
-    this.store.set('sketch.points', [...this.store.state.sketch.points]);
-    this.store.set('sketch.dimensions', [...this.store.state.sketch.dimensions]);
-    this.store.set('sketch.constraints', [...this.store.state.sketch.constraints]);
-    rebuildSketchObjectsInStore(this);
-    return true;
-  }
-
-  _assignConstraintIds() {
-    assignSketchConstraintIds(this);
-  }
-
-  _findPerpendicularConstraint(lineA, lineB) {
-    return this.store.state.sketch.constraints.find((constraint) => {
-      if (constraint?.type !== 'Perpendicular') return false;
-      return (
-        (constraint.lineA === lineA && constraint.lineB === lineB)
-        || (constraint.lineA === lineB && constraint.lineB === lineA)
-      );
-    }) ?? null;
   }
 
   _findSharedPoint(lineA, lineB) {

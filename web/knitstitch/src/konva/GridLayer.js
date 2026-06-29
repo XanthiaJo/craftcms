@@ -1,5 +1,5 @@
 import Konva from 'konva';
-import { togglePreviewCell } from '../services/GridService.js';
+import { togglePreviewCell } from '../services/gridService.js';
 
 export class GridLayer {
   constructor(store) {

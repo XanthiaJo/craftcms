@@ -17,6 +17,7 @@ export class SketchLayer {
   destroy() {
     this._unsubscribe();
     this._hideDimEditOverlay();
+    this._hideCursorMessage();
     this.layer.destroy();
   }
 
@@ -83,6 +84,42 @@ export class SketchLayer {
     if (el) el.remove();
   }
 
+  _showCursorMessage(message) {
+    const el = document.getElementById('knitstitch-cursor-message');
+    if (el) el.remove();
+    if (!message || !message.position) return;
+
+    const container = this.layer.getStage()?.container();
+    if (!container) return;
+    const canvasRect = container.querySelector('canvas')?.getBoundingClientRect()
+      ?? container.getBoundingClientRect();
+
+    const msg = document.createElement('div');
+    msg.id = 'knitstitch-cursor-message';
+    msg.style.cssText = `
+      position: fixed;
+      left: ${canvasRect.left + message.position.x + 12}px;
+      top: ${canvasRect.top + message.position.y - 28}px;
+      background: #B22222;
+      color: white;
+      font-size: 12px;
+      font-family: 'Open Sans', sans-serif;
+      padding: 4px 8px;
+      border-radius: 4px;
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 10000;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    `;
+    msg.textContent = message.text;
+    document.body.appendChild(msg);
+  }
+
+  _hideCursorMessage() {
+    const el = document.getElementById('knitstitch-cursor-message');
+    if (el) el.remove();
+  }
+
   _onStoreChange(path) {
     if (
       path === 'sketch.lines' ||
@@ -98,6 +135,10 @@ export class SketchLayer {
       path === 'sketch.pendingDimEdit'
     ) {
       this._render();
+    }
+
+    if (path === 'sketch.cursorMessage') {
+      this._showCursorMessage(this.store.get('sketch.cursorMessage'));
     }
   }
 
@@ -172,16 +213,17 @@ export class SketchLayer {
         e.cancelBubble = true;
         const activeTool = this.store.get('sketch.activeTool');
         const constraintSubMode = this.store.get('sketch.constraintSubMode');
+        const pointer = this.layer.getStage()?.getPointerPosition();
+        const position = pointer ? { x: pointer.x, y: pointer.y } : null;
         if (activeTool === 'Select') {
           this.service.selectLine(line, e.evt.ctrlKey);
           return;
         }
         if (activeTool === 'Constraint' && constraintSubMode === 'Perpendicular') {
-          this.service.onConstraintLineClick(line, e.evt.ctrlKey);
+          this.service.onConstraintLineClick(line, e.evt.ctrlKey, position);
           return;
         }
 
-        const pointer = this.layer.getStage()?.getPointerPosition();
         if (!pointer) return;
         this.service.onCanvasClick({ x: pointer.x, y: pointer.y }, { snapEnabled: !e.evt.ctrlKey });
       });
@@ -254,8 +296,22 @@ export class SketchLayer {
       group.add(ring);
     }
 
-    // Dimension annotations
     const pendingEdit = this.store.get('sketch.pendingDimEdit');
+    this._renderDimensions(group, dimensions, pendingEdit);
+    this._renderConstraintIcons(group, constraints);
+
+    // Floating dim-edit input overlay
+    if (pendingEdit) {
+      this._showDimEditOverlay(pendingEdit);
+    } else {
+      this._hideDimEditOverlay();
+    }
+
+    this.layer.add(group);
+    this.layer.batchDraw();
+  }
+
+  _renderDimensions(group, dimensions, pendingEdit) {
     for (const dim of dimensions) {
       const dimGroup = new Konva.Group();
       const dimColor = dim.isSelected ? '#1D70B8' : '#2D9E4F';
@@ -338,7 +394,9 @@ export class SketchLayer {
       dimGroup.add(labelGroup);
       group.add(dimGroup);
     }
+  }
 
+  _renderConstraintIcons(group, constraints) {
     for (const constraint of constraints) {
       if (constraint?.type !== 'Perpendicular') continue;
       const anchor = constraint.pointA ?? this.service._findSharedPoint(constraint.lineA, constraint.lineB);
@@ -389,15 +447,5 @@ export class SketchLayer {
       });
       group.add(iconGroup);
     }
-
-    // Floating dim-edit input overlay (rendered as a Konva HTML overlay)
-    if (pendingEdit) {
-      this._showDimEditOverlay(pendingEdit);
-    } else {
-      this._hideDimEditOverlay();
-    }
-
-    this.layer.add(group);
-    this.layer.batchDraw();
   }
 }
