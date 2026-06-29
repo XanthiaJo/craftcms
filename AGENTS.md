@@ -35,7 +35,7 @@ Keep root guidance DRY and repository-wide. When working inside a sub-project th
 Current app-specific agent file:
 
 - KnitStitch Grid:
-  - [web/knitstitch/AGENT.md](</E:/Coding Projects/craftcms/web/knitstitch/AGENT.md>)
+  - [web/knitstitch/AGENTS.md](</E:/Coding Projects/craftcms/web/knitstitch/AGENTS.md>)
 
 ## Repository Structure
 

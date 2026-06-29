@@ -26,29 +26,35 @@ KnitStitch Grid is a Konva.js web conversion of the original KnitStichGrid WPF d
 
 Primary source layout:
 
-- [src/main.js](</E:/Coding Projects/craftcms/web/knitstitch/src/main.js>) - bootstrap, sidebar wiring, stage init
+- [src/main.js](</E:/Coding Projects/craftcms/web/knitstitch/src/main.js>) - bootstrap and stage init
+- [src/ui/mainUi.js](</E:/Coding Projects/craftcms/web/knitstitch/src/ui/mainUi.js>) - sidebar wiring and store subscriptions
 - [src/konva/](</E:/Coding Projects/craftcms/web/knitstitch/src/konva/>) - stage and render layers
 - [src/models/](</E:/Coding Projects/craftcms/web/knitstitch/src/models/>) - sketch/grid data models
-- [src/services/](</E:/Coding Projects/craftcms/web/knitstitch/src/services/>) - interaction, geometry, sizing, persistence
-- [src/services/sketch/](</E:/Coding Projects/craftcms/web/knitstitch/src/services/sketch/>) - sketch-specific helper modules extracted from `SketchService`
-- [src/state/Store.js](</E:/Coding Projects/craftcms/web/knitstitch/src/state/Store.js>) - reactive store
+- [src/services/](</E:/Coding Projects/craftcms/web/knitstitch/src/services/>) - grid sizing and finished size calculation
+- [src/services/sketch/](</E:/Coding Projects/craftcms/web/knitstitch/src/services/sketch/>) - all sketch logic: service, solver, helpers, constants, deletion
+- [src/state/store.js](</E:/Coding Projects/craftcms/web/knitstitch/src/state/store.js>) - reactive store
+- [src/utils/geometry.js](</E:/Coding Projects/craftcms/web/knitstitch/src/utils/geometry.js>) - pure geometry helpers (distance, nearestPoint, applyAngleSnap)
 - [tests/](</E:/Coding Projects/craftcms/web/knitstitch/tests/>) - Vitest and Playwright coverage
+- [docs/](</E:/Coding Projects/craftcms/web/knitstitch/docs/>) - project map, roadmap, tests map
 
 ## DRY Rules
 
 For KnitStitch work, prefer these rules before adding logic:
 
 - keep tool constants and object-kind constants centralized
-- move sketch-specific helpers into `src/services/sketch/` instead of growing `SketchService.js`
+- move sketch-specific helpers into `src/services/sketch/` instead of growing `sketchService.js`
 - extract pure projection logic and graph/deletion logic into standalone modules before splitting event-flow code
 - avoid repeating store sync sequences; when a mutation path repeats, prefer a shared helper
 - avoid duplicating geometry helpers like nearest-point lookup, shared-point lookup, and angle snap
 
 The current direction is:
 
-- `SketchService.js` acts as the coordinator
+- `sketchService.js` acts as the coordinator
 - extracted helpers under `src/services/sketch/` own pure or policy-heavy logic
-- `ConstraintSolver.js` owns geometric enforcement, not UI selection flow
+- `constraintSolver.js` owns geometric enforcement, not UI selection flow
+- `dimensionTool.js` owns the dimension lifecycle (placement, edit overlay, driven-value application)
+- `constraintTool.js` owns the constraint creation workflow (line selection, feasibility check, commit)
+- pure geometry helpers (`distance`, `nearestPoint`, `applyAngleSnap`) live in `src/utils/geometry.js`
 
 ## Sketch Interaction Model
 
