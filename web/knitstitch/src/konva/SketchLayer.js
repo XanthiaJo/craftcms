@@ -1,4 +1,5 @@
 import Konva from 'konva';
+import { DEFAULT_STROKE_COLOR, DEFAULT_STROKE_THICKNESS } from '../services/sketch/styleOptions.js';
 
 export class SketchLayer {
   constructor(store, sketchService) {
@@ -195,8 +196,8 @@ export class SketchLayer {
     const constraints = this.store.get('sketch.constraints') || [];
     const preview = this.store.get('sketch.previewLine');
     const snap = this.store.get('sketch.snapCandidate');
-    const color = this.store.get('sketch.strokeColor') || '#E63946';
-    const thickness = this.store.get('sketch.strokeThickness') || 2;
+    const color = this.store.get('sketch.strokeColor') || DEFAULT_STROKE_COLOR;
+    const thickness = this.store.get('sketch.strokeThickness') || DEFAULT_STROKE_THICKNESS;
 
     const group = new Konva.Group();
 

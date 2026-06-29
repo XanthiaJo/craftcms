@@ -1,4 +1,4 @@
-import { SketchColorOption } from '../../models/sketch/sketchColorOption.js';
+import { STROKE_COLOR_OPTIONS } from './styleOptions.js';
 import { ConstraintSolver } from './constraintSolver.js';
 import { DimensionTool } from './dimensionTool.js';
 import { ConstraintTool } from './constraintTool.js';
@@ -51,20 +51,7 @@ export class SketchService {
     this._lineTool = new LineTool(this);
     this._history = new HistoryManager(this);
 
-    this.strokeColorOptions = [
-      new SketchColorOption('Red', '#E63946'),
-      new SketchColorOption('Orange', '#FF6B35'),
-      new SketchColorOption('Yellow', '#F4C430'),
-      new SketchColorOption('Green', '#2D9E4F'),
-      new SketchColorOption('Teal', '#0A8A8A'),
-      new SketchColorOption('Blue', '#1D70B8'),
-      new SketchColorOption('Purple', '#6A3D9A'),
-      new SketchColorOption('Pink', '#E75480'),
-      new SketchColorOption('Black', '#1A1A1A'),
-      new SketchColorOption('Dark grey', '#555555'),
-      new SketchColorOption('Grey', '#999999'),
-      new SketchColorOption('White', '#F5F5F5'),
-    ];
+    this.strokeColorOptions = STROKE_COLOR_OPTIONS;
 
     this._syncToStore();
     this._seedIdCountersFromSketch();

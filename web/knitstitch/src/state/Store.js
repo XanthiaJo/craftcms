@@ -1,5 +1,7 @@
 // Store.js - Central reactive state (replaces ViewModelBase)
 
+import { DEFAULT_STROKE_COLOR, DEFAULT_STROKE_THICKNESS } from '../services/sketch/styleOptions.js';
+
 class Store {
   constructor() {
     this.state = {
@@ -20,8 +22,8 @@ class Store {
         isActive: false,
         activeTool: 'Select',   // 'Select' | 'Line' | 'Dimension' | 'Constraint'
         constraintSubMode: null, // 'Perpendicular' | 'Midpoint'
-        strokeColor: '#E63946',
-        strokeThickness: 2,
+        strokeColor: DEFAULT_STROKE_COLOR,
+        strokeThickness: DEFAULT_STROKE_THICKNESS,
         lines: [],
         points: [],
         dimensions: [],
