@@ -249,8 +249,14 @@ export class SketchLayer {
       dot.on('click tap', (e) => {
         e.cancelBubble = true;
         const activeTool = this.store.get('sketch.activeTool');
+        const constraintSubMode = this.store.get('sketch.constraintSubMode');
         if (activeTool === 'Select') {
           this.service.selectPoint(pt, e.evt.ctrlKey);
+          return;
+        }
+        if (activeTool === 'Constraint' && constraintSubMode === 'Midpoint') {
+          const pointer = this.layer.getStage()?.getPointerPosition();
+          this.service.onConstraintPointClick(pt, e.evt.ctrlKey, pointer);
           return;
         }
         if (activeTool === 'Constraint') {
@@ -398,54 +404,94 @@ export class SketchLayer {
 
   _renderConstraintIcons(group, constraints) {
     for (const constraint of constraints) {
-      if (constraint?.type !== 'Perpendicular') continue;
-      const anchor = constraint.pointA ?? this.service._findSharedPoint(constraint.lineA, constraint.lineB);
-      if (!anchor || !constraint.lineA || !constraint.lineB) continue;
-
-      const lineAPoint = constraint.lineA.start === anchor ? constraint.lineA.end : constraint.lineA.start;
-      const lineBPoint = constraint.lineB.start === anchor ? constraint.lineB.end : constraint.lineB.start;
-      if (!lineAPoint || !lineBPoint) continue;
-
-      const vecA = { x: lineAPoint.x - anchor.x, y: lineAPoint.y - anchor.y };
-      const vecB = { x: lineBPoint.x - anchor.x, y: lineBPoint.y - anchor.y };
-      const lenA = Math.hypot(vecA.x, vecA.y);
-      const lenB = Math.hypot(vecB.x, vecB.y);
-      if (lenA < 0.001 || lenB < 0.001) continue;
-
-      const unitA = { x: vecA.x / lenA, y: vecA.y / lenA };
-      const unitB = { x: vecB.x / lenB, y: vecB.y / lenB };
-      const iconSize = 8;
-      const iconOrigin = {
-        x: anchor.x + (unitA.x + unitB.x) * 8,
-        y: anchor.y + (unitA.y + unitB.y) * 8,
-      };
-      const iconColor = constraint.isSelected ? '#0078D7' : '#2D9E4F';
-
-      const iconGroup = new Konva.Group({ listening: true });
-      iconGroup.add(new Konva.Line({
-        points: [
-          iconOrigin.x + unitA.x * iconSize, iconOrigin.y + unitA.y * iconSize,
-          iconOrigin.x + unitA.x * iconSize + unitB.x * iconSize, iconOrigin.y + unitA.y * iconSize + unitB.y * iconSize,
-          iconOrigin.x + unitB.x * iconSize, iconOrigin.y + unitB.y * iconSize,
-        ],
-        stroke: iconColor,
-        strokeWidth: 2,
-        hitStrokeWidth: 18,
-        lineJoin: 'round',
-        listening: true,
-      }));
-      iconGroup.add(new Konva.Circle({
-        x: iconOrigin.x + (unitA.x + unitB.x) * (iconSize * 0.5),
-        y: iconOrigin.y + (unitA.y + unitB.y) * (iconSize * 0.5),
-        radius: 10,
-        fill: 'rgba(0,0,0,0)',
-        listening: true,
-      }));
-      iconGroup.on('click tap', (e) => {
-        e.cancelBubble = true;
-        this.service.selectConstraint(constraint, e.evt.ctrlKey);
-      });
-      group.add(iconGroup);
+      if (constraint?.type === 'Perpendicular') {
+        this._renderPerpendicularIcon(group, constraint);
+      } else if (constraint?.type === 'Midpoint') {
+        this._renderMidpointIcon(group, constraint);
+      }
     }
+  }
+
+  _renderPerpendicularIcon(group, constraint) {
+    const anchor = constraint.pointA ?? this.service._findSharedPoint(constraint.lineA, constraint.lineB);
+    if (!anchor || !constraint.lineA || !constraint.lineB) return;
+
+    const lineAPoint = constraint.lineA.start === anchor ? constraint.lineA.end : constraint.lineA.start;
+    const lineBPoint = constraint.lineB.start === anchor ? constraint.lineB.end : constraint.lineB.start;
+    if (!lineAPoint || !lineBPoint) return;
+
+    const vecA = { x: lineAPoint.x - anchor.x, y: lineAPoint.y - anchor.y };
+    const vecB = { x: lineBPoint.x - anchor.x, y: lineBPoint.y - anchor.y };
+    const lenA = Math.hypot(vecA.x, vecA.y);
+    const lenB = Math.hypot(vecB.x, vecB.y);
+    if (lenA < 0.001 || lenB < 0.001) return;
+
+    const unitA = { x: vecA.x / lenA, y: vecA.y / lenA };
+    const unitB = { x: vecB.x / lenB, y: vecB.y / lenB };
+    const iconSize = 8;
+    const iconOrigin = {
+      x: anchor.x + (unitA.x + unitB.x) * 8,
+      y: anchor.y + (unitA.y + unitB.y) * 8,
+    };
+    const iconColor = constraint.isSelected ? '#0078D7' : '#2D9E4F';
+
+    const iconGroup = new Konva.Group({ listening: true });
+    iconGroup.add(new Konva.Line({
+      points: [
+        iconOrigin.x + unitA.x * iconSize, iconOrigin.y + unitA.y * iconSize,
+        iconOrigin.x + unitA.x * iconSize + unitB.x * iconSize, iconOrigin.y + unitA.y * iconSize + unitB.y * iconSize,
+        iconOrigin.x + unitB.x * iconSize, iconOrigin.y + unitB.y * iconSize,
+      ],
+      stroke: iconColor,
+      strokeWidth: 2,
+      hitStrokeWidth: 18,
+      lineJoin: 'round',
+      listening: true,
+    }));
+    iconGroup.add(new Konva.Circle({
+      x: iconOrigin.x + (unitA.x + unitB.x) * (iconSize * 0.5),
+      y: iconOrigin.y + (unitA.y + unitB.y) * (iconSize * 0.5),
+      radius: 10,
+      fill: 'rgba(0,0,0,0)',
+      listening: true,
+    }));
+    iconGroup.on('click tap', (e) => {
+      e.cancelBubble = true;
+      this.service.selectConstraint(constraint, e.evt.ctrlKey);
+    });
+    group.add(iconGroup);
+  }
+
+  _renderMidpointIcon(group, constraint) {
+    const line = constraint.lineA;
+    const point = constraint.pointA;
+    if (!line || !point) return;
+
+    const midX = (line.start.x + line.end.x) / 2;
+    const midY = (line.start.y + line.end.y) / 2;
+    const iconColor = constraint.isSelected ? '#0078D7' : '#2D9E4F';
+    const iconSize = 6;
+
+    const iconGroup = new Konva.Group({ listening: true });
+    // Draw a small diamond at the midpoint
+    iconGroup.add(new Konva.Line({
+      points: [
+        midX, midY - iconSize,
+        midX + iconSize, midY,
+        midX, midY + iconSize,
+        midX - iconSize, midY,
+      ],
+      stroke: iconColor,
+      strokeWidth: 2,
+      closed: true,
+      fill: 'rgba(0,0,0,0)',
+      hitStrokeWidth: 18,
+      listening: true,
+    }));
+    iconGroup.on('click tap', (e) => {
+      e.cancelBubble = true;
+      this.service.selectConstraint(constraint, e.evt.ctrlKey);
+    });
+    group.add(iconGroup);
   }
 }

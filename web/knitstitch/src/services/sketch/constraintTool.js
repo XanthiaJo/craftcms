@@ -9,7 +9,7 @@ import {
 } from './sketchStateHelpers.js';
 
 /**
- * Owns the perpendicular constraint creation workflow.
+ * Owns the perpendicular and midpoint constraint creation workflows.
  *
  * Receives the SketchService instance so it can call shared helpers
  * (selectLine, clearSelection, store access) without duplicating them.
@@ -28,7 +28,30 @@ export class ConstraintTool {
 
   onConstraintLineClick(line, multiSelect = false, position = null) {
     const { activeTool, constraintSubMode } = this.service;
-    if (activeTool !== 'Constraint' || constraintSubMode !== ConstraintSubMode.Perpendicular) {
+    if (activeTool !== 'Constraint') {
+      this.service.selectLine(line, multiSelect);
+      return;
+    }
+
+    if (constraintSubMode === ConstraintSubMode.Midpoint) {
+      if (!this.service._constraintPendingLine) {
+        this.service._constraintPendingLine = line;
+        this.service.selectLine(line);
+        return;
+      }
+
+      if (this.service._constraintPendingLine === line) {
+        this.service._constraintPendingLine = null;
+        this.service.clearSelection();
+        return;
+      }
+
+      // In midpoint mode the second pick is a point, not a line.
+      showCursorMessage(this.service, 'Select a point for the midpoint', position);
+      return;
+    }
+
+    if (constraintSubMode !== ConstraintSubMode.Perpendicular) {
       this.service.selectLine(line, multiSelect);
       return;
     }
@@ -48,6 +71,28 @@ export class ConstraintTool {
     const firstLine = this.service._constraintPendingLine;
     this.service._constraintPendingLine = null;
     this._tryCreatePerpendicularConstraint(firstLine, line, position);
+  }
+
+  onConstraintPointClick(point, multiSelect = false, position = null) {
+    const { activeTool, constraintSubMode } = this.service;
+    if (activeTool !== 'Constraint') {
+      this.service.selectPoint(point, multiSelect);
+      return;
+    }
+
+    if (constraintSubMode === ConstraintSubMode.Midpoint) {
+      if (!this.service._constraintPendingLine) {
+        showCursorMessage(this.service, 'Select a line first', position);
+        return;
+      }
+
+      const line = this.service._constraintPendingLine;
+      this.service._constraintPendingLine = null;
+      this._tryCreateMidpointConstraint(line, point, position);
+      return;
+    }
+
+    this.service.selectPoint(point, multiSelect);
   }
 
   _tryCreatePerpendicularConstraint(firstLine, secondLine, position = null) {
@@ -95,6 +140,42 @@ export class ConstraintTool {
     return true;
   }
 
+  _tryCreateMidpointConstraint(line, point, position = null) {
+    if (!line || !point) return false;
+
+    if (line.start === point || line.end === point) {
+      this.service.clearSelection();
+      showCursorMessage(this.service, 'Midpoint cannot be an endpoint of the same line', position);
+      return false;
+    }
+
+    const existing = this._findMidpointConstraint(line, point);
+    if (existing) {
+      this.service.selectConstraint(existing);
+      return true;
+    }
+
+    this.service._recordSnapshot('Add midpoint constraint');
+    const constraint = new SketchConstraint(
+      'Midpoint',
+      point,
+      null,
+      line,
+      null,
+      this.service._nextConstraintId++
+    );
+    this.store.state.sketch.constraints.push(constraint);
+    assignConstraintIds(this.service);
+    this.service._constraintSolver.enforceMidpointConstraint(
+      this.store.state.sketch, constraint
+    );
+    for (const dim of this.store.state.sketch.dimensions) dim.recompute();
+    this.service.selectConstraint(constraint);
+    flushSketchArrays(this.service);
+    rebuildSketchObjects(this.service);
+    return true;
+  }
+
   _findPerpendicularConstraint(lineA, lineB) {
     return this.store.state.sketch.constraints.find((constraint) => {
       if (constraint?.type !== 'Perpendicular') return false;
@@ -102,6 +183,13 @@ export class ConstraintTool {
         (constraint.lineA === lineA && constraint.lineB === lineB)
         || (constraint.lineA === lineB && constraint.lineB === lineA)
       );
+    }) ?? null;
+  }
+
+  _findMidpointConstraint(line, point) {
+    return this.store.state.sketch.constraints.find((constraint) => {
+      if (constraint?.type !== 'Midpoint') return false;
+      return constraint.lineA === line && constraint.pointA === point;
     }) ?? null;
   }
 }

@@ -395,6 +395,10 @@ export class SketchService {
     this._constraintTool.onConstraintLineClick(line, multiSelect, position);
   }
 
+  onConstraintPointClick(point, multiSelect = false, position = null) {
+    this._constraintTool.onConstraintPointClick(point, multiSelect, position);
+  }
+
   // Proxies so sketchLayer and tests can call these without knowing the sub-tool classes
   _openDimEdit(dim) {
     this._dimensionTool.openDimEdit(dim);

@@ -50,6 +50,13 @@ export function buildSketchObjects(sketch, { findSharedPoint }) {
         ? `Perpendicular L${constraint.lineA.id + 1} & L${constraint.lineB.id + 1}  @ (${pivot.x.toFixed(0)},${pivot.y.toFixed(0)})`
         : `Perpendicular L${constraint.lineA.id + 1} & L${constraint.lineB.id + 1}`;
       kind = SketchObjectKind.Perpendicular;
+    } else if (constraint?.type === 'Midpoint') {
+      const pt = constraint.pointA;
+      const line = constraint.lineA;
+      label = pt && line
+        ? `Midpoint P${pt.id + 1} on L${line.id + 1}  @ (${pt.x.toFixed(0)},${pt.y.toFixed(0)})`
+        : `Midpoint ${constraint.description}`;
+      kind = SketchObjectKind.Midpoint;
     }
 
     objects.push({

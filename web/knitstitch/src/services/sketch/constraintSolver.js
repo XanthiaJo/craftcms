@@ -20,6 +20,7 @@ export class ConstraintSolver {
 
     this._propagateCoincidentConstraints(sketch, movedPoint);
     this._applyPerpendicularConstraints(sketch, movedPoint, originalPosition);
+    this._applyMidpointConstraints(sketch, movedPoint, originalPosition);
 
     if (!sketch.dimensions?.length) return;
 
@@ -280,6 +281,58 @@ export class ConstraintSolver {
     movedPoint.x = anchor.x + chosen.x;
     movedPoint.y = anchor.y + chosen.y;
     return true;
+  }
+
+  enforceMidpointConstraint(sketch, constraint) {
+    if (constraint?.type !== 'Midpoint') return false;
+
+    const line = constraint.lineA;
+    const point = constraint.pointA;
+    if (!line || !point) return false;
+    if (line.start === point || line.end === point) return false;
+
+    point.x = (line.start.x + line.end.x) / 2;
+    point.y = (line.start.y + line.end.y) / 2;
+    return true;
+  }
+
+  _applyMidpointConstraints(sketch, movedPoint, originalPosition = null) {
+    if (!sketch.constraints?.length) return;
+
+    const updatedPoints = new Set();
+
+    for (const constraint of sketch.constraints) {
+      if (constraint?.type !== 'Midpoint') continue;
+      const line = constraint.lineA;
+      const point = constraint.pointA;
+      if (!line || !point) continue;
+      if (line.start === point || line.end === point) continue;
+
+      const isEndpoint = movedPoint === line.start || movedPoint === line.end;
+      const isMidpoint = movedPoint === point;
+      if (!isEndpoint && !isMidpoint) continue;
+
+      if (isEndpoint) {
+        point.x = (line.start.x + line.end.x) / 2;
+        point.y = (line.start.y + line.end.y) / 2;
+        updatedPoints.add(point);
+      } else if (isMidpoint && originalPosition) {
+        const dx = movedPoint.x - originalPosition.x;
+        const dy = movedPoint.y - originalPosition.y;
+        if (Math.abs(dx) >= EPSILON || Math.abs(dy) >= EPSILON) {
+          line.start.x += dx;
+          line.start.y += dy;
+          line.end.x += dx;
+          line.end.y += dy;
+          updatedPoints.add(line.start);
+          updatedPoints.add(line.end);
+        }
+      }
+    }
+
+    for (const pt of updatedPoints) {
+      this._propagateCoincidentConstraints(sketch, pt);
+    }
   }
 
   _findNearestPoint(points, position, snapRadius, excludePoint = null) {

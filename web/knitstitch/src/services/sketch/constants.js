@@ -20,4 +20,5 @@ export const SketchObjectKind = {
   Constraint: 'Constraint',
   Dimension: 'Dimension',
   Perpendicular: 'Perpendicular',
+  Midpoint: 'Midpoint',
 };
