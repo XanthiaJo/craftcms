@@ -22,9 +22,10 @@ const EPSILON = 0.01;
  * @param {Array<{start:{x:number,y:number},end:{x:number,y:number}}>} lines
  * @param {number} cellW
  * @param {number} cellH
+ * @param {number} fillThreshold - Fraction of cell that must be inside (0.0-1.0, default 0.5)
  * @returns {Set<string>} cell keys ("r,c") to fill
  */
-export function computeFilledCellsFromSketch(lines, cellW, cellH) {
+export function computeFilledCellsFromSketch(lines, cellW, cellH, fillThreshold = 0.5) {
   if (!lines || lines.length < 3 || cellW <= 0 || cellH <= 0) {
     return new Set();
   }
@@ -43,22 +44,22 @@ export function computeFilledCellsFromSketch(lines, cellW, cellH) {
     }
   }
 
-  const minCol = Math.max(0, Math.floor(minX / cellW));
+  const minCol = Math.floor(minX / cellW);
   const maxCol = Math.ceil(maxX / cellW);
-  const minRow = Math.max(0, Math.floor(minY / cellH));
+  const minRow = Math.floor(minY / cellH);
   const maxRow = Math.ceil(maxY / cellH);
 
   const filled = new Set();
   const samples = 4;
   const total = samples * samples;
-  const half = total / 2;
+  const required = Math.ceil(total * fillThreshold); // Use configurable threshold instead of 50%
 
   for (let r = minRow; r <= maxRow; r++) {
     for (let c = minCol; c <= maxCol; c++) {
       const x0 = c * cellW;
       const y0 = r * cellH;
       let insideCount = 0;
-      for (let sy = 0; sy < samples && insideCount < half; sy++) {
+      for (let sy = 0; sy < samples && insideCount < required; sy++) {
         for (let sx = 0; sx < samples; sx++) {
           const px = x0 + (sx + 0.5) * cellW / samples;
           const py = y0 + (sy + 0.5) * cellH / samples;
@@ -67,7 +68,7 @@ export function computeFilledCellsFromSketch(lines, cellW, cellH) {
           }
         }
       }
-      if (insideCount >= half) {
+      if (insideCount >= required) {
         filled.add(`${r},${c}`);
       }
     }
