@@ -144,36 +144,75 @@ export class SketchLayer {
     for (const pt of points) {
       const isSelectTool = this.store.get('sketch.activeTool') === 'Select';
       const isSelected = pt.isSelected;
-      const dot = new Konva.Circle({
-        x: pt.x,
-        y: pt.y,
-        radius: isSelected ? 6 : isSelectTool ? 5 : 3,
-        fill: isSelected ? pointDisplayColor : triplet.fill,
-        stroke: isSelected ? pointDisplayColor : null,
-        strokeWidth: isSelected ? 1 : 0,
-        listening: true,
-        hitStrokeWidth: 14,
-      });
-      dot.on('click tap', (e) => {
-        e.cancelBubble = true;
-        const pointer = this.layer.getStage()?.getRelativePointerPosition();
-        const position = pointer ? { x: pointer.x, y: pointer.y } : { x: pt.x, y: pt.y };
-        this.service.onPointClick(pt, position, {
-          snapEnabled: !e.evt.ctrlKey,
-          multiSelect: e.evt.ctrlKey,
+      const isAnchor = pt.isAnchor;
+      const size = isSelected ? 6 : isSelectTool ? 5 : 3;
+
+      if (isAnchor) {
+        // Anchor points render as squares to distinguish them
+        const half = size;
+        const anchorShape = new Konva.Rect({
+          x: pt.x - half,
+          y: pt.y - half,
+          width: half * 2,
+          height: half * 2,
+          fill: isSelected ? pointDisplayColor : triplet.fill,
+          stroke: isSelected ? pointDisplayColor : triplet.select,
+          strokeWidth: isSelected ? 2 : 1,
+          listening: true,
+          hitStrokeWidth: 14,
         });
-      });
-      if (isSelectTool) {
-        dot.on('mouseenter', () => { document.body.style.cursor = 'grab'; });
-        dot.on('mouseleave', () => { document.body.style.cursor = 'default'; });
-        dot.on('mousedown', (e) => {
+        anchorShape.on('click tap', (e) => {
           e.cancelBubble = true;
-          document.body.style.cursor = 'grabbing';
-          const pos = { x: pt.x, y: pt.y };
-          this.service.startDrag(pos, { snapEnabled: !e.evt.ctrlKey });
+          const pointer = this.layer.getStage()?.getRelativePointerPosition();
+          const position = pointer ? { x: pointer.x, y: pointer.y } : { x: pt.x, y: pt.y };
+          this.service.onPointClick(pt, position, {
+            snapEnabled: !e.evt.ctrlKey,
+            multiSelect: e.evt.ctrlKey,
+          });
         });
+        if (isSelectTool) {
+          anchorShape.on('mouseenter', () => { document.body.style.cursor = 'grab'; });
+          anchorShape.on('mouseleave', () => { document.body.style.cursor = 'default'; });
+          anchorShape.on('mousedown', (e) => {
+            e.cancelBubble = true;
+            document.body.style.cursor = 'grabbing';
+            const pos = { x: pt.x, y: pt.y };
+            this.service.startDrag(pos, { snapEnabled: !e.evt.ctrlKey });
+          });
+        }
+        group.add(anchorShape);
+      } else {
+        const dot = new Konva.Circle({
+          x: pt.x,
+          y: pt.y,
+          radius: size,
+          fill: isSelected ? pointDisplayColor : triplet.fill,
+          stroke: isSelected ? pointDisplayColor : null,
+          strokeWidth: isSelected ? 1 : 0,
+          listening: true,
+          hitStrokeWidth: 14,
+        });
+        dot.on('click tap', (e) => {
+          e.cancelBubble = true;
+          const pointer = this.layer.getStage()?.getRelativePointerPosition();
+          const position = pointer ? { x: pointer.x, y: pointer.y } : { x: pt.x, y: pt.y };
+          this.service.onPointClick(pt, position, {
+            snapEnabled: !e.evt.ctrlKey,
+            multiSelect: e.evt.ctrlKey,
+          });
+        });
+        if (isSelectTool) {
+          dot.on('mouseenter', () => { document.body.style.cursor = 'grab'; });
+          dot.on('mouseleave', () => { document.body.style.cursor = 'default'; });
+          dot.on('mousedown', (e) => {
+            e.cancelBubble = true;
+            document.body.style.cursor = 'grabbing';
+            const pos = { x: pt.x, y: pt.y };
+            this.service.startDrag(pos, { snapEnabled: !e.evt.ctrlKey });
+          });
+        }
+        group.add(dot);
       }
-      group.add(dot);
     }
 
     // Preview line (only shown when sketch input is active)

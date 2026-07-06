@@ -12,8 +12,8 @@ import { SELECTION_COLOR, ACCENT_COLOR } from '../services/sketch/styleOptions.j
  * reference (used for the shared-point lookup and selection call).
  */
 
-const ICON_COLOR_SELECTED = SELECTION_COLOR;
-const ICON_COLOR_DEFAULT = ACCENT_COLOR;
+const ICON_COLOR_SELECTED = ACCENT_COLOR;
+const ICON_COLOR_DEFAULT = SELECTION_COLOR;
 
 function iconColor(constraint) {
   return constraint.isSelected ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT;

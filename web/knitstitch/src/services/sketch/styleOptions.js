@@ -8,7 +8,7 @@ import { SketchColorOption } from '../../models/sketch/sketchColorOption.js';
  * hard-coded constants.
  */
 
-export const DEFAULT_STROKE_COLOR = '#ca9b52';
+export const DEFAULT_STROKE_COLOR = '#8b5d1f';
 export const DEFAULT_STROKE_THICKNESS = 2;
 
 export const MIN_STROKE_THICKNESS = 1;
@@ -50,7 +50,7 @@ export const ERROR_COLOR = '#9a5a42';
  * using the site-wide gold.
  */
 export const STROKE_COLOR_OPTIONS = [
-  new SketchColorOption('Gold',      '#ca9b52', '#ca9b52', '#8b5d1f'),
+  new SketchColorOption('Gold',      '#8b5d1f', '#8b5d1f', '#5c3e14'),
   new SketchColorOption('Red',       '#E63946', '#E63946', '#A82833'),
   new SketchColorOption('Orange',    '#FF6B35', '#FF6B35', '#B84A22'),
   new SketchColorOption('Yellow',    '#F4C430', '#F4C430', '#A88A1E'),
