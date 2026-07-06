@@ -1,4 +1,4 @@
-const assert = require('node:assert/strict');
+﻿const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
@@ -17,8 +17,8 @@ test('changelog page template renders the generated build history fragment', () 
   assert.match(template, /include\('_generated\/change-log\.twig',\s*ignore_missing\s*=\s*true\)/);
   assert.match(template, /Change log unavailable/);
   assert.match(template, /generated from conventional commits and git tags/i);
-  assert.match(generated, /<div class="panel-sections">/);
-  assert.match(generated, /<section class="panel-section">/);
+  assert.match(generated, /<div class="container-sections">/);
+  assert.match(generated, /<section class="container-section">/);
   assert.match(generated, /Build Snapshot/);
   assert.match(generated, /Change Types/);
   assert.match(generated, /aria-label="Change log sections"/);
@@ -28,14 +28,14 @@ test('changelog page template renders the generated build history fragment', () 
   assert.match(generated, /<span class="caption">/);
   assert.match(generated, /Replace inline footer markup with\s+include &#039;_partials\/site-footer\.twig&#039;/i);
   assert.match(generated, /in index\.twig, category\.twig, and tag\.twig/i);
-  assert.match(siteCss, /\.panel-actions\s*\{[\s\S]*display:\s*flex;/);
-  assert.match(siteCss, /\.panel-actions\s*\{[\s\S]*align-items:\s*center;/);
-  assert.match(siteCss, /\.panel-section\s*\{[\s\S]*border-top:\s*1px solid var\(--border\);/);
+  assert.match(siteCss, /\.container-actions\s*\{[\s\S]*display:\s*flex;/);
+  assert.match(siteCss, /\.container-actions\s*\{[\s\S]*align-items:\s*center;/);
+  assert.match(siteCss, /\.container-section\s*\{[\s\S]*border-top:\s*1px solid var\(--border\);/);
   assert.doesNotMatch(siteCss, /\.change-log/);
   assert.doesNotMatch(generated, /\{\%|\{\{|\{#/);
   assert.doesNotMatch(generated, /change-log-list|change-log-item-title|change-log-item-meta/);
-  assert.doesNotMatch(siteCss, /\.panel-actions h4/);
-  assert.doesNotMatch(siteCss, /\.panel-actions \.caption/);
+  assert.doesNotMatch(siteCss, /\.container-actions h4/);
+  assert.doesNotMatch(siteCss, /\.container-actions \.caption/);
   assert.doesNotMatch(generated, /style="margin: 0; flex: 1 1 14rem;"/);
   assert.doesNotMatch(generated, /style="margin: 0;"/);
 });

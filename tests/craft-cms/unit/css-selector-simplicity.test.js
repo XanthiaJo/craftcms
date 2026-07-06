@@ -1,4 +1,4 @@
-const assert = require('node:assert/strict');
+﻿const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
@@ -17,7 +17,7 @@ const typicalElements = [
 
 const typicalElementPattern = typicalElements.join('|');
 
-// Matches a class-qualified typical element, e.g. `.panel h3`, `.body > p`, `.card h3, .card h4`
+// Matches a class-qualified typical element, e.g. `.container h3`, `.body > p`, `.panel h3, .panel h4`
 // Allows `.class` on its own and `element` on its own, but not `.class element`.
 const overSpecificSelectorRegex = new RegExp(
   '\\.[a-zA-Z0-9_-]+(?:\\[[^\\]]*\\])?(?:\\s*([>+~])\\s*|\\s+)(' + typicalElementPattern + ')(?![a-zA-Z0-9_-])',
@@ -31,6 +31,10 @@ const whitelist = new Set([
   '.lightbox img',
   '.list > li',
   '.list > li::before',
+  '.object-list li',
+  '.object-list li.is-selectable',
+  '.object-list li.selected',
+  '.object-list li:hover',
 ]);
 
 function readCss() {

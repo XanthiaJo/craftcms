@@ -1,4 +1,4 @@
-const assert = require('node:assert/strict');
+﻿const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
@@ -8,7 +8,7 @@ const postsTemplate = fs.readFileSync(path.join(rootDir, 'templates', 'posts.twi
 const siteCss = fs.readFileSync(path.join(rootDir, 'web', 'css', 'site.css'), 'utf8');
 const styleGuide = fs.readFileSync(path.join(rootDir, 'templates', 'style-guide.twig'), 'utf8');
 
-test('posts archive template renders the expected card content and filters', () => {
+test('posts archive template renders the expected panel content and filters', () => {
   assert.match(postsTemplate, /featuredImage\s*\?\s*entry\.featuredImage\.one\(\)\s*:\s*null/);
   assert.match(postsTemplate, /<img class="thumb" src="\{\{\s*image\.url\s*\}\}" alt="\{\{\s*image\.title\s*\?:\s*entry\.title\s*\}\}">/);
   assert.match(postsTemplate, /<h3><a href="\{\{\s*entry\.url\s*\}\}">\{\{\s*entry\.title\s*\}\}<\/a><\/h3>/);
@@ -17,7 +17,7 @@ test('posts archive template renders the expected card content and filters', () 
   assert.match(postsTemplate, /name="category\[\]"/);
   assert.match(postsTemplate, /name="tag\[\]"/);
   assert.match(postsTemplate, /name="year\[\]"/);
-  assert.match(postsTemplate, /card-category-chips/);
+  assert.match(postsTemplate, /panel-category-chips/);
   assert.match(postsTemplate, /class="chip color-pair-\{\{\s*entryProjectTypeChip\.colourPair\s*\}\}"/);
   assert.match(postsTemplate, /class="chip color-pair-\{\{\s*entryDesignSource\.colourPair\s*\}\}"/);
   assert.match(postsTemplate, /class="chip color-pair-\{\{\s*attribute\(category,\s*'colourPair'\)\s*\}\}"/);
@@ -30,12 +30,12 @@ test('posts archive template renders the expected card content and filters', () 
   assert.doesNotMatch(postsTemplate, /projectTypeColorPairs/);
   assert.doesNotMatch(postsTemplate, /designSourceSlug/);
   assert.doesNotMatch(postsTemplate, /muted-(gold|sand|sage|olive|sky|stone|rose|clay|plum|ink)/);
-  assert.doesNotMatch(postsTemplate, /card-category-chip\b/);
-  assert.doesNotMatch(postsTemplate, /card-type-chip--/);
-  assert.doesNotMatch(postsTemplate, /card-design-source-chip--/);
+  assert.doesNotMatch(postsTemplate, /panel-category-chip\b/);
+  assert.doesNotMatch(postsTemplate, /panel-type-chip--/);
+  assert.doesNotMatch(postsTemplate, /panel-design-source-chip--/);
 });
 
-test('site CSS encodes the archive typography and card layout rules', () => {
+test('site CSS encodes the archive typography and panel layout rules', () => {
   assert.match(siteCss, /--font-body:\s*"Open Sans",\s*sans-serif;/);
   assert.match(siteCss, /--font-heading:\s*"Playfair Display",\s*serif;/);
   assert.match(siteCss, /--font-brand:\s*"Dancing Script",\s*cursive;/);
@@ -60,21 +60,21 @@ test('site CSS encodes the archive typography and card layout rules', () => {
   assert.match(siteCss, /\.color-pair-ink\s*\{[\s\S]*background:\s*var\(--color-pair-ink-bg\);/);
   assert.match(siteCss, /\.color-pair-berry\s*\{[\s\S]*background:\s*var\(--color-pair-berry-bg\);/);
   assert.match(siteCss, /h3\s*\{[\s\S]*font-size:\s*var\(--type-h3\);/);
-  assert.match(siteCss, /\.card-excerpt\s*\{[\s\S]*-webkit-line-clamp:\s*3;/);
+  assert.match(siteCss, /\.panel-excerpt\s*\{[\s\S]*-webkit-line-clamp:\s*3;/);
   assert.match(siteCss, /\.subtitle\s*\{[\s\S]*text-transform:\s*uppercase;/);
   assert.match(siteCss, /\.caption\s*\{[\s\S]*font-size:\s*var\(--type-caption\);/);
   assert.doesNotMatch(siteCss, /\.chip\.color-pair-|\.color-pair-muted-/);
-  assert.doesNotMatch(siteCss, /card-category-chip\b/);
-  assert.doesNotMatch(siteCss, /card-type-chip--/);
-  assert.doesNotMatch(siteCss, /card-design-source-chip--/);
+  assert.doesNotMatch(siteCss, /panel-category-chip\b/);
+  assert.doesNotMatch(siteCss, /panel-type-chip--/);
+  assert.doesNotMatch(siteCss, /panel-design-source-chip--/);
 });
 
 test('template and CSS still advertise the visible project archive chrome', () => {
-  assert.match(postsTemplate, /<aside class="panel posts-panel">/);
-  assert.match(postsTemplate, /<h3>Project Type<\/h3>/);
-  assert.match(postsTemplate, /<h3>Categories<\/h3>/);
-  assert.match(postsTemplate, /<h3>Tags<\/h3>/);
-  assert.match(postsTemplate, /<h3>Year<\/h3>/);
+  assert.match(postsTemplate, /<aside class="sidebar">/);
+  assert.match(postsTemplate, /<div class="container-section-header">Project Type<\/div>/);
+  assert.match(postsTemplate, /<div class="container-section-header">Categories<\/div>/);
+  assert.match(postsTemplate, /<div class="container-section-header">Tags<\/div>/);
+  assert.match(postsTemplate, /<div class="container-section-header">Year<\/div>/);
   assert.match(siteCss, /\.page-layout\s*\{/);
   assert.match(siteCss, /\.grid\s*\{/);
 });

@@ -1,4 +1,4 @@
-const assert = require('node:assert/strict');
+﻿const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
@@ -191,8 +191,8 @@ test('single post template renders the instructions matrix with nested sections'
   assert.match(postTemplate, /section\.instructionSectionSubheading/);
   assert.match(postTemplate, /section\.instructionSectionText\|nl2br/);
   assert.match(postTemplate, /section\.instructionSteps\s*\?\s*section\.instructionSteps\.all\(\)/);
-  assert.match(postTemplate, /class="panel-sections"/);
-  assert.match(postTemplate, /class="panel-section"/);
+  assert.match(postTemplate, /class="container-sections"/);
+  assert.match(postTemplate, /class="container-section"/);
   assert.match(postTemplate, /<ol>/);
   assert.match(postTemplate, /<li>/);
   assert.match(postTemplate, /step\.instructionStepTexts\s*\?\s*step\.instructionStepTexts\.all\(\)/);
