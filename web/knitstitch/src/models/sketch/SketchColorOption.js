@@ -1,6 +1,8 @@
 export class SketchColorOption {
-  constructor(name, hex) {
+  constructor(name, stroke, fill, select) {
     this.name = name;
-    this.hex = hex;
+    this.stroke = stroke;
+    this.fill = fill;
+    this.select = select;
   }
 }

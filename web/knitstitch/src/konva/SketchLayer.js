@@ -4,6 +4,7 @@ import {
   DEFAULT_STROKE_THICKNESS,
   SELECTION_COLOR,
   PREVIEW_COLOR,
+  getColorTriplet,
 } from '../services/sketch/styleOptions.js';
 import { SketchOverlay } from './sketchOverlay.js';
 import { renderConstraintIcons } from './constraintIcons.js';
@@ -111,6 +112,7 @@ export class SketchLayer {
     const preview = this.store.get('sketch.previewLine');
     const snap = this.store.get('sketch.snapCandidate');
     const color = this.store.get('sketch.strokeColor') || DEFAULT_STROKE_COLOR;
+    const triplet = getColorTriplet(color);
     const thickness = this.store.get('sketch.strokeThickness') || DEFAULT_STROKE_THICKNESS;
 
     const group = new Konva.Group();
@@ -119,7 +121,7 @@ export class SketchLayer {
     for (const line of lines) {
       const kLine = new Konva.Line({
         points: [line.start.x, line.start.y, line.end.x, line.end.y],
-        stroke: line.isSelected ? SELECTION_COLOR : color,
+        stroke: line.isSelected ? triplet.select : color,
         strokeWidth: line.isSelected ? thickness + 1 : thickness,
         hitStrokeWidth: Math.max(10, thickness + 4),
         listening: true,
@@ -136,7 +138,7 @@ export class SketchLayer {
       group.add(kLine);
     }
 
-    const pointDisplayColor = SELECTION_COLOR;
+    const pointDisplayColor = triplet.select;
 
     // Points
     for (const pt of points) {
@@ -146,7 +148,7 @@ export class SketchLayer {
         x: pt.x,
         y: pt.y,
         radius: isSelected ? 6 : isSelectTool ? 5 : 3,
-        fill: isSelected ? pointDisplayColor : color,
+        fill: isSelected ? pointDisplayColor : triplet.fill,
         stroke: isSelected ? pointDisplayColor : null,
         strokeWidth: isSelected ? 1 : 0,
         listening: true,

@@ -8,7 +8,7 @@ import { SketchColorOption } from '../../models/sketch/sketchColorOption.js';
  * hard-coded constants.
  */
 
-export const DEFAULT_STROKE_COLOR = '#E63946';
+export const DEFAULT_STROKE_COLOR = '#ca9b52';
 export const DEFAULT_STROKE_THICKNESS = 2;
 
 export const MIN_STROKE_THICKNESS = 1;
@@ -18,9 +18,8 @@ export const STROKE_THICKNESS_STEP = 1;
 /**
  * Renderer colour constants for sketch UI elements.
  *
- * These map to the site CSS palette (see web/css/site.css and
- * web/knitstitch/css/app.css) so the sketch canvas stays visually
- * consistent with the rest of the site:
+ * These map to the site CSS palette (see web/css/site.css) so the sketch
+ * canvas stays visually consistent with the rest of the site:
  *
  *   SELECTION_COLOR    → --primary-dark   (#8b5d1f)  dark gold
  *   ACCENT_COLOR       → --primary        (#ca9b52)  gold
@@ -38,17 +37,40 @@ export const LABEL_BG_COLOR = '#111111';
 export const LABEL_STROKE_COLOR = '#333333';
 export const ERROR_COLOR = '#9a5a42';
 
+/**
+ * Sketch colour triplets.
+ *
+ * Each option carries three colours:
+ *   stroke  — the vivid line colour the user picks
+ *   fill    — the point fill colour (same as stroke for most)
+ *   select  — a darker shade used for selection highlight of lines and points
+ *
+ * The select shade is approximately 30% darker than the stroke, keeping
+ * the selection highlight in the same colour family instead of always
+ * using the site-wide gold.
+ */
 export const STROKE_COLOR_OPTIONS = [
-  new SketchColorOption('Red', '#E63946'),
-  new SketchColorOption('Orange', '#FF6B35'),
-  new SketchColorOption('Yellow', '#F4C430'),
-  new SketchColorOption('Green', '#2D9E4F'),
-  new SketchColorOption('Teal', '#0A8A8A'),
-  new SketchColorOption('Blue', '#1D70B8'),
-  new SketchColorOption('Purple', '#6A3D9A'),
-  new SketchColorOption('Pink', '#E75480'),
-  new SketchColorOption('Black', '#1A1A1A'),
-  new SketchColorOption('Dark grey', '#555555'),
-  new SketchColorOption('Grey', '#999999'),
-  new SketchColorOption('White', '#F5F5F5'),
+  new SketchColorOption('Gold',      '#ca9b52', '#ca9b52', '#8b5d1f'),
+  new SketchColorOption('Red',       '#E63946', '#E63946', '#A82833'),
+  new SketchColorOption('Orange',    '#FF6B35', '#FF6B35', '#B84A22'),
+  new SketchColorOption('Yellow',    '#F4C430', '#F4C430', '#A88A1E'),
+  new SketchColorOption('Green',     '#2D9E4F', '#2D9E4F', '#1E6E37'),
+  new SketchColorOption('Teal',      '#0A8A8A', '#0A8A8A', '#065E5E'),
+  new SketchColorOption('Blue',      '#1D70B8', '#1D70B8', '#134D80'),
+  new SketchColorOption('Purple',    '#6A3D9A', '#6A3D9A', '#482A6B'),
+  new SketchColorOption('Pink',      '#E75480', '#E75480', '#A33A59'),
+  new SketchColorOption('Black',     '#1A1A1A', '#1A1A1A', '#000000'),
+  new SketchColorOption('Dark grey', '#555555', '#555555', '#2A2A2A'),
+  new SketchColorOption('Grey',      '#999999', '#999999', '#666666'),
+  new SketchColorOption('White',     '#F5F5F5', '#F5F5F5', '#BBBBBB'),
 ];
+
+/**
+ * Look up the triplet for a given stroke hex value.
+ * Falls back to the default color's triplet if not found.
+ */
+export function getColorTriplet(strokeHex) {
+  const match = STROKE_COLOR_OPTIONS.find(o => o.stroke.toLowerCase() === (strokeHex || '').toLowerCase());
+  if (match) return match;
+  return STROKE_COLOR_OPTIONS[0];
+}
