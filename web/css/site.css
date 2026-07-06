@@ -134,7 +134,7 @@ h1 {
 }
 
 h2 {
-    margin-block: 0 0.45em;
+    margin-block: 4px 0.45em;
     margin-inline: 0;
     font-family: var(--font-body);
     font-size: var(--type-h2);
@@ -143,7 +143,7 @@ h2 {
 }
 
 h3 {
-    margin-block: 0 0.45em;
+    margin-block: 4px 0.45em;
     margin-inline: 0;
     font-family: var(--font-body);
     font-size: var(--type-h3);
@@ -152,7 +152,7 @@ h3 {
 }
 
 h4 {
-    margin-block: 0 0.35em;
+    margin-block: 4px 0.35em;
     margin-inline: 0;
     font-family: var(--font-body);
     font-size: var(--type-h4);
@@ -767,7 +767,7 @@ select:focus {
 }
 
 .panel--padded {
-    padding: 14px;
+    padding: 18px;
 }
 
 .panel--image-top {
@@ -1206,6 +1206,27 @@ select:focus {
     height: 18px;
     background: var(--border);
     margin: 0 2px;
+}
+
+/* Measurement derived-values list */
+.measurement-derived {
+    list-style: none;
+    padding: 0;
+    margin: 4px 0 0;
+    font-size: var(--type-caption);
+    color: var(--body-light);
+    line-height: 1.6;
+}
+
+.measurement-derived li {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.measurement-derived span {
+    font-weight: 600;
+    color: var(--primary-dark);
 }
 
 /* Sidebar */
