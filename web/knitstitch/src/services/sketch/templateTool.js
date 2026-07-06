@@ -1,6 +1,7 @@
 import { SketchLine } from '../../models/sketch/sketchLine.js';
 import { SketchPoint } from '../../models/sketch/sketchPoint.js';
 import { SketchDimension } from '../../models/sketch/sketchDimension.js';
+import { SketchConstraint } from '../../models/sketch/sketchConstraint.js';
 import {
   flushSketchArrays,
   rebuildSketchObjects,
@@ -119,6 +120,9 @@ export class TemplateTool {
     // Add driving dimensions showing inch values
     this._addSockDimensions(points, sections, pxPerInchX, pxPerInchY);
 
+    // Add geometric constraints for full constraint
+    this._addSockConstraints(points);
+
     flushSketchArrays(this.service);
     rebuildSketchObjects(this.service);
   }
@@ -147,6 +151,8 @@ export class TemplateTool {
    * Creates driving dimensions for the sock template:
    * - 1 horizontal width dimension across the top
    * - 7 vertical section dimensions on the left edge
+   * - 7 vertical section dimensions on the right edge (mirror)
+   * - 4 aligned dimensions for the left-side notch points (2 per notch)
    *
    * All dimensions show inch values (with " in" suffix) and have driven pixel
    * values set so the lock icon appears.
@@ -158,7 +164,7 @@ export class TemplateTool {
    *               14(end sole) 13(toe) 12(end toe) 11(end instep) 10(bottom)
    *
    * @param {SketchPoint[]} points - pixel-coordinate sketch points
-   * @param {object} sections - { width, topRib, backLeg, heel, sole, toe, instep, bottomRib } in inches
+   * @param {object} sections - { width, topRib, backLeg, heel, sole, toe, instep, bottomRib, notchDepth } in inches
    * @param {number} pxPerInchX - pixels per inch horizontally
    * @param {number} pxPerInchY - pixels per inch vertically
    */
@@ -172,10 +178,20 @@ export class TemplateTool {
       dims.push(dim);
     };
 
-    // Width (horizontal, offset above the top edge)
+    // Aligned dimension helper (for diagonal notch lines)
+    const addAlignedDim = (a, b, offsetSign, inchesX, inchesY) => {
+      const pxX = inchesX * pxPerInchX;
+      const pxY = inchesY * pxPerInchY;
+      const pxDist = Math.sqrt(pxX * pxX + pxY * pxY);
+      const inchDist = Math.sqrt(inchesX * inchesX + inchesY * inchesY);
+      const dim = new SketchDimension(this.service._nextDimId++, a, b, offsetSign);
+      dim.setDrivenDisplay(pxDist, inchDist, INCH_SUFFIX);
+      dims.push(dim);
+    };
+
+    // === Left edge: width + 7 vertical section dimensions (offset left) ===
     addDim(points[0], points[19], -1, sections.width, pxPerInchX);
 
-    // Section lengths (vertical, offset to the left of the left edge)
     addDim(points[0], points[1],  -1, sections.topRib,    pxPerInchY); // top ribbing
     addDim(points[1], points[2],  -1, sections.backLeg,   pxPerInchY); // back leg
     addDim(points[2], points[4],  -1, sections.heel,      pxPerInchY); // heel (skips notch point 3)
@@ -183,5 +199,93 @@ export class TemplateTool {
     addDim(points[5], points[7],  -1, sections.toe,       pxPerInchY); // toe (skips notch point 6)
     addDim(points[7], points[8],  -1, sections.instep,    pxPerInchY); // instep + front leg
     addDim(points[8], points[9],  -1, sections.bottomRib, pxPerInchY); // bottom ribbing
+
+    // === Right edge: 7 vertical section dimensions (offset right) ===
+    addDim(points[19], points[18], 1, sections.topRib,    pxPerInchY); // top ribbing
+    addDim(points[18], points[17], 1, sections.backLeg,   pxPerInchY); // back leg
+    addDim(points[17], points[15], 1, sections.heel,      pxPerInchY); // heel (skips notch point 16)
+    addDim(points[15], points[14], 1, sections.sole,      pxPerInchY); // sole
+    addDim(points[14], points[12], 1, sections.toe,       pxPerInchY); // toe (skips notch point 13)
+    addDim(points[12], points[11], 1, sections.instep,    pxPerInchY); // instep + front leg
+    addDim(points[11], points[10], 1, sections.bottomRib, pxPerInchY); // bottom ribbing
+
+    // === Left-side notch points: 2 aligned dimensions each ===
+    // Heel notch (point 3): diagonal from point 2 and from point 4
+    const heelHalf = sections.heel / 2;
+    addAlignedDim(points[2], points[3], 1, sections.notchDepth, heelHalf); // 2→3
+    addAlignedDim(points[3], points[4], 1, sections.notchDepth, heelHalf); // 3→4
+
+    // Toe notch (point 6): diagonal from point 5 and from point 7
+    const toeHalf = sections.toe / 2;
+    addAlignedDim(points[5], points[6], 1, sections.notchDepth, toeHalf); // 5→6
+    addAlignedDim(points[6], points[7], 1, sections.notchDepth, toeHalf); // 6→7
+  }
+
+  /**
+   * Creates Equal constraints linking right-side notch lines to their
+   * left-side counterparts. This constrains the right-side notch points
+   * (16 and 13) by ensuring their lines match the left-side notch lines
+   * in length.
+   *
+   * Lines are indexed in creation order (see generate):
+   *   Line 0:  0→1    Line 10: 10→11
+   *   Line 1:  1→2    Line 11: 11→12
+   *   Line 2:  2→3    Line 12: 12→13
+   *   Line 3:  3→4    Line 13: 13→14
+   *   Line 4:  4→5    Line 14: 14→15
+   *   Line 5:  5→6    Line 15: 15→16
+   *   Line 6:  6→7    Line 16: 16→17
+   *   Line 7:  7→8    Line 17: 17→18
+   *   Line 8:  8→9    Line 18: 18→19
+   *   Line 9:  9→10   Line 19: 19→0
+   *
+   * @param {SketchPoint[]} points
+   */
+  _addSockConstraints(points) {
+    const store = this.service.store;
+    const lines = store.state.sketch.lines;
+    const constraints = store.state.sketch.constraints;
+
+    const addEqual = (lineA, lineB) => {
+      const constraint = new SketchConstraint(
+        'Equal',
+        null,
+        null,
+        lineA,
+        lineB,
+        this.service._nextConstraintId++
+      );
+      constraints.push(constraint);
+    };
+
+    const addPerpendicular = (anchor, lineA, lineB) => {
+      const constraint = new SketchConstraint(
+        'Perpendicular',
+        anchor,
+        null,
+        lineA,
+        lineB,
+        this.service._nextConstraintId++
+      );
+      constraints.push(constraint);
+    };
+
+    // Perpendicular constraints at the 4 corners of the sock outline:
+    //   top-left (point 0):  top edge (line 19) ⊥ left edge (line 0)
+    //   bottom-left (point 9):  left edge (line 8) ⊥ bottom edge (line 9)
+    //   bottom-right (point 10): bottom edge (line 9) ⊥ right edge (line 10)
+    //   top-right (point 19):  right edge (line 18) ⊥ top edge (line 19)
+    addPerpendicular(points[0],  lines[19], lines[0]);
+    addPerpendicular(points[9],  lines[8],  lines[9]);
+    addPerpendicular(points[10], lines[9],  lines[10]);
+    addPerpendicular(points[19], lines[18], lines[19]);
+
+    // Right heel notch = Left heel notch
+    addEqual(lines[16], lines[2]);  // Line(17→16) = Line(2→3)  — notch in
+    addEqual(lines[15], lines[3]);  // Line(16→15) = Line(3→4)  — notch out
+
+    // Right toe notch = Left toe notch
+    addEqual(lines[12], lines[5]);  // Line(13→12) = Line(5→6)  — notch in (reversed direction)
+    addEqual(lines[13], lines[6]);  // Line(14→13) = Line(6→7)  — notch out (reversed direction)
   }
 }

@@ -209,14 +209,15 @@ export function buildSockOutlineInInches(gauge, measurements) {
 
   // Section lengths in inches
   const sections = {
-    width:     flatWidthIn,
-    topRib:    measurements.ribbingLength,
-    backLeg:   measurements.legHeight,
-    heel:      counts.notchRowsTotal / rowPerInch,
-    sole:      measurements.footLength,
-    toe:       counts.notchRowsTotal / rowPerInch,
-    instep:    measurements.legHeight + measurements.footLength,
-    bottomRib: measurements.ribbingLength,
+    width:      flatWidthIn,
+    topRib:     measurements.ribbingLength,
+    backLeg:    measurements.legHeight,
+    heel:       counts.notchRowsTotal / rowPerInch,
+    sole:       measurements.footLength,
+    toe:        counts.notchRowsTotal / rowPerInch,
+    instep:     measurements.legHeight + measurements.footLength,
+    bottomRib:  measurements.ribbingLength,
+    notchDepth: counts.notchDepthSts / stitchPerInch,
   };
 
   // Notch depth in inches (how far the notch cuts in from each side)
