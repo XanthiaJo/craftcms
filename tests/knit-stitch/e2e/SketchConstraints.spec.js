@@ -1,14 +1,43 @@
 import { expect, test } from '@playwright/test';
 
 async function openSketch(page) {
-  await page.goto('/tests/fixtures/knitstitch-playwright.html');
+  // The live site shows a cookie consent banner that overlays the page and
+  // intercepts clicks. Pre-set the consent cookie so it never appears.
+  await page.context().addCookies([{
+    name: 'cookieconsent_status',
+    value: 'allow',
+    domain: 'craftcms.ddev.site',
+    path: '/',
+  }]);
+
+  await page.goto('/knit-stitch');
+
+  // The live site sizes the canvas via flexbox, so the canvas height depends
+  // on the viewport. Set a large viewport so all test coordinates fit.
+  await page.setViewportSize({ width: 1600, height: 1080 });
+
   await page.getByRole('button', { name: 'Sketch' }).click();
   await page.getByRole('button', { name: 'Line' }).click();
 
+  // Konva's getRelativePointerPosition() calculates pointer coordinates
+  // relative to the inner .konvajs-content div (not #konva-stage itself),
+  // using getBoundingClientRect() on that content div. The canvas can be
+  // offset from #konva-stage by flexbox centering and borders, so we must
+  // use the content div's rect as the click origin.
   const canvas = page.locator('#konva-stage canvas').first();
   await expect(canvas).toBeVisible();
 
-  return canvas.boundingBox();
+  const box = await page.evaluate(() => {
+    const stage = document.getElementById('konva-stage');
+    const content = stage?.querySelector('.konvajs-content');
+    const el = content ?? stage;
+    const rect = el.getBoundingClientRect();
+    // Round to avoid sub-pixel rounding differences between the content
+    // div's bounding rect and Konva's internal pointer position calculation.
+    return { x: Math.round(rect.left), y: Math.round(rect.top), width: rect.width, height: rect.height };
+  });
+
+  return box;
 }
 
 async function clickStage(page, box, point) {
@@ -259,26 +288,46 @@ test.describe('Sketch constraints', () => {
   test('impossible perpendicular combinations are rejected', async ({ page }) => {
     const box = await openSketch(page);
 
+    // Draw a triangle: P1(120,320) -> P2(200,320) -> P3(240,380) -> P1
     await clickStage(page, box, { x: 120, y: 320 });
     await clickStage(page, box, { x: 200, y: 320 });
     await clickStage(page, box, { x: 240, y: 380 });
     await clickStage(page, box, { x: 120, y: 320 });
 
     await page.getByRole('button', { name: 'Perpendicular' }).click();
+
+    // perp(line0, line1) is valid — they share P2 and have no conflicting
+    // constraints yet.
     await page.evaluate(() => {
       const service = window.__knitstitchSketchService;
       const lines = window.__knitstitchStore?.state?.sketch?.lines ?? [];
       service.onConstraintLineClick(lines[0]);
       service.onConstraintLineClick(lines[1]);
-      service.onConstraintLineClick(lines[1]);
-      service.onConstraintLineClick(lines[2]);
     });
 
     let constraintCount = await page.evaluate(() => (
       window.__knitstitchStore?.state?.sketch?.constraints.filter((constraint) => constraint.type === 'Perpendicular').length ?? 0
     ));
-    expect(constraintCount).toBe(2);
+    expect(constraintCount).toBe(1);
 
+    // perp(line1, line2) is impossible: with line0 ⊥ line1 already present,
+    // adding line1 ⊥ line2 would force line0 ∥ line2, but line0 and line2
+    // share P1 — they cannot be parallel unless they are the same line.
+    await page.evaluate(() => {
+      const service = window.__knitstitchSketchService;
+      const lines = window.__knitstitchStore?.state?.sketch?.lines ?? [];
+      service.onConstraintLineClick(lines[1]);
+      service.onConstraintLineClick(lines[2]);
+    });
+
+    constraintCount = await page.evaluate(() => (
+      window.__knitstitchStore?.state?.sketch?.constraints.filter((constraint) => constraint.type === 'Perpendicular').length ?? 0
+    ));
+    expect(constraintCount).toBe(1);
+
+    // perp(line0, line2) is also impossible for the same reason: with
+    // line0 ⊥ line1, adding line0 ⊥ line2 would force line1 ∥ line2, but
+    // they share P3.
     await page.evaluate(() => {
       const service = window.__knitstitchSketchService;
       const lines = window.__knitstitchStore?.state?.sketch?.lines ?? [];
@@ -289,7 +338,7 @@ test.describe('Sketch constraints', () => {
     constraintCount = await page.evaluate(() => (
       window.__knitstitchStore?.state?.sketch?.constraints.filter((constraint) => constraint.type === 'Perpendicular').length ?? 0
     ));
-    expect(constraintCount).toBe(2);
+    expect(constraintCount).toBe(1);
   });
 
   test('deleting a constrained line removes the line, its endpoints, and attached constraints', async ({ page }) => {

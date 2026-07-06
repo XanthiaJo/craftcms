@@ -1,10 +1,10 @@
-const { expect, test } = require('@playwright/test');
+﻿const { expect, test } = require('@playwright/test');
 const fs = require('node:fs');
 const path = require('node:path');
 
 const { buildPostsLayoutFixture } = require('../support/posts-layout-fixture');
 
-const rootDir = path.resolve(__dirname, '..', '..');
+const rootDir = path.resolve(__dirname, '..', '..', '..');
 const siteCssPath = path.join(rootDir, 'web', 'css', 'site.css');
 const siteCss = fs.readFileSync(siteCssPath, 'utf8');
 
@@ -20,31 +20,31 @@ test.describe('posts archive layout', () => {
   });
 
   test('renders the archive cards with featured images, titles, categories, and dates', async ({ page }) => {
-    const cards = page.locator('.card');
+    const cards = page.locator('.panel');
     await expect(cards).toHaveCount(2);
 
     const firstCard = cards.first();
     await expect(firstCard.locator('.thumb')).toBeVisible();
     await expect(firstCard.locator('h3 a')).toHaveText('A long title that should wrap onto two lines and stop there rather than growing forever');
     await expect(firstCard.locator('.chip')).toHaveText(['Crochet', 'Pattern/File', 'Wearables']);
-    await expect(firstCard.locator('.card-date')).toHaveText('November 2023');
+    await expect(firstCard.locator('.panel-date')).toHaveText('November 2023');
 
     const secondCard = cards.nth(1);
     await expect(secondCard.locator('.thumb')).toBeVisible();
     await expect(secondCard.locator('h3 a')).toHaveText('Short title');
     await expect(secondCard.locator('.chip').nth(0)).toHaveText('3D Print');
     await expect(secondCard.locator('.chip').nth(1)).toHaveText('Accessories');
-    await expect(secondCard.locator('.card-date')).toHaveText('October 2023');
+    await expect(secondCard.locator('.panel-date')).toHaveText('October 2023');
   });
 
   test('keeps the archive typography and color tokens applied', async ({ page }) => {
-    const firstHeading = page.locator('.card').first().locator('h3');
-    const firstThumb = page.locator('.card').first().locator('.thumb');
-    const chips = page.locator('.card').first().locator('.chip');
+    const firstHeading = page.locator('.panel').first().locator('h3');
+    const firstThumb = page.locator('.panel').first().locator('.thumb');
+    const chips = page.locator('.panel').first().locator('.chip');
     const firstTypeChip = chips.nth(0);
     const firstDesignChip = chips.nth(1);
     const firstCategoryChip = chips.nth(2);
-    const firstDate = page.locator('.card').first().locator('.card-date');
+    const firstDate = page.locator('.panel').first().locator('.panel-date');
 
     await expect(firstHeading).toHaveCSS('font-family', /Open Sans/);
     await expect(firstHeading).toHaveCSS('-webkit-line-clamp', '2');
@@ -58,9 +58,9 @@ test.describe('posts archive layout', () => {
   });
 
   test('aligns the card dates at the bottom of the content block', async ({ page }) => {
-    const cardBoxes = await page.locator('.card').evaluateAll((cards) =>
+    const cardBoxes = await page.locator('.panel').evaluateAll((cards) =>
       cards.map((card) => {
-        const date = card.querySelector('.card-date');
+        const date = card.querySelector('.panel-date');
         const heading = card.querySelector('h3');
         const cardRect = card.getBoundingClientRect();
         const dateRect = date.getBoundingClientRect();

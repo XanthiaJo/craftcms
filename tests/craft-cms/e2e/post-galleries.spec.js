@@ -1,4 +1,4 @@
-const { expect, test } = require('@playwright/test');
+﻿const { expect, test } = require('@playwright/test');
 
 const BASE = 'https://craftcms.ddev.site';
 
@@ -54,7 +54,7 @@ test.describe('post inline images (mens boxers tutorial)', () => {
   test('boxers page loads and has inline images in the body', async ({ page }) => {
     await page.goto(`${BASE}/posts/mens-boxers-and-custom-sheath-hack`);
 
-    const bodyImages = page.locator('.panel img:not(.thumb)');
+    const bodyImages = page.locator('.container img:not(.thumb)');
     const count = await bodyImages.count();
     expect(count, 'should have inline body images').toBeGreaterThan(0);
   });
@@ -69,7 +69,7 @@ test.describe('post inline images (mens boxers tutorial)', () => {
     });
 
     await page.goto(`${BASE}/posts/mens-boxers-and-custom-sheath-hack`);
-    await expect(page.locator('.panel img').first()).toBeVisible();
+    await expect(page.locator('.container img').first()).toBeVisible();
 
     expect(brokenImages, 'no inline images should return 404').toEqual([]);
   });
