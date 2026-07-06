@@ -21,18 +21,20 @@ KnitStitch Grid is a Konva.js web conversion of the original KnitStichGrid WPF d
 - Built assets consumed by Craft:
   - [web/dist/main.js](</E:/Coding Projects/craftcms/web/dist/main.js>)
   - [web/dist/main.css](</E:/Coding Projects/craftcms/web/dist/main.css>)
+  - site styles are in `web/css/site.css` (no separate app CSS file)
 
 ## Architecture
 
 Primary source layout:
 
 - [src/main.js](</E:/Coding Projects/craftcms/web/knitstitch/src/main.js>) - bootstrap and stage init
-- [src/ui/mainUi.js](</E:/Coding Projects/craftcms/web/knitstitch/src/ui/mainUi.js>) - sidebar wiring and store subscriptions
+- [src/ui/mainUi.js](</E:/Coding Projects/craftcms/web/knitstitch/src/ui/mainUi.js>) - sidebar wiring, store subscriptions, right-click pan, finished size calculation
 - [src/konva/](</E:/Coding Projects/craftcms/web/knitstitch/src/konva/>) - stage and render layers
 - [src/models/](</E:/Coding Projects/craftcms/web/knitstitch/src/models/>) - sketch/grid data models
-- [src/services/](</E:/Coding Projects/craftcms/web/knitstitch/src/services/>) - grid sizing and finished size calculation
-- [src/services/sketch/](</E:/Coding Projects/craftcms/web/knitstitch/src/services/sketch/>) - all sketch logic: service, solver, helpers, constants, deletion
-- [src/state/store.js](</E:/Coding Projects/craftcms/web/knitstitch/src/state/store.js>) - reactive store
+- [src/services/](</E:/Coding Projects/craftcms/web/knitstitch/src/services/>) - grid cell management, zoom/pan, finished size calculation
+- [src/services/sketch/](</E:/Coding Projects/craftcms/web/knitstitch/src/services/sketch/>) - all sketch logic: service, solver, helpers, constants, deletion, style options
+- [src/state/store.js](</E:/Coding Projects/craftcms/web/knitstitch/src/state/store.js>) - reactive store (sparse filledCells, gauge, zoom/pan, sketch state)
+- [src/state/storePersistence.js](</E:/Coding Projects/craftcms/web/knitstitch/src/state/storePersistence.js>) - localStorage persistence with legacy migration
 - [src/utils/geometry.js](</E:/Coding Projects/craftcms/web/knitstitch/src/utils/geometry.js>) - pure geometry helpers (distance, nearestPoint, applyAngleSnap)
 - [tests/knit-stitch/](</E:/Coding Projects/craftcms/tests/knit-stitch/>) - Vitest and Playwright coverage (at repo root, not inside `web/knitstitch/`)
 - [docs/](</E:/Coding Projects/craftcms/web/knitstitch/docs/>) - project map, roadmap, tests map
@@ -55,6 +57,7 @@ The current direction is:
 - `dimensionTool.js` owns the dimension lifecycle (placement, edit overlay, driven-value application)
 - `constraintTool.js` owns the constraint creation workflow (line selection, feasibility check, commit)
 - pure geometry helpers (`distance`, `nearestPoint`, `applyAngleSnap`) live in `src/utils/geometry.js`
+- colour triplets and renderer colour constants live in `src/services/sketch/styleOptions.js`; use `getColorTriplet()` to resolve a stroke hex to its triplet
 
 ## Sketch Interaction Model
 
@@ -88,10 +91,32 @@ The page has three workspaces:
 
 The Sketch workspace is the one governed by the Fusion-style rules above.
 
+## Grid Model
+
+The grid is infinite and viewport-culled. There is no fixed grid size.
+
+- `filledCells` in the store is a `Set` of `"r,c"` string keys for manually toggled cells
+- `GridLayer` renders only the cells visible in the current viewport (accounting for zoom and pan), re-rendering on zoom/pan changes
+- cells can be at negative indices — the grid extends in all directions
+- left-click toggles a cell fill; right-click pans the canvas (context menu is suppressed)
+- `closedShapeFill.js` computes sketch-derived fills as a `Set` of `"r,c"` keys from closed polygon bounding boxes
+- finished size is calculated from the bounding box of all filled cells (manual + sketch-derived), not from a fixed grid dimension
+- `storePersistence.js` migrates the legacy `previewCells` array format to the sparse `Set` on hydrate
+
+## Colour Triplets
+
+Sketch stroke colours are defined as triplets `{ stroke, fill, select }`:
+
+- `stroke` — the vivid line colour the user picks
+- `fill` — the point fill colour (same as stroke for most)
+- `select` — a darker shade used for selection highlight of lines and points
+
+Each colour family has its own selection highlight instead of a single site-wide gold. The default colour is Gold, matching the site's `--primary` / `--primary-dark` values. See `src/services/sketch/styleOptions.js`.
+
 ## Rendering Notes
 
-- `GridLayer` uses an off-screen canvas promoted into a `Konva.Image`
-- `SketchLayer` redraws sketch shapes from store state
+- `GridLayer` uses an off-screen canvas promoted into a `Konva.Image`, repositioned to the visible cell range offset
+- `SketchLayer` redraws sketch shapes from store state, using per-colour triplets for selection highlights
 - `OverlayLayer` handles reference image display
 - stage layer order is grid -> overlay -> sketch
 
