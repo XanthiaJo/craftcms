@@ -1,4 +1,4 @@
-/* site.css — Shared styles for all CraftCMS pages */
+﻿/* site.css — Shared styles for all CraftCMS pages */
 
 /* ==========================================================================
    1. Design Tokens
@@ -180,7 +180,7 @@ h6 {
 }
 
 .body,
-.panel-content {
+.container-content {
     font-size: var(--type-body);
     line-height: 1.7;
 }
@@ -256,7 +256,7 @@ td {
 /* ==========================================================================
    4. Layout
    ========================================================================== */
-.container {
+.shell {
     width: 80%;
     margin: 0 auto;
 }
@@ -268,8 +268,13 @@ td {
 .page-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 280px;
-    gap: 28px;
+    gap: 14px;
     align-items: start;
+}
+
+.page-layout--wide {
+    grid-template-columns: minmax(0, 1fr) 420px;
+    gap: 14px;
 }
 
 .content-main {
@@ -455,7 +460,7 @@ td {
    ========================================================================== */
 .page-subheader {
     padding: 24px 0 14px;
-    margin-bottom: 18px;
+    margin-bottom: 14px;
 }
 
 .page-subheader-inner {
@@ -665,9 +670,9 @@ button,
 }
 
 .button-primary {
-    background: var(--body-dark);
+    background: var(--primary-dark);
     color: var(--tertiary);
-    border-color: var(--body-dark);
+    border-color: var(--primary-dark);
 }
 
 .button-primary:hover {
@@ -680,10 +685,79 @@ button,
     color: var(--body-dark);
 }
 
+.button-sm {
+    padding: 6px 10px;
+    font-size: 11px;
+}
+
 /* ==========================================================================
-   13. Cards
+   13. Forms
    ========================================================================== */
-.card {
+input[type="text"],
+input[type="number"],
+select {
+    padding: 5px 8px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    font-size: 13px;
+    font-family: inherit;
+}
+
+select {
+    min-width: 140px;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.form-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.form-row label {
+    min-width: 80px;
+    font-size: 13px;
+}
+
+.form-row input[type="text"],
+.form-row input[type="number"] {
+    flex: 1;
+}
+
+.checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 6px 0;
+    font-size: 13px;
+}
+
+.slider-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.slider-row input[type="range"] {
+    flex: 1;
+}
+
+.toggle-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+/* ==========================================================================
+   14. Cards
+   ========================================================================== */
+.panel {
     background: var(--tertiary);
     border: 1px solid var(--border);
     border-radius: 6px;
@@ -692,33 +766,33 @@ button,
     flex-direction: column;
 }
 
-.card--padded {
-    padding: 24px;
+.panel--padded {
+    padding: 14px;
 }
 
-.card--image-top {
+.panel--image-top {
     padding: 0;
 }
 
-.card-body {
-    padding: 24px;
+.panel-body {
+    padding: 14px;
     display: grid;
     gap: 8px;
     flex: 1;
 }
 
-.panel > .card + .card {
-    margin-top: 28px;
+.container > .panel + .panel {
+    margin-top: 14px;
 }
 
-.card-heading {
+.panel-heading {
     width: 100%;
     display: grid;
     gap: 4px;
     align-content: start;
 }
 
-.card-excerpt {
+.panel-excerpt {
     overflow: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -735,7 +809,7 @@ button,
 }
 
 /* ==========================================================================
-   14. Chips & Color Pairs
+   15. Chips & Color Pairs
    ========================================================================== */
 .chip {
     display: inline-block;
@@ -830,39 +904,72 @@ button,
 }
 
 /* ==========================================================================
-   15. Panel (Sidebar)
+   16. Panel (Sidebar)
    ========================================================================== */
-.panel {
+.container {
     min-width: 0;
-    padding: 28px;
+    padding: 14px;
     background: var(--secondary-light);
     border: 1px solid var(--border);
     border-radius: 6px;
 }
 
-.panel--sticky {
+.container--sticky {
     position: sticky;
     top: 96px;
 }
 
-.panel-sections {
-    margin-top: 18px;
+.sidebar {
+    min-width: 0;
+}
+
+.sidebar--sticky {
+    position: sticky;
+    top: 96px;
+}
+
+.container-sections {
     display: grid;
     gap: 14px;
 }
 
-.panel-section {
-    padding-top: 12px;
+.container-section {
+    padding-top: 14px;
     border-top: 1px solid var(--border);
 }
 
-.panel-sections > .panel-section:first-child {
+.container-sections > .container-section:first-child {
     border-top: 0;
     padding-top: 0;
 }
 
-.panel-actions {
-    margin-top: 18px;
+/* Headed panel section — a panel with a grey header bar and white body.
+   Used in the KnitStitch sidebar and available on any page that needs
+   labelled group boxes inside a container. */
+.container-section--headed {
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--tertiary);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.container-section-header {
+    padding: 6px 14px;
+    font-weight: 600;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    background: var(--tertiary-dark);
+}
+
+.container-section-body {
+    padding: 14px;
+}
+
+.container-actions {
+    margin-top: 14px;
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
@@ -870,7 +977,7 @@ button,
 }
 
 /* ==========================================================================
-   16. Filter List (Taxonomy)
+   17. Filter List (Taxonomy)
    ========================================================================== */
 .filter-row {
     display: flex;
@@ -886,7 +993,7 @@ button,
 }
 
 /* ==========================================================================
-   17. Site Footer
+   18. Site Footer
    ========================================================================== */
 .site-footer {
     border-top: 1px solid var(--border);
@@ -915,24 +1022,311 @@ button,
 }
 
 /* ==========================================================================
-   18. KnitStitch App Layout
+   19. KnitStitch App Layout
    ========================================================================== */
-#app-container .ribbon-bar {
-    margin-left: 0;
-    margin-right: 0;
-    padding-left: 0;
-    padding-right: 0;
+
+/* Full-height layout — page never scrolls, only sidebar/canvas scroll internally */
+.page-knitstitch {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
 }
 
-#app-container .workspace {
-    padding-left: 0;
-    padding-right: 0;
-    padding-top: 0;
-    padding-bottom: 0;
+.page-knitstitch .site-header,
+.page-knitstitch .page-subheader,
+.page-knitstitch .site-footer {
+    flex-shrink: 0;
+}
+
+.page-knitstitch > .shell {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 16px;
+}
+
+#app-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+/* Ribbon bar */
+.ribbon-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--tertiary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 14px;
+    padding: 8px 12px;
+    gap: 8px;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.ribbon-modes {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+.workspace-btn {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    flex: 0 0 auto;
+    padding: 6px 14px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
+    gap: 6px;
+    white-space: nowrap;
+    position: relative;
+}
+
+.workspace-btn:hover { background: var(--secondary-light); }
+
+.workspace-btn .icon {
+    font-size: 18px;
+    color: var(--body);
+    line-height: 1;
+}
+
+.workspace-btn .label {
+    font-size: 10px;
+    color: var(--body);
+    line-height: 1;
+}
+
+.workspace-btn.active {
+    background: var(--color-pair-gold-bg);
+}
+
+.workspace-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 20%;
+    right: 20%;
+    height: 3px;
+    background: var(--primary);
+    border-radius: 2px 2px 0 0;
+}
+
+/* Workspace grid — uses .page-layout with a wider sidebar */
+#app-container .page-layout {
+    flex: 1;
+    min-height: 0;
+    align-items: stretch;
+}
+
+.canvas-area {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.canvas-wrapper {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--tertiary);
+    overflow: auto;
+    padding: 12px;
+}
+
+.canvas-content {
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Floating zoom control */
+.zoom-control {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 4px;
+    background: var(--tertiary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(26, 19, 9, 0.12);
+    z-index: 100;
+}
+
+.zoom-btn {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    background: transparent;
+    color: var(--body);
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+}
+
+.zoom-btn:hover {
+    background: var(--secondary-light);
+    border-color: var(--border);
+}
+
+.zoom-btn:active {
+    background: var(--primary-light);
+}
+
+.zoom-level {
+    min-width: 42px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--body);
+    user-select: none;
+}
+
+.zoom-divider {
+    width: 1px;
+    height: 18px;
+    background: var(--border);
+    margin: 0 2px;
+}
+
+/* Sidebar */
+.sidebar {
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.workspace-panel {
+    display: none;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.workspace-panel.active {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+}
+
+/* Object list */
+.object-list {
+    list-style: none;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.object-list li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 4px;
+    font-size: 12px;
+    border-radius: 3px;
+}
+
+.object-list li:hover { background: var(--tertiary-dark); }
+
+.object-list li.is-selectable {
+    cursor: pointer;
+}
+
+.object-list li.selected {
+    background: var(--color-pair-gold-bg);
+    color: var(--primary-dark);
+    font-weight: 600;
+}
+
+/* Dimension edit overlay */
+#dim-edit-overlay {
+    position: fixed;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 12px;
+    border: 1px solid var(--border) !important;
+    border-radius: 6px !important;
+    background: var(--tertiary) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12) !important;
+    color: var(--body) !important;
+}
+
+#dim-edit-overlay .dim-edit-overlay__label,
+#dim-edit-overlay .dim-edit-overlay__hint {
+    font-size: 11px;
+    color: var(--body-light);
+}
+
+#dim-edit-overlay .dim-edit-overlay__controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#dim-edit-overlay .dim-edit-overlay__input {
+    width: 72px;
+    padding: 2px 4px;
+    font-size: 12px;
+    background: var(--tertiary) !important;
+    color: var(--body) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 3px !important;
+    font-family: inherit;
+}
+
+#dim-edit-overlay .dim-edit-overlay__button {
+    width: 22px;
+    height: 22px;
+    border: none;
+    border-radius: 3px !important;
+    cursor: pointer;
+    font-weight: 700;
+    background: var(--secondary-dark) !important;
+    color: var(--primary-dark) !important;
+}
+
+#dim-edit-overlay .dim-edit-overlay__button--primary {
+    background: var(--primary) !important;
+    color: white !important;
+}
+
+/* Color picker */
+.color-option {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.color-swatch {
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
 }
 
 /* ==========================================================================
-   19. Responsive
+   20. Responsive
    ========================================================================== */
 @media (max-width: 980px) {
     .home-project-grid {
@@ -954,7 +1348,7 @@ button,
 }
 
 @media (max-width: 740px) {
-    .container {
+    .shell {
         width: min(100% - 28px);
     }
 
@@ -1047,7 +1441,7 @@ button,
         grid-template-columns: 1fr;
     }
 
-    .panel {
+    .container {
         position: static;
         padding: 22px;
     }
