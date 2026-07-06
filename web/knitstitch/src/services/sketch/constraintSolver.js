@@ -19,18 +19,93 @@ export class ConstraintSolver {
     }
 
     this._propagateCoincidentConstraints(sketch, movedPoint);
+
+    // Apply geometric constraints once for the dragged point
     this._applyPerpendicularConstraints(sketch, movedPoint, originalPosition);
     this._applyMidpointConstraints(sketch, movedPoint, originalPosition);
     this._applyEqualConstraints(sketch, movedPoint, originalPosition);
 
     if (!sketch.dimensions?.length) return;
 
+    // Apply driven dimensions
+    const movedPoints = new Set([movedPoint]);
     for (const dim of sketch.dimensions) {
       if (!dim?.isConstrained) continue;
       if (dim.a !== movedPoint && dim.b !== movedPoint) continue;
 
       const otherPoint = dim.a === movedPoint ? dim.b : dim.a;
       this._maintainDrivenDimension(dim, movedPoint, otherPoint, originalPosition);
+      movedPoints.add(otherPoint);
+    }
+
+    // Re-apply perpendicular constraints for points moved by dimensions
+    for (const point of movedPoints) {
+      if (point !== movedPoint) {
+        const pointOriginal = null; // We don't have the original position for dimension-moved points
+        this._applyPerpendicularConstraints(sketch, point, pointOriginal);
+      }
+    }
+
+    // Re-apply equal constraints for points moved by dimensions
+    for (const point of movedPoints) {
+      if (point !== movedPoint) {
+        this._applyEqualConstraints(sketch, point, null);
+      }
+    }
+
+    // Propagate coincident constraints again
+    for (const point of movedPoints) {
+      this._propagateCoincidentConstraints(sketch, point);
+    }
+  }
+
+  _solveDrivenDimensionsGlobally(sketch, movedPoint, originalPosition) {
+    // Collect all driven dimensions that involve the moved point
+    const drivenDimensions = [];
+    for (const dim of sketch.dimensions) {
+      if (!dim?.isConstrained) continue;
+      if (dim.a !== movedPoint && dim.b !== movedPoint) continue;
+      drivenDimensions.push(dim);
+    }
+
+    if (drivenDimensions.length === 0) return;
+
+    // Global iteration: keep applying dimensions and constraints until stable
+    const MAX_ITERATIONS = 8;
+    const MIN_MOVEMENT = 0.001;
+    const movedPoints = new Set([movedPoint]);
+    
+    for (let iter = 0; iter < MAX_ITERATIONS; iter++) {
+      let totalMovement = 0;
+
+      // Apply all driven dimensions
+      for (const dim of drivenDimensions) {
+        const otherPoint = dim.a === movedPoint ? dim.b : dim.a;
+        const beforeX = otherPoint.x;
+        const beforeY = otherPoint.y;
+        this._maintainDrivenDimension(dim, movedPoint, otherPoint, originalPosition);
+        const movement = Math.hypot(otherPoint.x - beforeX, otherPoint.y - beforeY);
+        if (movement > MIN_MOVEMENT) {
+          totalMovement += movement;
+          movedPoints.add(otherPoint);
+        }
+      }
+
+      // Apply geometric constraints to all points that might have moved
+      for (const point of movedPoints) {
+        const pointOriginal = point === movedPoint ? originalPosition : null;
+        this._applyPerpendicularConstraints(sketch, point, pointOriginal);
+        this._applyEqualConstraints(sketch, point, pointOriginal);
+        this._applyMidpointConstraints(sketch, point, pointOriginal);
+      }
+
+      // Propagate coincident constraints
+      for (const point of movedPoints) {
+        this._propagateCoincidentConstraints(sketch, point);
+      }
+
+      // Convergence check
+      if (totalMovement < MIN_MOVEMENT) break;
     }
   }
 
@@ -60,11 +135,29 @@ export class ConstraintSolver {
             ? constraint.pointA
             : null;
         if (!partner) continue;
-        if (partner.x !== point.x || partner.y !== point.y) {
-          partner.x = point.x;
-          partner.y = point.y;
+
+        // Anchor points are immovable: the non-anchor partner snaps to the
+        // anchor, never the other way around.
+        if (point.isAnchor && !partner.isAnchor) {
+          if (partner.x !== point.x || partner.y !== point.y) {
+            partner.x = point.x;
+            partner.y = point.y;
+          }
+          queue.push(partner);
+        } else if (partner.isAnchor && !point.isAnchor) {
+          if (point.x !== partner.x || point.y !== partner.y) {
+            point.x = partner.x;
+            point.y = partner.y;
+          }
+          // Don't enqueue the anchor — it doesn't propagate further from here
+        } else {
+          // Neither is an anchor — normal bidirectional propagation
+          if (partner.x !== point.x || partner.y !== point.y) {
+            partner.x = point.x;
+            partner.y = point.y;
+          }
+          queue.push(partner);
         }
-        queue.push(partner);
       }
     }
   }
@@ -116,8 +209,43 @@ export class ConstraintSolver {
       if (constraint?.type !== 'Perpendicular') continue;
 
       const anchor = constraint.pointA ?? this._findSharedPoint(constraint.lineA, constraint.lineB);
-      if (!anchor || movedPoint === anchor) continue;
+      if (!anchor) continue;
 
+      // Case 1: movedPoint is the anchor - re-project the endpoint of the OTHER line
+      if (movedPoint === anchor) {
+        const lineWithMovedPoint = this._findLineUsingPoint(constraint, movedPoint);
+        const lineWithoutMovedPoint = lineWithMovedPoint === constraint.lineA ? constraint.lineB : constraint.lineA;
+        
+        const referencePoint = this._otherLinePoint(lineWithMovedPoint, anchor);
+        const movedEndpoint = this._otherLinePoint(lineWithoutMovedPoint, anchor);
+        
+        if (referencePoint && movedEndpoint) {
+          const refDx = referencePoint.x - anchor.x;
+          const refDy = referencePoint.y - anchor.y;
+          const refLength = Math.hypot(refDx, refDy);
+          if (refLength >= EPSILON) {
+            const dist = Math.hypot(movedEndpoint.x - anchor.x, movedEndpoint.y - anchor.y);
+            if (dist >= EPSILON) {
+              const ux = refDx / refLength;
+              const uy = refDy / refLength;
+              
+              // Check if we're already perpendicular to avoid unnecessary updates
+              const currentDx = movedEndpoint.x - anchor.x;
+              const currentDy = movedEndpoint.y - anchor.y;
+              const currentDot = currentDx * ux + currentDy * uy;
+              
+              // Only update if not already perpendicular (dot should be 0)
+              if (Math.abs(currentDot) > 0.01) {
+                movedEndpoint.x = anchor.x - uy * dist;
+                movedEndpoint.y = anchor.y + ux * dist;
+              }
+            }
+          }
+        }
+        continue;
+      }
+
+      // Case 2: movedPoint is an endpoint - project it perpendicular to reference line
       const movedLine = this._findLineUsingPoint(constraint, movedPoint);
       if (!movedLine) continue;
 
