@@ -28,8 +28,9 @@ export class SketchOverlay {
     el.id = 'dim-edit-overlay';
     el.style.left = `${screen.x}px`;
     el.style.top = `${screen.y - 52}px`;
+    const unitLabel = pendingEdit.unitLabel || 'Distance (px):';
     el.innerHTML = `
-      <span class="dim-edit-overlay__label">Distance (px):</span>
+      <span class="dim-edit-overlay__label">${unitLabel}</span>
       <div class="dim-edit-overlay__controls">
         <input id="dim-edit-input" class="dim-edit-overlay__input" type="number" min="0.1" step="0.1"
           value="${pendingEdit.initialText}" />

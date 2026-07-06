@@ -112,11 +112,11 @@ Without zoom, any grid larger than the viewport is unusable. This phase makes th
 
 Replaces the normalized (0-1) coordinate system with a real measurement model. The sock template becomes defined in stitch/row units derived from gauge + body measurements.
 
-- [ ] create `src/services/sketch/sockMeasurements.js` — pure functions that convert gauge + body measurements into stitch/row counts (port the math from the reference sock-template.html: `commonWidthSts`, `sectionCRows`, `sectionBRows`, `legRows`, `ribRows`, `notchDepthSts`, `notchRowsEachSide`)
-- [ ] add measurement state to the store (`sketch.templateMeasurements` — foot circumference, foot length, leg height, ease %, ribbing length, plus the active template id)
-- [ ] redefine the sock template in `templateTool.js` to build its outline from stitch/row counts instead of normalized coordinates
-- [ ] template generation converts stitch/row coordinates to pixel coordinates by multiplying by `cellWidthPx` / `cellHeightPx`
-- [ ] template generation computes its required grid size (min cols = total stitches, min rows = total rows including ribbing)
+- [x] create `src/services/sketch/sockMeasurements.js` — pure functions that convert gauge + body measurements into stitch/row counts
+- [x] add measurement state to the store (`activeTemplateId`, `templateMeasurements` — foot circumference, foot length, leg height, ease %, ribbing length)
+- [x] redefine the sock template in `templateTool.js` to build its outline from stitch/row counts instead of normalized coordinates
+- [x] template generation converts stitch/row coordinates to pixel coordinates by multiplying by `cellWidthPx` / `cellHeightPx`
+- [x] template generation computes its required grid size (min cols = total rows + margin, min rows = total stitches + margin)
 - [ ] add unit tests for `sockMeasurements.js` (gauge conversion, ease, roundEven, section math, notch derivation)
 - [ ] add unit tests for measurement-driven template generation (correct pixel positions, correct line count, required grid size)
 
@@ -143,9 +143,9 @@ notchRowsEach = notchDepthSts
 
 When a template is applied or measurements change, grow the grid if the template needs more columns or rows than currently available.
 
-- [ ] add a `ensureGridFits(store, minCols, minRows)` helper in `gridService.js` — grows `gridColumns` / `gridRows` if needed, calls `rebuildPreviewCells`, never shrinks below the current size
-- [ ] call `ensureGridFits` from `templateTool.generate()` after computing the required grid size
-- [ ] call `ensureGridFits` when measurements change and the template is regenerated
+- [x] add a `ensureGridFits(store, minCols, minRows)` helper in `gridService.js` — grows `gridColumns` / `gridRows` if needed, calls `rebuildPreviewCells`, never shrinks below the current size
+- [x] call `ensureGridFits` from `templateTool.generate()` after computing the required grid size
+- [x] call `ensureGridFits` when measurements change and the template is regenerated (via `regenerate` → `generate`)
 - [ ] add a "fit grid to template" button that shrinks the grid to exactly the template size (optional — user may want extra margin)
 - [ ] add unit tests for `ensureGridFits` (grow when needed, no-op when big enough, preview cells preserved)
 
@@ -155,19 +155,19 @@ When a template is applied or measurements change, grow the grid if the template
 
 The user-facing layer. Adds the measurements group box under the template panel in the righthand sidebar.
 
-- [ ] add a "Measurements" group box in `panel-templates` in `knitstitch.twig`, below the template selection buttons
-- [ ] input fields for: foot circumference, foot length, leg height, negative ease %, ribbing length (units: inches, since the app uses per-4-inch gauge)
-- [ ] read-only derived-value display: width (sts), ribbing (rows), section A (rows), notch (rows), section B (rows), section C (rows) — updates live as inputs change
-- [ ] on input change: update measurement state in the store, recompute derived values, regenerate the active template, auto-resize the grid
-- [ ] gauge display: show the current gauge (stitches/rows per 4 inches) so the user knows what's being used; link or note that gauge is edited in the Grid panel
-- [ ] only show measurement fields relevant to the active template (sock fields for sock, etc.)
+- [x] add a "Measurements" group box in `panel-templates` in `knitstitch.twig`, below the template selection buttons
+- [x] input fields for: foot circumference, foot length, leg height, negative ease %, ribbing length (units: inches, since the app uses per-4-inch gauge)
+- [x] read-only derived-value display: width (sts), ribbing (rows), section A (rows), notch (rows), section B (rows), section C (rows) — updates live as inputs change
+- [x] on input change: update measurement state in the store, recompute derived values, regenerate the active template, auto-resize the grid
+- [x] gauge display: show the current gauge (stitches/rows per 4 inches) so the user knows what's being used; note that gauge is edited in the Grid panel
+- [x] only show measurement fields relevant to the active template (panel hidden until a template is selected)
 - [ ] add e2e test: enter measurements, verify template lines appear at the right pixel positions, verify grid grew
 
-**Files touched:** `knitstitch.twig`, `mainUi.js`, `app.css`
+**Files touched:** `knitstitch.twig`, `mainUi.js`, `site.css`
 
 ### Phase 5 — Persistence and polish
 
-- [ ] persist `sketch.templateMeasurements` and active template id in `storePersistence.js`
+- [x] persist `templateMeasurements` and `activeTemplateId` in `storePersistence.js`
 - [ ] on hydrate, if a template was active, regenerate it from persisted measurements
 - [ ] add undo/redo support for measurement changes (each measurement change records a snapshot before regenerating)
 - [ ] add a "clear template" button that removes the template lines and resets measurements to defaults

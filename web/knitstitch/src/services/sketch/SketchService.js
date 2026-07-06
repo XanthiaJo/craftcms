@@ -444,4 +444,8 @@ export class SketchService {
   applyTemplate(templateId) {
     this._templateTool.generate(templateId);
   }
+
+  regenerateTemplate(measurements) {
+    this._templateTool.regenerate(measurements);
+  }
 }

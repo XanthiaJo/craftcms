@@ -18,6 +18,11 @@ export class SketchDimension {
     this.drivenValue = null;
     this.isSelected  = false;
 
+    // Optional display override: when set, the label shows these instead of
+    // the raw pixel value. Used by templates to show inches.
+    this.displayValue  = null;  // e.g. 8.5
+    this.displaySuffix = null;  // e.g. ' in'
+
     // Rendering geometry — all updated by recompute()
     this.kind          = DimensionKind.Aligned;
     this.labelText     = '';
@@ -42,6 +47,17 @@ export class SketchDimension {
     this.recompute();
   }
 
+  /**
+   * Sets both the pixel driven value (for constraint math) and the display
+   * value/suffix (for the label). Used by templates that work in real units.
+   */
+  setDrivenDisplay(pixelValue, displayValue, displaySuffix) {
+    this.drivenValue   = pixelValue;
+    this.displayValue  = displayValue;
+    this.displaySuffix = displaySuffix;
+    this.recompute();
+  }
+
   recompute() {
     const dx       = this.b.x - this.a.x;
     const dy       = this.b.y - this.a.y;
@@ -55,10 +71,16 @@ export class SketchDimension {
                    : this.kind === DimensionKind.Vertical   ? Math.abs(dy)
                    : Math.sqrt(dx * dx + dy * dy);
 
-    const display = this.drivenValue ?? measured;
-    this.labelText = this.isConstrained
-      ? `\uD83D\uDD12 ${display.toFixed(1)}`
-      : `${measured.toFixed(1)}`;
+    if (this.displayValue !== null && this.displaySuffix !== null) {
+      this.labelText = this.isConstrained
+        ? `\uD83D\uDD12 ${this.displayValue.toFixed(2)}${this.displaySuffix}`
+        : `${this.displayValue.toFixed(2)}${this.displaySuffix}`;
+    } else {
+      const display = this.drivenValue ?? measured;
+      this.labelText = this.isConstrained
+        ? `\uD83D\uDD12 ${display.toFixed(1)}`
+        : `${measured.toFixed(1)}`;
+    }
 
     if      (this.kind === DimensionKind.Horizontal) this._computeHorizontal();
     else if (this.kind === DimensionKind.Vertical)   this._computeVertical();

@@ -46,12 +46,24 @@ export class DimensionTool {
   }
 
   openDimEdit(dim) {
+    const hasDisplay = dim.displayValue !== null && dim.displaySuffix !== null;
     this.store.set('sketch.pendingDimEdit', {
       dimId:       dim.id,
-      initialText: dim.labelText.replace(/^[^\d.]*/, ''),
+      initialText: hasDisplay
+        ? String(dim.displayValue)
+        : dim.labelText.replace(/^[^\d.]*/, ''),
       labelPos:    { ...dim.labelPos },
+      unitLabel:   hasDisplay ? `Distance (${dim.displaySuffix.trim()}):` : 'Distance (px):',
       onConfirm: (value) => {
-        this._applyDimConstraint(dim, value);
+        // If the dim has a display unit (e.g. inches), convert back to pixels
+        const targetPx = hasDisplay
+          ? value / dim.displayValue * (dim.drivenValue ?? this._measureDimPx(dim))
+          : value;
+        this._applyDimConstraint(dim, targetPx);
+        if (hasDisplay) {
+          dim.displayValue = value;
+          dim.recompute();
+        }
         this.store.set('sketch.pendingDimEdit', null);
       },
       onCancel: () => {
@@ -63,6 +75,12 @@ export class DimensionTool {
         rebuildSketchObjects(this.service);
       },
     });
+  }
+
+  _measureDimPx(dim) {
+    const dx = dim.b.x - dim.a.x;
+    const dy = dim.b.y - dim.a.y;
+    return Math.sqrt(dx * dx + dy * dy);
   }
 
   _applyDimConstraint(dim, targetPx) {
