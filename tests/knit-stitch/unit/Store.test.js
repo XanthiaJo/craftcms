@@ -4,7 +4,7 @@ import { Store } from '../../../web/knitstitch/src/state/store.js';
 describe('Store', () => {
   it('should get top-level and nested values', () => {
     const store = new Store();
-    expect(store.get('gridColumns')).toBe(30);
+    expect(store.get('cellWidthPx')).toBe(20);
     expect(store.get('sketch.activeTool')).toBe('Select');
     expect(store.get('sketch.nonexistent')).toBeUndefined();
   });
@@ -13,16 +13,16 @@ describe('Store', () => {
     const store = new Store();
     const fn = vi.fn();
     store.subscribe(fn);
-    store.set('gridColumns', 40);
-    expect(store.get('gridColumns')).toBe(40);
-    expect(fn).toHaveBeenCalledWith('gridColumns', 40, store.state);
+    store.set('cellWidthPx', 40);
+    expect(store.get('cellWidthPx')).toBe(40);
+    expect(fn).toHaveBeenCalledWith('cellWidthPx', 40, store.state);
   });
 
   it('should not notify when value unchanged', () => {
     const store = new Store();
     const fn = vi.fn();
     store.subscribe(fn);
-    store.set('gridColumns', 30); // same as default
+    store.set('cellWidthPx', 20); // same as default
     expect(fn).not.toHaveBeenCalled();
   });
 
@@ -31,7 +31,14 @@ describe('Store', () => {
     const fn = vi.fn();
     const unsub = store.subscribe(fn);
     unsub();
-    store.set('gridColumns', 99);
+    store.set('cellWidthPx', 99);
     expect(fn).not.toHaveBeenCalled();
+  });
+
+  it('should initialize filledCells as an empty Set', () => {
+    const store = new Store();
+    const cells = store.get('filledCells');
+    expect(cells).toBeInstanceOf(Set);
+    expect(cells.size).toBe(0);
   });
 });

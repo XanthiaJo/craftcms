@@ -82,11 +82,11 @@ describe('findClosedPolygons', () => {
 });
 
 describe('computeFilledCellsFromSketch', () => {
-  // Grid: 10 cols x 10 rows, cell 10x10 → 100x100 canvas.
-  const cols = 10, rows = 10, cellW = 10, cellH = 10;
+  // Cell 10x10 → 100x100 area for a 10x10 grid.
+  const cellW = 10, cellH = 10;
 
   it('returns empty set when there are no lines', () => {
-    expect(computeFilledCellsFromSketch([], cols, rows, cellW, cellH).size).toBe(0);
+    expect(computeFilledCellsFromSketch([], cellW, cellH).size).toBe(0);
   });
 
   it('returns empty set for open polylines', () => {
@@ -94,7 +94,7 @@ describe('computeFilledCellsFromSketch', () => {
       line(0, 0, 100, 0),
       line(100, 0, 100, 100),
     ];
-    expect(computeFilledCellsFromSketch(lines, cols, rows, cellW, cellH).size).toBe(0);
+    expect(computeFilledCellsFromSketch(lines, cellW, cellH).size).toBe(0);
   });
 
   it('fills cells fully inside a square', () => {
@@ -105,13 +105,13 @@ describe('computeFilledCellsFromSketch', () => {
       line(90, 90, 10, 90),
       line(10, 90, 10, 10),
     ];
-    const filled = computeFilledCellsFromSketch(lines, cols, rows, cellW, cellH);
+    const filled = computeFilledCellsFromSketch(lines, cellW, cellH);
     // Cells from col 1..8, row 1..8 → 8*8 = 64 cells.
     expect(filled.size).toBe(64);
-    // Spot-check an interior cell (col 5, row 5 → idx 55).
-    expect(filled.has(55)).toBe(true);
+    // Spot-check an interior cell (col 5, row 5).
+    expect(filled.has('5,5')).toBe(true);
     // Corner cell (0,0) should not be filled.
-    expect(filled.has(0)).toBe(false);
+    expect(filled.has('0,0')).toBe(false);
   });
 
   it('fills cells on the boundary when 50%+ is inside', () => {
@@ -125,14 +125,14 @@ describe('computeFilledCellsFromSketch', () => {
       line(95, 95, 5, 95),
       line(5, 95, 5, 5),
     ];
-    const filled = computeFilledCellsFromSketch(lines, cols, rows, cellW, cellH);
+    const filled = computeFilledCellsFromSketch(lines, cellW, cellH);
     // 100 total - 4 corner cells at 25% = 96 filled.
     expect(filled.size).toBe(96);
-    expect(filled.has(0)).toBe(false);   // top-left corner
-    expect(filled.has(9)).toBe(false);   // top-right corner
-    expect(filled.has(90)).toBe(false);  // bottom-left corner
-    expect(filled.has(99)).toBe(false);  // bottom-right corner
-    expect(filled.has(1)).toBe(true);    // top edge (50% inside)
+    expect(filled.has('0,0')).toBe(false);   // top-left corner
+    expect(filled.has('0,9')).toBe(false);   // top-right corner
+    expect(filled.has('9,0')).toBe(false);   // bottom-left corner
+    expect(filled.has('9,9')).toBe(false);   // bottom-right corner
+    expect(filled.has('0,1')).toBe(true);    // top edge (50% inside)
   });
 
   it('does not fill cells outside the shape', () => {
@@ -143,9 +143,9 @@ describe('computeFilledCellsFromSketch', () => {
       line(30, 30, 0, 30),
       line(0, 30, 0, 0),
     ];
-    const filled = computeFilledCellsFromSketch(lines, cols, rows, cellW, cellH);
+    const filled = computeFilledCellsFromSketch(lines, cellW, cellH);
     // A cell in the bottom-right corner should not be filled.
-    expect(filled.has(99)).toBe(false);
+    expect(filled.has('9,9')).toBe(false);
   });
 
   it('handles a triangle', () => {
@@ -155,11 +155,11 @@ describe('computeFilledCellsFromSketch', () => {
       line(100, 100, 50, 0),
       line(50, 0, 0, 100),
     ];
-    const filled = computeFilledCellsFromSketch(lines, cols, rows, cellW, cellH);
-    // The bottom-center cell (col 5, row 9 → idx 95) is inside.
-    expect(filled.has(95)).toBe(true);
+    const filled = computeFilledCellsFromSketch(lines, cellW, cellH);
+    // The bottom-center cell (col 5, row 9) is inside.
+    expect(filled.has('9,5')).toBe(true);
     // The top-left corner (0,0) is outside.
-    expect(filled.has(0)).toBe(false);
+    expect(filled.has('0,0')).toBe(false);
   });
 
   it('fills both faces of a square split by a diagonal', () => {
@@ -170,18 +170,18 @@ describe('computeFilledCellsFromSketch', () => {
       line(0, 100, 0, 0),
       line(0, 0, 100, 100),
     ];
-    const filled = computeFilledCellsFromSketch(lines, cols, rows, cellW, cellH);
+    const filled = computeFilledCellsFromSketch(lines, cellW, cellH);
     // The whole 10x10 grid should be filled.
     expect(filled.size).toBe(100);
   });
 
-  it('returns empty set for invalid grid dimensions', () => {
+  it('returns empty set for invalid cell dimensions', () => {
     const lines = [
       line(0, 0, 100, 0),
       line(100, 0, 100, 100),
       line(100, 100, 0, 0),
     ];
-    expect(computeFilledCellsFromSketch(lines, 0, 10, 10, 10).size).toBe(0);
-    expect(computeFilledCellsFromSketch(lines, 10, 10, 0, 10).size).toBe(0);
+    expect(computeFilledCellsFromSketch(lines, 0, 10).size).toBe(0);
+    expect(computeFilledCellsFromSketch(lines, 10, 0).size).toBe(0);
   });
 });
