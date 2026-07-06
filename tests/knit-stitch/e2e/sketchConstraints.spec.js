@@ -8,6 +8,7 @@ async function openSketch(page) {
     value: 'allow',
     domain: 'craftcms.ddev.site',
     path: '/',
+    sameSite: 'Lax',
   }]);
 
   await page.goto('/knit-stitch');
@@ -283,6 +284,210 @@ test.describe('Sketch constraints', () => {
     });
 
     expect(geometry.dot).toBeCloseTo(0, 3);
+  });
+
+  test('perpendicular constraint is maintained when moving a non-anchor endpoint', async ({ page }) => {
+    const box = await openSketch(page);
+
+    // Draw an L-shape: P1(120,400) -> P2(200,400) -> P3(200,480)
+    await clickStage(page, box, { x: 120, y: 400 });
+    await clickStage(page, box, { x: 200, y: 400 });
+    await clickStage(page, box, { x: 200, y: 480 });
+
+    // Add perpendicular constraint between line 0 (P1→P2) and line 1 (P2→P3)
+    await page.getByRole('button', { name: 'Perpendicular' }).click();
+    await page.evaluate(() => {
+      const service = window.__knitstitchSketchService;
+      const lines = window.__knitstitchStore?.state?.sketch?.lines ?? [];
+      service.onConstraintLineClick(lines[0]);
+      service.onConstraintLineClick(lines[1]);
+    });
+
+    // Verify it was created and is perpendicular
+    let state = await page.evaluate(() => {
+      const sketch = window.__knitstitchStore?.state?.sketch;
+      const [lineA, lineB] = sketch?.lines ?? [];
+      const shared = lineA?.end;
+      const otherA = lineA?.start;
+      const otherB = lineB?.end;
+      const vecA = { x: otherA.x - shared.x, y: otherA.y - shared.y };
+      const vecB = { x: otherB.x - shared.x, y: otherB.y - shared.y };
+      return {
+        count: sketch?.constraints.filter((c) => c.type === 'Perpendicular').length ?? 0,
+        dot: vecA.x * vecB.x + vecA.y * vecB.y,
+      };
+    });
+    expect(state.count).toBe(1);
+    expect(state.dot).toBeCloseTo(0, 3);
+
+    // Switch to Select and drag P1 (the non-anchor endpoint of line 0)
+    await page.getByRole('button', { name: 'Select' }).click();
+    await dragStage(page, box, { x: 120, y: 400 }, { x: 140, y: 430 });
+
+    // Perpendicular should still hold
+    state = await page.evaluate(() => {
+      const [lineA, lineB] = window.__knitstitchStore?.state?.sketch?.lines ?? [];
+      const shared = lineA?.end;
+      const otherA = lineA?.start;
+      const otherB = lineB?.end;
+      const vecA = { x: otherA.x - shared.x, y: otherA.y - shared.y };
+      const vecB = { x: otherB.x - shared.x, y: otherB.y - shared.y };
+      return { dot: vecA.x * vecB.x + vecA.y * vecB.y };
+    });
+    expect(state.dot).toBeCloseTo(0, 3);
+  });
+
+  test('perpendicular constraint is maintained when a driven dimension moves a constrained point', async ({ page }) => {
+    const box = await openSketch(page);
+
+    // Draw an L-shape: P1(120,520) -> P2(200,520) -> P3(200,600)
+    await clickStage(page, box, { x: 120, y: 520 });
+    await clickStage(page, box, { x: 200, y: 520 });
+    await clickStage(page, box, { x: 200, y: 600 });
+
+    // Add perpendicular constraint between line 0 (P1→P2) and line 1 (P2→P3)
+    await page.getByRole('button', { name: 'Perpendicular' }).click();
+    await page.evaluate(() => {
+      const service = window.__knitstitchSketchService;
+      const lines = window.__knitstitchStore?.state?.sketch?.lines ?? [];
+      service.onConstraintLineClick(lines[0]);
+      service.onConstraintLineClick(lines[1]);
+    });
+
+    // Add a driven dimension on line 0 (P1→P2) = 80px
+    await page.getByRole('button', { name: 'Dimension' }).click();
+    await clickStage(page, box, { x: 120, y: 520 });
+    await clickStage(page, box, { x: 200, y: 520 });
+    const editInput = page.locator('#dim-edit-input');
+    await expect(editInput).toBeVisible();
+    await editInput.fill('80');
+    await editInput.press('Enter');
+
+    // Verify perpendicular holds before drag
+    let state = await page.evaluate(() => {
+      const [lineA, lineB] = window.__knitstitchStore?.state?.sketch?.lines ?? [];
+      const shared = lineA?.end;
+      const otherA = lineA?.start;
+      const otherB = lineB?.end;
+      const vecA = { x: otherA.x - shared.x, y: otherA.y - shared.y };
+      const vecB = { x: otherB.x - shared.x, y: otherB.y - shared.y };
+      return { dot: vecA.x * vecB.x + vecA.y * vecB.y };
+    });
+    expect(state.dot).toBeCloseTo(0, 3);
+
+    // Switch to Select and drag P3 (the non-anchor endpoint of line 1).
+    // This should NOT break the perpendicular at P2.
+    await page.getByRole('button', { name: 'Select' }).click();
+    await dragStage(page, box, { x: 200, y: 600 }, { x: 230, y: 640 });
+
+    state = await page.evaluate(() => {
+      const [lineA, lineB] = window.__knitstitchStore?.state?.sketch?.lines ?? [];
+      const shared = lineA?.end;
+      const otherA = lineA?.start;
+      const otherB = lineB?.end;
+      const vecA = { x: otherA.x - shared.x, y: otherA.y - shared.y };
+      const vecB = { x: otherB.x - shared.x, y: otherB.y - shared.y };
+      return { dot: vecA.x * vecB.x + vecA.y * vecB.y };
+    });
+    expect(state.dot).toBeCloseTo(0, 3);
+  });
+
+  test('sock template: perpendicular at top-left holds when top-right corner is dragged', async ({ page }) => {
+    const box = await openSketch(page);
+
+    // Apply the sock template
+    await page.getByRole('button', { name: 'Templates' }).click();
+    await page.getByRole('button', { name: 'Sock' }).click();
+    await page.getByRole('button', { name: 'Sketch' }).click();
+    await page.getByRole('button', { name: 'Select' }).click();
+
+    // Verify perpendicular constraints exist
+    const perpCount = await page.evaluate(() => {
+      const sketch = window.__knitstitchStore?.state?.sketch;
+      return sketch?.constraints.filter((c) => c.type === 'Perpendicular').length ?? 0;
+    });
+    expect(perpCount).toBe(4);
+
+    // Check perpendicular at top-left (point 0) before drag
+    // Line 19 = top edge (19→0), Line 0 = left edge (0→1), anchor = point 0
+    let state = await page.evaluate(() => {
+      const sketch = window.__knitstitchStore?.state?.sketch;
+      const points = sketch?.points ?? [];
+      const lines = sketch?.lines ?? [];
+      // point 0 = top-left, point 19 = top-right
+      const p0 = points[0];
+      const p1 = points[1];   // below p0 on left edge
+      const p19 = points[19]; // top-right
+      const vecTop = { x: p19.x - p0.x, y: p19.y - p0.y };
+      const vecLeft = { x: p1.x - p0.x, y: p1.y - p0.y };
+      return {
+        dot: vecTop.x * vecLeft.x + vecTop.y * vecLeft.y,
+        p0: { x: p0.x, y: p0.y },
+        p19: { x: p19.x, y: p19.y },
+      };
+    });
+    expect(state.dot).toBeCloseTo(0, 1);
+
+    // Drag the top-right corner (point 19) down and to the right
+    const p19 = state.p19;
+    await dragStage(page, box, { x: p19.x, y: p19.y }, { x: p19.x + 40, y: p19.y + 30 });
+
+    // Check perpendicular at top-left still holds
+    state = await page.evaluate(() => {
+      const sketch = window.__knitstitchStore?.state?.sketch;
+      const points = sketch?.points ?? [];
+      const p0 = points[0];
+      const p1 = points[1];
+      const p19 = points[19];
+      const vecTop = { x: p19.x - p0.x, y: p19.y - p0.y };
+      const vecLeft = { x: p1.x - p0.x, y: p1.y - p0.y };
+      return { dot: vecTop.x * vecLeft.x + vecTop.y * vecLeft.y };
+    });
+    expect(state.dot).toBeCloseTo(0, 1);
+  });
+
+  test('sock template: perpendicular at top-left holds when top-left corner is dragged', async ({ page }) => {
+    const box = await openSketch(page);
+
+    // Apply the sock template
+    await page.getByRole('button', { name: 'Templates' }).click();
+    await page.getByRole('button', { name: 'Sock' }).click();
+    await page.getByRole('button', { name: 'Sketch' }).click();
+    await page.getByRole('button', { name: 'Select' }).click();
+
+    // Check perpendicular at top-left (point 0) before drag
+    // Line 19 = top edge (19→0), Line 0 = left edge (0→1), anchor = point 0
+    let state = await page.evaluate(() => {
+      const sketch = window.__knitstitchStore?.state?.sketch;
+      const points = sketch?.points ?? [];
+      const p0 = points[0];
+      const p1 = points[1];   // below p0 on left edge
+      const p19 = points[19]; // top-right
+      const vecTop = { x: p19.x - p0.x, y: p19.y - p0.y };
+      const vecLeft = { x: p1.x - p0.x, y: p1.y - p0.y };
+      return {
+        dot: vecTop.x * vecLeft.x + vecTop.y * vecLeft.y,
+        p0: { x: p0.x, y: p0.y },
+      };
+    });
+    expect(state.dot).toBeCloseTo(0, 1);
+
+    // Drag the top-left corner (point 0) down and to the right
+    const p0 = state.p0;
+    await dragStage(page, box, { x: p0.x, y: p0.y }, { x: p0.x + 30, y: p0.y + 40 });
+
+    // Check perpendicular at top-left still holds
+    state = await page.evaluate(() => {
+      const sketch = window.__knitstitchStore?.state?.sketch;
+      const points = sketch?.points ?? [];
+      const p0 = points[0];
+      const p1 = points[1];
+      const p19 = points[19];
+      const vecTop = { x: p19.x - p0.x, y: p19.y - p0.y };
+      const vecLeft = { x: p1.x - p0.x, y: p1.y - p0.y };
+      return { dot: vecTop.x * vecLeft.x + vecTop.y * vecLeft.y };
+    });
+    expect(state.dot).toBeCloseTo(0, 1);
   });
 
   test('impossible perpendicular combinations are rejected', async ({ page }) => {
