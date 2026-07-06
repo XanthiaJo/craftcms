@@ -34,7 +34,7 @@ Primary source layout:
 - [src/services/sketch/](</E:/Coding Projects/craftcms/web/knitstitch/src/services/sketch/>) - all sketch logic: service, solver, helpers, constants, deletion
 - [src/state/store.js](</E:/Coding Projects/craftcms/web/knitstitch/src/state/store.js>) - reactive store
 - [src/utils/geometry.js](</E:/Coding Projects/craftcms/web/knitstitch/src/utils/geometry.js>) - pure geometry helpers (distance, nearestPoint, applyAngleSnap)
-- [tests/](</E:/Coding Projects/craftcms/web/knitstitch/tests/>) - Vitest and Playwright coverage
+- [tests/knit-stitch/](</E:/Coding Projects/craftcms/tests/knit-stitch/>) - Vitest and Playwright coverage (at repo root, not inside `web/knitstitch/`)
 - [docs/](</E:/Coding Projects/craftcms/web/knitstitch/docs/>) - project map, roadmap, tests map
 
 ## DRY Rules
@@ -97,11 +97,25 @@ The Sketch workspace is the one governed by the Fusion-style rules above.
 
 ## Testing Rules
 
-Run from [web/knitstitch/](</E:/Coding Projects/craftcms/web/knitstitch/>):
+Tests live at the repository root under `tests/knit-stitch/`, not inside `web/knitstitch/`.
+
+Unit tests (Vitest):
 
 ```bash
-npm test
-npm run test:e2e
+cd tests/knit-stitch
+npx vitest run
+```
+
+E2E tests (Playwright):
+
+```bash
+cd tests/knit-stitch
+npx playwright test
+```
+
+Build (run from `web/knitstitch/`):
+
+```bash
 npm run build
 ```
 
