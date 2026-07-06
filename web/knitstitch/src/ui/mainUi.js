@@ -2,6 +2,13 @@ import { GaugeSettings } from '../models/gaugeSettings.js';
 import { PatternDimensions } from '../models/patternDimensions.js';
 import { FinishedSizeCalculator } from '../services/finishedSizeCalculator.js';
 import { rebuildPreviewCells, updateCellSizing } from '../services/gridService.js';
+import {
+  ZOOM_STEP,
+  fitToView,
+  resetView,
+  zoomAt,
+  zoomCentered,
+} from '../services/zoomService.js';
 import { SketchTool } from '../services/sketch/sketchService.js';
 
 function getElement(documentObj, id) {
@@ -15,7 +22,7 @@ function bindIfPresent(element, eventName, handler) {
 
 function toggleActive(element, active) {
   if (!element) return;
-  element.classList.toggle('active', !!active);
+  element.classList.toggle('button-primary', !!active);
 }
 
 export function setupMainUi({ store, sketchService, documentObj = globalThis.document, windowObj = globalThis.window }) {
@@ -47,6 +54,14 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
     overlayShowCheck: getElement(documentObj, 'overlay-show'),
     overlayOpacitySlider: getElement(documentObj, 'overlay-opacity'),
     overlayPathText: getElement(documentObj, 'overlay-path'),
+    templateList: getElement(documentObj, 'template-list'),
+    zoomInBtn: getElement(documentObj, 'zoom-in'),
+    zoomOutBtn: getElement(documentObj, 'zoom-out'),
+    zoomFitBtn: getElement(documentObj, 'zoom-fit'),
+    zoomResetBtn: getElement(documentObj, 'zoom-reset'),
+    zoomLevelDisplay: getElement(documentObj, 'zoom-level'),
+    canvasWrapper: documentObj?.querySelector?.('.canvas-wrapper'),
+    konvaStage: getElement(documentObj, 'konva-stage'),
   };
 
   const calc = new FinishedSizeCalculator();
@@ -135,10 +150,27 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
     if (refs.overlayOpacitySlider) refs.overlayOpacitySlider.value = Math.round((opacity ?? 0.5) * 100);
   }
 
+  function updateTemplatesSidebar() {
+    if (!refs.templateList) return;
+    const templates = sketchService.templates;
+    refs.templateList.innerHTML = templates.map((t) =>
+      `<button class="button button-sm" data-template-id="${t.id}">${t.label}</button>`
+    ).join('');
+  }
+
+  function updateZoomDisplay() {
+    const level = store.get('zoomLevel');
+    if (refs.zoomLevelDisplay) {
+      refs.zoomLevelDisplay.textContent = `${Math.round(level * 100)}%`;
+    }
+  }
+
   function syncAll() {
     updateGridSidebar();
     updateSketchSidebar();
     updateOverlaySidebar();
+    updateTemplatesSidebar();
+    updateZoomDisplay();
   }
 
   bindIfPresent(refs.gaugeStitchesInput, 'change', () => {
@@ -239,6 +271,86 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
     store.set('overlayOpacity', Number(refs.overlayOpacitySlider.value) / 100);
   });
 
+  bindIfPresent(refs.templateList, 'click', (event) => {
+    const btn = event.target.closest('button[data-template-id]');
+    if (!btn) return;
+    sketchService.applyTemplate(btn.dataset.templateId);
+  });
+
+  // --- Zoom controls ---
+
+  function applyZoomResult(result) {
+    store.set('zoomLevel', result.zoomLevel);
+    store.set('panOffsetX', result.panOffsetX);
+    store.set('panOffsetY', result.panOffsetY);
+  }
+
+  function getViewportSize() {
+    if (!refs.konvaStage) return { w: 600, h: 400 };
+    const el = refs.konvaStage;
+    return { w: el.clientWidth, h: el.clientHeight };
+  }
+
+  function getGridPixelSize() {
+    const cols = store.get('gridColumns');
+    const rows = store.get('gridRows');
+    const cellW = store.get('cellWidthPx');
+    const cellH = store.get('cellHeightPx');
+    return { w: cols * cellW, h: rows * cellH };
+  }
+
+  bindIfPresent(refs.zoomInBtn, 'click', () => {
+    const { w, h } = getViewportSize();
+    applyZoomResult(zoomCentered(
+      store.get('zoomLevel'), store.get('panOffsetX'), store.get('panOffsetY'),
+      w, h, ZOOM_STEP
+    ));
+  });
+
+  bindIfPresent(refs.zoomOutBtn, 'click', () => {
+    const { w, h } = getViewportSize();
+    applyZoomResult(zoomCentered(
+      store.get('zoomLevel'), store.get('panOffsetX'), store.get('panOffsetY'),
+      w, h, 1 / ZOOM_STEP
+    ));
+  });
+
+  bindIfPresent(refs.zoomResetBtn, 'click', () => {
+    applyZoomResult(resetView());
+  });
+
+  bindIfPresent(refs.zoomFitBtn, 'click', () => {
+    const { w: vw, h: vh } = getViewportSize();
+    const { w: gw, h: gh } = getGridPixelSize();
+    applyZoomResult(fitToView(gw, gh, vw, vh));
+  });
+
+  // Mouse-wheel zoom toward cursor
+  bindIfPresent(refs.konvaStage, 'wheel', (e) => {
+    e.preventDefault();
+    const rect = refs.konvaStage.getBoundingClientRect();
+    const focal = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    const factor = e.deltaY < 0 ? ZOOM_STEP : 1 / ZOOM_STEP;
+    applyZoomResult(zoomAt(
+      store.get('zoomLevel'), store.get('panOffsetX'), store.get('panOffsetY'),
+      focal, factor
+    ));
+  });
+
+  // Middle-mouse drag to pan
+  let panState = null;
+  bindIfPresent(refs.konvaStage, 'mousedown', (e) => {
+    if (e.button !== 1) return; // middle button
+    e.preventDefault();
+    panState = { startX: e.clientX, startY: e.clientY, panX: store.get('panOffsetX'), panY: store.get('panOffsetY') };
+  });
+  bindIfPresent(refs.konvaStage, 'mousemove', (e) => {
+    if (!panState) return;
+    store.set('panOffsetX', panState.panX + (e.clientX - panState.startX));
+    store.set('panOffsetY', panState.panY + (e.clientY - panState.startY));
+  });
+  bindIfPresent(documentObj, 'mouseup', () => { panState = null; });
+
   bindIfPresent(documentObj, 'keydown', (e) => {
     if (e.key === 'Escape') {
       sketchService.exitToSelect();
@@ -264,9 +376,9 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
 
   if (windowObj && typeof windowObj.setWorkspace === 'function') {
     const originalSetWorkspace = windowObj.setWorkspace;
-    windowObj.setWorkspace = function (ws) {
-      if (originalSetWorkspace) originalSetWorkspace.call(this, ws);
-      sketchService.isActive = ws === 'sketch';
+    windowObj.setWorkspace = function (ws, btn) {
+      if (originalSetWorkspace) originalSetWorkspace.call(this, ws, btn);
+      sketchService.isActive = ws === 'sketch' || ws === 'templates';
     };
   }
 
@@ -301,11 +413,19 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
     }
   });
 
+  store.subscribe((path) => {
+    if (path === 'zoomLevel') {
+      updateZoomDisplay();
+    }
+  });
+
   return {
     recalculateSize,
     syncAll,
     updateGridSidebar,
     updateSketchSidebar,
     updateOverlaySidebar,
+    updateTemplatesSidebar,
+    updateZoomDisplay,
   };
 }
