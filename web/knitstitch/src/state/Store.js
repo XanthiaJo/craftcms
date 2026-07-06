@@ -17,6 +17,10 @@ class Store {
       overlayImageSrc: null,
       overlayOpacity: 0.5,
       overlayVisible: false,
+      // Viewport zoom/pan
+      zoomLevel: 1,
+      panOffsetX: 0,
+      panOffsetY: 0,
       // Sketch state
       sketch: {
         isActive: false,

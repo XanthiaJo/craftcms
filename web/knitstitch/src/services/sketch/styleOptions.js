@@ -15,6 +15,29 @@ export const MIN_STROKE_THICKNESS = 1;
 export const MAX_STROKE_THICKNESS = 10;
 export const STROKE_THICKNESS_STEP = 1;
 
+/**
+ * Renderer colour constants for sketch UI elements.
+ *
+ * These map to the site CSS palette (see web/css/site.css and
+ * web/knitstitch/css/app.css) so the sketch canvas stays visually
+ * consistent with the rest of the site:
+ *
+ *   SELECTION_COLOR    → --primary-dark   (#8b5d1f)  dark gold
+ *   ACCENT_COLOR       → --primary        (#ca9b52)  gold
+ *   PREVIEW_COLOR      → --body-light     (#8a8a8a)  muted grey
+ *   WITNESS_COLOR      → --body-light     (#8a8a8a)  muted grey
+ *   LABEL_BG_COLOR     → --body-dark      (#111111)  near-black
+ *   LABEL_STROKE_COLOR → --body           (#333333)  dark grey
+ *   ERROR_COLOR        → --color-pair-rust-text (#9a5a42)  muted red-brown
+ */
+export const SELECTION_COLOR = '#8b5d1f';
+export const ACCENT_COLOR = '#ca9b52';
+export const PREVIEW_COLOR = '#8a8a8a';
+export const WITNESS_COLOR = '#8a8a8a';
+export const LABEL_BG_COLOR = '#111111';
+export const LABEL_STROKE_COLOR = '#333333';
+export const ERROR_COLOR = '#9a5a42';
+
 export const STROKE_COLOR_OPTIONS = [
   new SketchColorOption('Red', '#E63946'),
   new SketchColorOption('Orange', '#FF6B35'),

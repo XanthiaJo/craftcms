@@ -20,6 +20,7 @@ const PERSISTED_PATHS = new Set([
   'overlayImageSrc',
   'overlayOpacity',
   'overlayVisible',
+  'zoomLevel',
   'sketch.strokeColor',
   'sketch.strokeThickness',
   'sketch.lines',
@@ -62,6 +63,7 @@ export class StorePersistence {
       'gridColumns', 'gridRows', 'cellWidthPx', 'cellHeightPx',
       'stitchesPer4Inches', 'rowsPer4Inches',
       'overlayOpacity', 'overlayVisible', 'overlayImageSrc',
+      'zoomLevel',
     ];
     for (const key of scalars) {
       if (saved[key] !== undefined) {
@@ -119,6 +121,7 @@ export class StorePersistence {
       overlayImageSrc: state.overlayImageSrc,
       overlayOpacity: state.overlayOpacity,
       overlayVisible: state.overlayVisible,
+      zoomLevel: state.zoomLevel,
       sketch: {
         strokeColor: sketch.strokeColor,
         strokeThickness: sketch.strokeThickness,

@@ -3,6 +3,7 @@ import { ConstraintSolver } from './constraintSolver.js';
 import { DimensionTool } from './dimensionTool.js';
 import { ConstraintTool } from './constraintTool.js';
 import { LineTool } from './lineTool.js';
+import { TemplateTool } from './templateTool.js';
 import { HistoryManager } from './historyManager.js';
 import { nearestPoint } from '../../utils/geometry.js';
 import { restoreSketchSnapshot } from './sketchSnapshot.js';
@@ -49,6 +50,7 @@ export class SketchService {
     this._dimensionTool = new DimensionTool(this);
     this._constraintTool = new ConstraintTool(this);
     this._lineTool = new LineTool(this);
+    this._templateTool = new TemplateTool(this);
     this._history = new HistoryManager(this);
 
     this.strokeColorOptions = STROKE_COLOR_OPTIONS;
@@ -143,6 +145,34 @@ export class SketchService {
         this._constraintTool.onConstraintClick(position, modifiers);
         break;
     }
+  }
+
+  onLineClick(line, position, modifiers = {}) {
+    if (!this.isActive) return;
+    const multiSelect = modifiers.multiSelect ?? false;
+    if (this.activeTool === SketchTool.Select) {
+      this.selectLine(line, multiSelect);
+      return;
+    }
+    if (this.activeTool === SketchTool.Constraint) {
+      this._constraintTool.onConstraintLineClick(line, multiSelect, position);
+      return;
+    }
+    this.onCanvasClick(position, modifiers);
+  }
+
+  onPointClick(pt, position, modifiers = {}) {
+    if (!this.isActive) return;
+    const multiSelect = modifiers.multiSelect ?? false;
+    if (this.activeTool === SketchTool.Select) {
+      this.selectPoint(pt, multiSelect);
+      return;
+    }
+    if (this.activeTool === SketchTool.Constraint) {
+      this._constraintTool.onConstraintPointClick(pt, multiSelect, position);
+      return;
+    }
+    this.onCanvasClick(position ?? { x: pt.x, y: pt.y }, modifiers);
   }
 
   onCanvasMouseMove(position, modifiers = {}) {
@@ -405,5 +435,13 @@ export class SketchService {
 
   _findSharedPoint(lineA, lineB) {
     return findSketchSharedPoint(lineA, lineB);
+  }
+
+  get templates() {
+    return this._templateTool.templates;
+  }
+
+  applyTemplate(templateId) {
+    this._templateTool.generate(templateId);
   }
 }

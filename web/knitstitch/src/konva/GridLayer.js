@@ -1,5 +1,8 @@
 import Konva from 'konva';
 import { togglePreviewCell } from '../services/gridService.js';
+import { computeFilledCellsFromSketch } from '../services/sketch/closedShapeFill.js';
+
+const FILL_COLOR = '#ca9b52';
 
 export class GridLayer {
   constructor(store) {
@@ -38,7 +41,9 @@ export class GridLayer {
       path === 'gridRows' ||
       path === 'cellWidthPx' ||
       path === 'cellHeightPx' ||
-      path === 'previewCells'
+      path === 'previewCells' ||
+      path === 'sketch.lines' ||
+      path === 'sketch.isActive'
     ) {
       this._drawGrid();
     }
@@ -53,6 +58,14 @@ export class GridLayer {
     const w = cols * cellW;
     const h = rows * cellH;
 
+    const sketchFilled = computeFilledCellsFromSketch(
+      this.store.get('sketch.lines'),
+      cols,
+      rows,
+      cellW,
+      cellH,
+    );
+
     this._offscreen.width = w;
     this._offscreen.height = h;
     const ctx = this._offscreen.getContext('2d');
@@ -61,11 +74,11 @@ export class GridLayer {
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
         const idx = r * cols + c;
-        const isFilled = cells[idx]?.isFilled ?? false;
+        const isFilled = (cells[idx]?.isFilled ?? false) || sketchFilled.has(idx);
         const x = c * cellW;
         const y = r * cellH;
 
-        ctx.fillStyle = isFilled ? '#2b2b2b' : '#ffffff';
+        ctx.fillStyle = isFilled ? FILL_COLOR : '#ffffff';
         ctx.fillRect(x, y, cellW, cellH);
 
         ctx.strokeStyle = '#bdbdbd';

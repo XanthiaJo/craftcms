@@ -34,31 +34,49 @@ export class AppStage {
     this.overlayLayer.layer.zIndex(1);
     this.sketchLayer.layer.zIndex(2);
 
-    this._fitStageToGrid();
+    this._fitStageToContainer();
+    this._applyZoomPan();
     this._setupResizeObserver();
 
-    // Re-fit when grid dimensions change
+    // Re-apply zoom/pan when zoom state changes
     this._unsubscribe = store.subscribe((path) => {
       if (
-        path === 'gridColumns' ||
-        path === 'gridRows' ||
-        path === 'cellWidthPx' ||
-        path === 'cellHeightPx'
+        path === 'zoomLevel' ||
+        path === 'panOffsetX' ||
+        path === 'panOffsetY'
       ) {
-        this._fitStageToGrid();
+        this._applyZoomPan();
       }
     });
   }
 
-  _fitStageToGrid() {
-    const cols = this.store.get('gridColumns');
-    const rows = this.store.get('gridRows');
-    const cellW = this.store.get('cellWidthPx');
-    const cellH = this.store.get('cellHeightPx');
-    const w = cols * cellW;
-    const h = rows * cellH;
-    this.stage.width(w);
-    this.stage.height(h);
+  /**
+   * Size the Konva stage to fill its container (the viewport).
+   * The grid content is then zoomed/panned within this viewport.
+   */
+  _fitStageToContainer() {
+    const parent = this.container.parentElement;
+    if (!parent) return;
+    const w = parent.clientWidth - 24; // padding
+    const h = parent.clientHeight - 24;
+    if (w > 0 && h > 0) {
+      this.stage.width(w);
+      this.stage.height(h);
+      this.stage.batchDraw();
+    }
+  }
+
+  /**
+   * Apply the current zoom level and pan offset from the store to the stage.
+   * Each layer's content is drawn in unscaled coordinates; the stage scale
+   * and position handle the viewport transform.
+   */
+  _applyZoomPan() {
+    const level = this.store.get('zoomLevel');
+    const panX = this.store.get('panOffsetX');
+    const panY = this.store.get('panOffsetY');
+    this.stage.scale({ x: level, y: level });
+    this.stage.position({ x: panX, y: panY });
     this.stage.batchDraw();
   }
 
@@ -67,8 +85,7 @@ export class AppStage {
     if (!parent || !window.ResizeObserver) return;
 
     this._resizeObserver = new ResizeObserver(() => {
-      // Stage size tracks the grid, not the container
-      // Container scrolling is handled by CSS overflow:auto
+      this._fitStageToContainer();
     });
     this._resizeObserver.observe(parent);
   }
