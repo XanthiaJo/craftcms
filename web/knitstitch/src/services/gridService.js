@@ -28,6 +28,26 @@ export function clearCells(store) {
 }
 
 /**
+ * Remove manually filled cells that are NOT inside a sketch shape.
+ * Cells that overlap with sketch-derived fills are kept.
+ *
+ * @param {Store} store
+ * @param {Set<string>} sketchFilled - cell keys derived from sketch lines
+ */
+export function clearManualCellsOutsideSketch(store, sketchFilled) {
+    const manual = store.get('filledCells');
+    if (!manual || manual.size === 0) return;
+    const sketchSet = sketchFilled ?? new Set();
+    const remaining = new Set();
+    for (const key of manual) {
+        if (sketchSet.has(key)) {
+            remaining.add(key);
+        }
+    }
+    store.set('filledCells', remaining);
+}
+
+/**
  * Returns the bounding box of all filled cells as
  * { minRow, minCol, maxRow, maxCol } or null if no cells are filled.
  */

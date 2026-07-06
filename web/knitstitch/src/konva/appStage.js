@@ -35,6 +35,7 @@ export class AppStage {
     this.sketchLayer.layer.zIndex(2);
 
     this._fitStageToContainer();
+    this.gridLayer.redraw();
     this._applyZoomPan();
     this._setupResizeObserver();
 
@@ -86,6 +87,7 @@ export class AppStage {
 
     this._resizeObserver = new ResizeObserver(() => {
       this._fitStageToContainer();
+      this.gridLayer.redraw();
     });
     this._resizeObserver.observe(parent);
   }
