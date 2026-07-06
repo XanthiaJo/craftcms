@@ -20,8 +20,8 @@
 {% set generatedChangeLog = include('_generated/change-log.twig', ignore_missing = true) %}
 
 <main class="page-main">
-    <div class="container page-layout">
-        <div class="panel">
+    <div class="shell page-layout">
+        <div class="container">
             {% if generatedChangeLog|trim %}
                 {{ generatedChangeLog|raw }}
             {% else %}
@@ -30,14 +30,12 @@
             {% endif %}
         </div>
 
-        <aside class="panel panel--sticky">
-            <h2>About this log</h2>
-            <div class="panel-content">This page is generated from conventional commits and git tags during the build step.</div>
-            <div class="panel-sections">
-                <section class="panel-section">
-                    <h3>What appears here</h3>
-                    <div class="body panel-content">
-                        The latest build snapshot, production version, commit count, and recent commits grouped into simple readable sections.
+        <aside class="sidebar sidebar--sticky">
+            <div class="container-sections">
+                <section class="container-section--headed">
+                    <div class="container-section-header">About this log</div>
+                    <div class="container-section-body">
+                        <div class="body">This page is generated from conventional commits and git tags during the build step. The latest build snapshot, production version, commit count, and recent commits grouped into simple readable sections.</div>
                     </div>
                 </section>
             </div>

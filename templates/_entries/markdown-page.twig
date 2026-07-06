@@ -20,8 +20,8 @@
 } %}
 
 <main class="page-main">
-    <div class="container page-layout">
-        <div class="panel">
+    <div class="shell page-layout">
+        <div class="container">
         {% if markdownSource %}
             <div class="body">
                 {{ markdownSource|markdown('gfm')|purify }}
@@ -32,19 +32,20 @@
         {% endif %}
         </div>
 
-        <aside class="panel panel--sticky">
-            <h2>Source</h2>
-            <div class="panel-content">This entry renders markdown directly from GitHub.</div>
-            <div class="panel-sections">
-                <section class="panel-section">
-                    <h3>Content URL</h3>
-                    {% if entry.markdownSourceUrl %}
-                        <div class="body panel-content">
-                            <a style="word-break: break-word" href="{{ entry.markdownSourceUrl }}" target="_blank" rel="noopener noreferrer">{{ entry.markdownSourceUrl }}</a>
-                        </div>
-                    {% else %}
-                        <div class="body panel-content">No source URL set.</div>
-                    {% endif %}
+        <aside class="sidebar sidebar--sticky">
+            <div class="container-sections">
+                <section class="container-section--headed">
+                    <div class="container-section-header">Source</div>
+                    <div class="container-section-body">
+                        <div class="body">This entry renders markdown directly from GitHub.</div>
+                        {% if entry.markdownSourceUrl %}
+                            <div class="body">
+                                <a style="word-break: break-word" href="{{ entry.markdownSourceUrl }}" target="_blank" rel="noopener noreferrer">{{ entry.markdownSourceUrl }}</a>
+                            </div>
+                        {% else %}
+                            <div class="body">No source URL set.</div>
+                        {% endif %}
+                    </div>
                 </section>
             </div>
         </aside>

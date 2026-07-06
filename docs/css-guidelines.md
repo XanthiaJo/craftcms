@@ -1,4 +1,4 @@
-# CSS Guidelines
+﻿# CSS Guidelines
 
 This project keeps styling centralized in `web/css/site.css`.
 
@@ -42,25 +42,27 @@ The shared layout already includes:
 
 - site header
 - page subheader
-- content width
-- card styles
-- sidebar panel styles
+- content width (`.shell`)
+- panel styles
+- sidebar container styles
 - footer
 
 Before adding a new wrapper or spacing rule, check whether an existing layout class can be reused.
 
 Surface rules:
 
-- `.card` is the shared white surface for cards (archive grid, panel inception, homepage)
-- `.card--padded` adds 24px padding for standalone cards inside a panel
-- `.card--image-top` removes padding so an image bleeds to the card edges
-- `.card-body` is the padded content wrapper inside an image-top card
-- `.panel` is the shared colored surface for the page subheader, general content pages, and sidebars
-- `.panel--sticky` makes a sidebar panel stick below the site header
+- `.shell` is the 80% width centered wrapper used on every page
+- `.container` is the shared colored surface for the page subheader, general content pages, and sidebars
+- `.container--sticky` makes a sidebar container stick below the site header
+- `.container-section--headed` is a bordered group box with a grey header bar (`.container-section-header`) and white content body (`.container-section-body`); use it for labelled sub-sections inside a container or as a standalone group box on any page
+- `.panel` is the shared white surface for content boxes (archive grid, panel inception, homepage)
+- `.panel--padded` adds 24px padding for standalone panels inside a container
+- `.panel--image-top` removes padding so an image bleeds to the panel edges
+- `.panel-body` is the padded content wrapper inside an image-top panel
 
 ### Panel Inception
 
-Cards can sit inside panels to create grouped content sections. This is the pattern used on single post pages and the style guide. Consecutive `.card` elements inside a `.panel` get a 28px gap automatically.
+Panels can sit inside containers to create grouped content sections. This is the pattern used on single post pages and the style guide. Consecutive `.panel` elements inside a `.container` get a 28px gap automatically.
 
 ## Markdown And Rich Text
 
@@ -78,20 +80,20 @@ That file already handles:
 
 If a page needs a special content treatment, add a scoped class in `site.css` and keep the template markup clean.
 
-## Cards And Chips
+## Panels And Chips
 
-Cards should use the shared card classes and chip classes rather than per-template styling.
+Panels should use the shared panel classes and chip classes rather than per-template styling.
 
 Use the existing pattern:
 
-- `.card` — base (white bg, border, radius, flex column)
-- `.card--padded` — 24px padding modifier
-- `.card--image-top` — image-top modifier (padding: 0)
-- `.card-body` — padded content wrapper inside image-top cards
-- `.card-heading` — heading wrapper inside a card body
-- `.card-excerpt` — clamped excerpt text (3-line truncation)
-- `.card-chips` — chip row inside a card body
-- `.card-category-chips` — category chip row inside a card heading
+- `.panel` — base (white bg, border, radius, flex column)
+- `.panel--padded` — 24px padding modifier
+- `.panel--image-top` — image-top modifier (padding: 0)
+- `.panel-body` — padded content wrapper inside image-top panels
+- `.panel-heading` — heading wrapper inside a panel body
+- `.panel-excerpt` — clamped excerpt text (3-line truncation)
+- `.panel-chips` — chip row inside a panel body
+- `.panel-category-chips` — category chip row inside a panel heading
 
 ### Images
 
@@ -103,7 +105,7 @@ Use the existing pattern:
 
 Generic `ul` and `ol` are styled by default — no classes needed. Use `.list` only when you need a markerless list (sidebar navigation, tag clouds).
 
-If a page needs a white content box, add `card` to the wrapper and keep any page-specific layout class separate.
+If a page needs a white content box, add `panel` to the wrapper and keep any page-specific layout class separate.
 
 If a new chip color is needed, add a named `color-pair-*` variant in `site.css` rather than using inline background colors.
 

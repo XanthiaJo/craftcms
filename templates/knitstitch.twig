@@ -11,40 +11,52 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Open+Sans:wght@400;600;700&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/site.css">
-  <link rel="stylesheet" href="/dist/main.css">
 </head>
-<body>
+<body class="page-knitstitch">
   {% include '_partials/site-header.twig' %}
   {% include '_partials/page-subheader.twig' with { pageName: 'KnitStitch Grid' } %}
 
-  <div class="container">
+  <div class="shell">
     <div id="app-container">
 
     {# Ribbon workspace bar #}
     <div class="ribbon-bar">
       <div class="ribbon-modes">
-        <button class="workspace-btn active" onclick="setWorkspace('grid')" data-workspace="grid">
+        <button class="workspace-btn active" onclick="setWorkspace('grid', this)" data-workspace="grid">
           <span class="icon">&#x25A6;</span>
           <span class="label">Grid</span>
         </button>
-        <button class="workspace-btn" onclick="setWorkspace('sketch')" data-workspace="sketch">
+        <button class="workspace-btn" onclick="setWorkspace('sketch', this)" data-workspace="sketch">
           <span class="icon">&#x270F;</span>
           <span class="label">Sketch</span>
         </button>
-        <button class="workspace-btn" onclick="setWorkspace('overlay')" data-workspace="overlay">
+        <button class="workspace-btn" onclick="setWorkspace('overlay', this)" data-workspace="overlay">
           <span class="icon">&#x1F5BC;</span>
           <span class="label">Overlay</span>
+        </button>
+        <button class="workspace-btn" onclick="setWorkspace('templates', this)" data-workspace="templates">
+          <span class="icon">&#x1F381;</span>
+          <span class="label">Templates</span>
         </button>
       </div>
     </div>
 
     {# Main workspace #}
-    <div class="workspace">
+    <div class="page-layout page-layout--wide">
 
       {# Left: Canvas area #}
       <div class="canvas-area">
         <div class="canvas-wrapper">
           <div class="canvas-content" id="konva-stage"></div>
+        </div>
+        {# Floating zoom control — top-left of canvas area #}
+        <div class="zoom-control" id="zoom-control">
+          <button class="zoom-btn" id="zoom-in" title="Zoom in">&#x2B;</button>
+          <span class="zoom-level" id="zoom-level">100%</span>
+          <button class="zoom-btn" id="zoom-out" title="Zoom out">&#x2212;</button>
+          <div class="zoom-divider"></div>
+          <button class="zoom-btn" id="zoom-fit" title="Fit to screen">&#x29C9;</button>
+          <button class="zoom-btn" id="zoom-reset" title="Reset to 100%">&#x21BB;</button>
         </div>
       </div>
 
@@ -53,9 +65,9 @@
 
         {# Grid workspace sidebar #}
         <div class="workspace-panel active" id="panel-grid">
-          <div class="group-box">
-            <div class="group-header">Gauge (per 4 inches)</div>
-            <div class="group-body">
+          <div class="container-section--headed">
+            <div class="container-section-header">Gauge (per 4 inches)</div>
+            <div class="container-section-body">
               <div class="form-row">
                 <label>Stitches:</label>
                 <input type="number" id="gauge-stitches" value="20">
@@ -67,9 +79,9 @@
             </div>
           </div>
 
-          <div class="group-box">
-            <div class="group-header">Grid (Cells)</div>
-            <div class="group-body">
+          <div class="container-section--headed">
+            <div class="container-section-header">Grid (Cells)</div>
+            <div class="container-section-body">
               <div class="form-row">
                 <label>Columns:</label>
                 <input type="number" id="grid-cols" value="30">
@@ -78,18 +90,18 @@
                 <label>Rows:</label>
                 <input type="number" id="grid-rows" value="30">
               </div>
-              <div class="info-text" style="margin-top:8px;" id="grid-info">
+              <div class="caption" style="margin-top:8px;" id="grid-info">
                 <strong>Grid: 30 x 30 cells</strong> (900 total cells)
               </div>
-              <div class="info-text" id="cell-size-info">
+              <div class="caption" id="cell-size-info">
                 Cell size: 20px wide x 28px high
               </div>
             </div>
           </div>
 
-          <div class="group-box">
-            <div class="group-header">Finished Size</div>
-            <div class="group-body">
+          <div class="container-section--headed">
+            <div class="container-section-header">Finished Size</div>
+            <div class="container-section-body">
               <p id="finished-width">Width: -- in</p>
               <p id="finished-height">Height: -- in</p>
               <button class="button button-primary" id="btn-recalculate" style="margin-top:8px;">Recalculate</button>
@@ -99,9 +111,9 @@
 
         {# Sketch workspace sidebar #}
         <div class="workspace-panel" id="panel-sketch">
-          <div class="group-box">
-            <div class="group-header">Sketch</div>
-            <div class="group-body">
+          <div class="container-section--headed">
+            <div class="container-section-header">Sketch</div>
+            <div class="container-section-body">
               <div class="form-row">
                 <label>Line colour:</label>
                 <select id="sketch-color">
@@ -134,46 +146,46 @@
                 <button class="button button-sm" id="sketch-clear">Clear</button>
                 <button class="button button-sm" id="sketch-delete">Delete</button>
               </div>
-              <p class="info-text">Click to place points, chain lines. Snap ring = existing point. Right-click or Esc to cancel.</p>
+              <p class="caption">Click to place points, chain lines. Snap ring = existing point. Right-click or Esc to cancel.</p>
             </div>
           </div>
 
-          <div class="group-box">
-            <div class="group-header">Draw</div>
-            <div class="group-body">
+          <div class="container-section--headed">
+            <div class="container-section-header">Draw</div>
+            <div class="container-section-body">
               <p style="font-size:12px;font-weight:600;margin-bottom:6px;">Shape tools:</p>
               <div class="toggle-group">
-                <button class="toggle-btn" id="tool-line">Line</button>
-                <button class="toggle-btn" disabled>Circle</button>
-                <button class="toggle-btn" disabled>Rectangle</button>
-                <button class="toggle-btn" disabled>Triangle</button>
+                <button class="button button-sm" id="tool-select">Select</button>
+                <button class="button button-sm" id="tool-line">Line</button>
+                <button class="button button-sm" disabled>Circle</button>
+                <button class="button button-sm" disabled>Rectangle</button>
+                <button class="button button-sm" disabled>Triangle</button>
               </div>
-              <button class="toggle-btn" id="tool-select" style="display:none;">Select</button>
-              <p class="hint-text">Basic geometric shapes for sketching. (Coming soon)</p>
+              <p class="caption">Basic geometric shapes for sketching. (Coming soon)</p>
             </div>
           </div>
 
-          <div class="group-box">
-            <div class="group-header">Constraints</div>
-            <div class="group-body">
+          <div class="container-section--headed">
+            <div class="container-section-header">Constraints</div>
+            <div class="container-section-body">
               <p style="font-size:12px;font-weight:600;margin-bottom:6px;">Apply constraint:</p>
               <div class="toggle-group">
-                <button class="toggle-btn" id="tool-dimension">Dimension</button>
-                <button class="toggle-btn" disabled>H/V</button>
-                <button class="toggle-btn" disabled>Coincident</button>
-                <button class="toggle-btn" disabled>Tangent</button>
-                <button class="toggle-btn" id="tool-equal">Equal</button>
-                <button class="toggle-btn" disabled>Parallel</button>
-                <button class="toggle-btn" id="tool-perpendicular">Perpendicular</button>
-                <button class="toggle-btn" id="tool-midpoint">Midpoint</button>
+                <button class="button button-sm" id="tool-dimension">Dimension</button>
+                <button class="button button-sm" disabled>H/V</button>
+                <button class="button button-sm" disabled>Coincident</button>
+                <button class="button button-sm" disabled>Tangent</button>
+                <button class="button button-sm" id="tool-equal">Equal</button>
+                <button class="button button-sm" disabled>Parallel</button>
+                <button class="button button-sm" id="tool-perpendicular">Perpendicular</button>
+                <button class="button button-sm" id="tool-midpoint">Midpoint</button>
               </div>
-              <p class="hint-text">Constraints enforce geometric relationships between sketch entities.</p>
+              <p class="caption">Constraints enforce geometric relationships between sketch entities.</p>
             </div>
           </div>
 
-          <div class="group-box">
-            <div class="group-header">Objects</div>
-            <div class="group-body">
+          <div class="container-section--headed">
+            <div class="container-section-header">Objects</div>
+            <div class="container-section-body">
               <ul class="object-list" id="sketch-object-list">
               </ul>
             </div>
@@ -182,9 +194,9 @@
 
         {# Overlay workspace sidebar #}
         <div class="workspace-panel" id="panel-overlay">
-          <div class="group-box">
-            <div class="group-header">Image Overlay</div>
-            <div class="group-body">
+          <div class="container-section--headed">
+            <div class="container-section-header">Image Overlay</div>
+            <div class="container-section-body">
               <div class="form-row">
                 <input type="text" id="overlay-path" placeholder="No image selected" readonly style="flex:1;">
                 <button class="button button-sm" id="overlay-browse">Browse</button>
@@ -203,6 +215,18 @@
           </div>
         </div>
 
+        {# Templates workspace sidebar #}
+        <div class="workspace-panel" id="panel-templates">
+          <div class="container-section--headed">
+            <div class="container-section-header">Templates</div>
+            <div class="container-section-body">
+              <p class="caption">Click a template to generate it onto the grid. Generated lines can be manipulated in the Sketch workspace.</p>
+              <div class="toggle-group" id="template-list">
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
     </div>
@@ -210,10 +234,10 @@
   </div>
 
   <script>
-    function setWorkspace(ws) {
-      document.querySelectorAll('.workspace-btn').forEach(btn => btn.classList.remove('active'));
+    function setWorkspace(ws, btn) {
+      document.querySelectorAll('.workspace-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.workspace-panel').forEach(p => p.classList.remove('active'));
-      event.currentTarget.classList.add('active');
+      btn.classList.add('active');
       document.getElementById('panel-' + ws).classList.add('active');
     }
   </script>

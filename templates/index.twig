@@ -14,14 +14,14 @@
 {% set heroImage = heroEntry and heroEntry.featuredImage ? heroEntry.featuredImage.one() : null %}
 
 <section class="home-hero"{% if heroImage %} style="--home-hero-image: url('{{ heroImage.url }}');"{% endif %}>
-    <div class="container home-hero-inner">
+    <div class="shell home-hero-inner">
         <h1>Hello There!</h1>
         <p class="subtitle">I'm Karima</p>
     </div>
 </section>
 
 <main class="home-main">
-    <div class="container">
+    <div class="shell">
         <section class="home-intro">
             <h2>{{ homeHeading }}</h2>
             <p>{{ homeIntro }}</p>
@@ -35,13 +35,13 @@
                     {% set cardText = card.getFieldValue('homeCardText') %}
                     {% set cardLink = card.getFieldValue('homeCardLink') %}
                     {% if cardLink %}
-                        <a class="home-project-card-link" href="{{ cardLink }}">
+                        <a class="home-project-panel-link" href="{{ cardLink }}">
                     {% endif %}
-                    <article class="card card--image-top">
+                    <article class="panel panel--image-top">
                         {% if cardImage %}
                             <img class="thumb" src="{{ cardImage.url }}" alt="{{ cardImage.title ?: card.title }}">
                         {% endif %}
-                        <div class="card-body">
+                        <div class="panel-body">
                             <h3>{{ card.title }}</h3>
                             {% if cardText %}
                                 <p class="body">{{ cardText }}</p>

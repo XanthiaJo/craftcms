@@ -38,17 +38,17 @@
 {% endif %}
 
 <main class="page-main">
-    <div class="container page-layout">
-        <div class="panel">
+    <div class="shell page-layout">
+        <div class="container">
 
             {# ===== Top card: featured image (bleeds to edges) + header + body + gallery ===== #}
-            <div class="card card--image-top">
+            <div class="panel panel--image-top">
                 {% if featuredImage %}
                     <img class="thumb" src="{{ featuredImage.url }}" alt="{{ featuredImage.title ?: entry.title }}">
                 {% endif %}
-                <div class="card-body">
-                    <div class="panel-sections">
-                        <div class="panel-section">
+                <div class="panel-body">
+                    <div class="container-sections">
+                        <div class="container-section">
                             <h1>{{ entry.title }}</h1>
                             <p class="caption">{{ entry.postDate|date('F j, Y') }}</p>
                             {% if entryCategories|length %}
@@ -66,7 +66,7 @@
                                 </div>
                             {% endif %}
                         </div>
-                        <div class="panel-section">
+                        <div class="container-section">
                             <div class="body">
                                 {% if entry.body %}
                                     {{ entry.body|nl2br }}
@@ -87,12 +87,12 @@
 
             {# ===== Bottom card: instructions ===== #}
             {% if instructionSections|length %}
-                <div class="card card--padded">
+                <div class="panel panel--padded">
                     <section class="instructions" aria-label="Instructions">
                         <h2>Instructions</h2>
-                        <div class="panel-sections">
+                        <div class="container-sections">
                             {% for section in instructionSections %}
-                                <div class="panel-section">
+                                <div class="container-section">
                                     {% if section.instructionSectionHeading %}
                                         <h3>{{ section.instructionSectionHeading }}</h3>
                                     {% endif %}
@@ -198,8 +198,6 @@
         {% endset %}
 
         {% include '_partials/sidebar.twig' with {
-            title: 'Project details',
-            intro: 'Project type, categories, and tags for this post.',
             sections: [
                 { title: 'Design Source', html: designSourceSidebarHtml },
                 { title: 'Project Type', html: projectTypesSidebarHtml },

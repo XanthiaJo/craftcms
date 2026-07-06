@@ -1,4 +1,4 @@
-# Site Structure
+﻿# Site Structure
 
 This repository has two page systems:
 
@@ -67,7 +67,7 @@ Pages that extend the base layout:
 ## Shared Layout Rules
 
 - Use `web/css/site.css` for the shared layout and typography.
-- Keep page width consistent by using the shared `.container` and page layout classes.
+- Keep page width consistent by using the shared `.shell` and page layout classes.
 - Avoid per-template spacing, width, and color rules unless the page is truly unique.
 - Prefer semantic markup over template-specific presentation hooks.
 

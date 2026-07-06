@@ -14,16 +14,16 @@
 
 {% block pageContent %}
 <main class="projects">
-    <div class="container">
+    <div class="shell">
         {% set entries = craft.entries.section('posts').type('post').relatedTo(category).orderBy('postDate desc').all() %}
         <div class="grid" aria-label="{{ category.title }} posts">
             {% for entry in entries %}
                 {% set image = entry.featuredImage ? entry.featuredImage.one() : null %}
-                <article class="card card--image-top">
+                <article class="panel panel--image-top">
                     {% if image %}
                         <img class="thumb" src="{{ image.url }}" alt="{{ image.title ?: entry.title }}">
                     {% endif %}
-                    <div class="card-body">
+                    <div class="panel-body">
                         <h3><a href="{{ entry.url }}">{{ entry.title }}</a></h3>
                         {% if entry.body %}
                             <div>{{ entry.body|striptags|trim|slice(0, 145) ~ '...' }}</div>
@@ -31,7 +31,7 @@
                     </div>
                 </article>
             {% else %}
-                <article class="card card--padded">
+                <article class="panel panel--padded">
                     <h3>No posts in this category yet</h3>
                     <div>Check back after more posts are tagged.</div>
                 </article>

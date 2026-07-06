@@ -129,21 +129,21 @@
 {% set hasActiveFilters = selectedCategorySlugs|length or selectedProjectTypeSlugs|length or selectedTagSlugs|length or selectedYears|length %}
 
 <main class="projects">
-    <div class="container page-layout">
+    <div class="shell page-layout">
         <div class="content-main">
             <div class="grid" aria-label="Completed project list">
                 {% for entry in entries %}
                     {% set image = entry.featuredImage ? entry.featuredImage.one() : null %}
-                    <article class="card card--image-top">
+                    <article class="panel panel--image-top">
                     {% if image %}
                         <a href="{{ entry.url }}" aria-label="View {{ entry.title }}">
                             <img class="thumb" src="{{ image.url }}" alt="{{ image.title ?: entry.title }}">
                         </a>
                     {% endif %}
-                    <div class="card-body">
+                    <div class="panel-body">
                         {% set rawEntryDesignSource = attribute(entry, 'designSource') is defined and entry.designSource ? entry.designSource.all() : [] %}
                         {% set entryDesignSource = rawEntryDesignSource[0] ?? null %}
-                        <div class="card-chips">
+                        <div class="panel-chips">
                             {% set rawEntryProjectTypes = attribute(entry, 'projectTypes') is defined and entry.projectTypes ? entry.projectTypes.all() : [] %}
                             {% set entryProjectTypes = [] %}
                             {% for projectType in rawEntryProjectTypes %}
@@ -169,10 +169,10 @@
                                 {% set entryCategories = entryCategories|merge([category]) %}
                             {% endif %}
                         {% endfor %}
-                        <div class="card-heading">
+                        <div class="panel-heading">
                             <h3><a href="{{ entry.url }}">{{ entry.title }}</a></h3>
                             {% if entryCategories|length %}
-                                <div class="card-category-chips">
+                                <div class="panel-category-chips">
                                     {% for category in entryCategories %}
                                         <a class="chip color-pair-{{ attribute(category, 'colourPair') }}" href="{{ postsIndexUrl }}?category[]={{ category.slug|url_encode }}">{{ category.title }}</a>
                                     {% endfor %}
@@ -180,7 +180,7 @@
                             {% endif %}
                         </div>
                         {% set excerpt = entry.body ? entry.body|striptags|trim : '' %}
-                        <div class="card-excerpt">
+                        <div class="panel-excerpt">
                             {% if excerpt %}
                                 {{ excerpt|slice(0, 145) ~ (excerpt|length > 145 ? '...' : '') }}
                             {% endif %}
@@ -189,7 +189,7 @@
                     </div>
                     </article>
                 {% else %}
-                    <article class="card card--padded">
+                    <article class="panel panel--padded">
                         <h3>No posts imported yet</h3>
                         <div>Run the WordPress import script to populate this page.</div>
                         <div class="caption">Awaiting content</div>
@@ -206,13 +206,12 @@
             {% endif %}
         {% endfor %}
         {% set archiveTags = craft.app.tags.getTagGroupByHandle('postTags') ? craft.tags.group('postTags').orderBy('title asc').all() : [] %}
-        <aside class="panel posts-panel">
-            <h2>Browse by</h2>
-            <div class="panel-content">{{ projectsArchiveSidebarIntro }}</div>
+        <aside class="sidebar">
             <form method="get" action="{{ postsIndexUrl }}">
-                <div class="panel-sections">
-                    <section class="panel-section">
-                        <h3>Project Type</h3>
+                <div class="container-sections">
+                    <section class="container-section--headed">
+                        <div class="container-section-header">Project Type</div>
+                        <div class="container-section-body">
                         {% if archiveProjectTypes|length %}
                             <ul class="list">
                                 {% for projectType in archiveProjectTypes %}
@@ -227,11 +226,13 @@
                                 {% endfor %}
                             </ul>
                         {% else %}
-                            <div class="panel-content">No project types</div>
+                            <div class="container-content">No project types</div>
                         {% endif %}
+                        </div>
                     </section>
-                    <section class="panel-section">
-                        <h3>Categories</h3>
+                    <section class="container-section--headed">
+                        <div class="container-section-header">Categories</div>
+                        <div class="container-section-body">
                         {% if topicalCategories|length %}
                             <ul class="list">
                                 {% for category in topicalCategories %}
@@ -246,11 +247,13 @@
                                 {% endfor %}
                             </ul>
                         {% else %}
-                            <div class="panel-content">No categories</div>
+                            <div class="container-content">No categories</div>
                         {% endif %}
+                        </div>
                     </section>
-                    <section class="panel-section">
-                        <h3>Tags</h3>
+                    <section class="container-section--headed">
+                        <div class="container-section-header">Tags</div>
+                        <div class="container-section-body">
                         {% if archiveTags|length %}
                             <ul class="list">
                                 {% for tag in archiveTags %}
@@ -265,11 +268,13 @@
                                 {% endfor %}
                             </ul>
                         {% else %}
-                            <div class="panel-content">No tags</div>
+                            <div class="container-content">No tags</div>
                         {% endif %}
+                        </div>
                     </section>
-                    <section class="panel-section">
-                        <h3>Year</h3>
+                    <section class="container-section--headed">
+                        <div class="container-section-header">Year</div>
+                        <div class="container-section-body">
                         {% if archiveYears|length %}
                             <ul class="list">
                                 {% for archiveYear in archiveYears %}
@@ -285,11 +290,12 @@
                                 {% endfor %}
                             </ul>
                         {% else %}
-                            <div class="panel-content">No years</div>
+                            <div class="container-content">No years</div>
                         {% endif %}
+                        </div>
                     </section>
                 </div>
-                <div class="panel-actions">
+                <div class="container-actions">
                     <button class="button button-primary" type="submit" style="display: none;">Apply filters</button>
                     {% if hasActiveFilters %}
                         <a class="button button-secondary" href="{{ postsIndexUrl }}">Clear filters</a>
