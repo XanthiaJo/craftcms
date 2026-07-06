@@ -83,11 +83,12 @@ If behavior is ambiguous, prefer Fusion 360 style sketch semantics over lightwei
 
 ## Workspace Model
 
-The page has three workspaces:
+The page has four workspaces:
 
-- Grid
-- Sketch
+- Sketch (default on load)
 - Overlay
+- Templates
+- Options (gauge, grid info, finished size)
 
 The Sketch workspace is the one governed by the Fusion-style rules above.
 
@@ -124,31 +125,80 @@ Each colour family has its own selection highlight instead of a single site-wide
 
 Tests live at the repository root under `tests/knit-stitch/`, not inside `web/knitstitch/`.
 
-Unit tests (Vitest):
+### E2E-First Testing Approach
 
+This is a UI/interaction-based system where the real test is whether constraints work when users interact with the canvas. We prioritize e2e tests over unit tests for the following reasons:
+
+- **User experience matters most**: The success criteria are visual and interactive (perpendicular lines stay perpendicular, dimensions stay locked, etc.)
+- **Complex interactions**: Constraints involve multiple moving parts (points, lines, dimensions, solver) that are best tested together
+- **Implementation changes**: The solver implementation can change (local vs global) but user behavior should remain consistent
+- **Visual feedback**: Many constraints are about visual relationships that are hard to unit test meaningfully
+
+### Test Structure
+
+**E2E Tests (Primary)**:
+- `e2e/sketchConstraints.spec.js` - Comprehensive coverage of all user scenarios
+- Tests real user interactions: clicking, dragging, constraint creation, deletion
+- Validates visual outcomes: perpendicularity, dimension locking, constraint satisfaction
+- 15 tests covering all major workflows
+
+**Unit Tests (Supporting)**:
+- Pure logic functions only (geometry calculations, store state, etc.)
+- No testing of solver implementation details
+- No testing of UI interaction flows
+- Current unit tests focus on:
+  - `finishedSizeCalculator.test.js` - Math calculations
+  - `store.test.js` - State management
+  - `closedShapeFill.test.js` - Geometry algorithms
+  - `gridService.test.js` - Grid logic
+  - `storePersistence.test.js` - Data persistence
+  - `midpointConstraint.test.js` / `equalConstraint.test.js` - Basic constraint logic
+  - `anchor.test.js` - Anchor point logic
+  - `undoHistory.test.js` - History management
+
+### Running Tests
+
+Unit tests (Vitest):
 ```bash
 cd tests/knit-stitch
 npx vitest run
 ```
 
 E2E tests (Playwright):
-
 ```bash
 cd tests/knit-stitch
 npx playwright test
 ```
 
 Build (run from `web/knitstitch/`):
-
 ```bash
 npm run build
 ```
 
-Testing expectations:
+### Testing Guidelines
 
-- use Vitest for geometry, state, solver, deletion, and store rules
-- use Playwright for canvas interaction, pointer behavior, and end-to-end UI workflows
-- when Konva hit-testing is flaky in headless browser runs, it is acceptable for Playwright to activate the real tool via UI and then use `window.__knitstitchSketchService` or `window.__knitstitchStore` for the final state-driving step
+**DO use E2E tests for**:
+- Constraint creation and satisfaction
+- Dimension behaviors (driven, locked, editing)
+- User interactions (dragging, selecting, deleting)
+- Visual relationships (perpendicular, coincident, etc.)
+- Complex scenarios with multiple constraints
+
+**DO use Unit tests for**:
+- Pure mathematical functions
+- State management logic
+- Geometry calculations
+- Data persistence
+- Simple, isolated functions
+
+**AVOID unit tests for**:
+- Solver implementation details
+- UI interaction flows
+- Complex constraint scenarios
+- Visual validation
+- Integration between components
+
+The e2e tests are the source of truth for whether the system works correctly from a user perspective.
 
 ## Local Artifacts
 
