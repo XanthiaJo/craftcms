@@ -178,6 +178,7 @@ export class StorePersistence {
     const points = rawPoints.map((raw) => {
       const point = new SketchPoint(raw.id ?? 0, raw.x ?? 0, raw.y ?? 0);
       point.isSelected = !!raw.isSelected;
+      point.isAnchor = !!raw.isAnchor;
       return point;
     });
     const pointById = new Map(points.map((point) => [point.id, point]));

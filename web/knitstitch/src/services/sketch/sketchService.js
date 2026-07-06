@@ -1,5 +1,6 @@
 import { STROKE_COLOR_OPTIONS } from './styleOptions.js';
 import { ConstraintSolver } from './constraintSolver.js';
+import { GlobalConstraintSolver } from './globalConstraintSolver.js';
 import { DimensionTool } from './dimensionTool.js';
 import { ConstraintTool } from './constraintTool.js';
 import { LineTool } from './lineTool.js';
@@ -13,6 +14,7 @@ import {
   SketchObjectKind,
   SketchTool,
 } from './constants.js';
+import { SketchPoint } from '../../models/sketch/sketchPoint.js';
 import { deleteSketchSelection } from './deleteSketchSelection.js';
 import {
   assignConstraintIds as assignSketchConstraintIds,
@@ -47,6 +49,8 @@ export class SketchService {
     this._selectedLines = new Set();
     this._suppressNextClick = false;
     this._constraintSolver = new ConstraintSolver();
+    this._globalConstraintSolver = new GlobalConstraintSolver();
+    this._useGlobalSolver = true; // Set to true to use global solver
     this._dimensionTool = new DimensionTool(this);
     this._constraintTool = new ConstraintTool(this);
     this._lineTool = new LineTool(this);
@@ -98,6 +102,8 @@ export class SketchService {
 
   set activeTool(value) {
     this.store.set('sketch.activeTool', value);
+    // Fill tool enables cell-fill mode; any other tool disables it
+    this.store.set('cellFillEnabled', value === SketchTool.Fill);
     this.cancelCurrentLine();
   }
 
@@ -144,6 +150,9 @@ export class SketchService {
       case SketchTool.Constraint:
         this._constraintTool.onConstraintClick(position, modifiers);
         break;
+      case SketchTool.Anchor:
+        this._onAnchorClick(position, modifiers);
+        break;
     }
   }
 
@@ -172,6 +181,10 @@ export class SketchService {
       this._constraintTool.onConstraintPointClick(pt, multiSelect, position);
       return;
     }
+    if (this.activeTool === SketchTool.Anchor) {
+      this._convertToAnchor(pt);
+      return;
+    }
     this.onCanvasClick(position ?? { x: pt.x, y: pt.y }, modifiers);
   }
 
@@ -189,6 +202,9 @@ export class SketchService {
         break;
       case SketchTool.Constraint:
         this._setSnapCandidate(null);
+        break;
+      case SketchTool.Anchor:
+        this._setSnapCandidate(this._findNearestPoint(position, modifiers.snapEnabled !== false));
         break;
     }
   }
@@ -225,14 +241,34 @@ export class SketchService {
     const originalPosition = { x: this._dragPoint.x, y: this._dragPoint.y };
     this._dragPoint.x = position.x;
     this._dragPoint.y = position.y;
-    this._constraintSolver.solveConstraintsForPoint(
-      this.store.state.sketch,
-      this._dragPoint,
-      originalPosition,
-      modifiers
-    );
+    
+    if (this._useGlobalSolver) {
+      // Global solver handles all constraints simultaneously
+      const movedPoints = new Set([this._dragPoint]);
+      const result = this._globalConstraintSolver.solve(this.store.state.sketch, movedPoints);
+      
+      // If global solver returns null (too many driven dimensions), fall back to local solver
+      if (result === null) {
+        this._constraintSolver.solveConstraintsForPoint(
+          this.store.state.sketch,
+          this._dragPoint,
+          originalPosition,
+          modifiers
+        );
+      }
+    } else {
+      // Local solver (current approach)
+      this._constraintSolver.solveConstraintsForPoint(
+        this.store.state.sketch,
+        this._dragPoint,
+        originalPosition,
+        modifiers
+      );
+    }
+    
     assignSketchConstraintIds(this);
     for (const dim of this.store.state.sketch.dimensions) dim.recompute();
+
     flushSketchArraysInStore(this);
     rebuildSketchObjectsInStore(this);
   }
@@ -318,6 +354,38 @@ export class SketchService {
   _findNearestPoint(position, allowSnap = true, excludePoint = null) {
     const snapRadius = allowSnap ? SNAP_RADIUS : 0.001;
     return nearestPoint(this.store.state.sketch.points, position, snapRadius, excludePoint);
+  }
+
+  /**
+   * Anchor tool: click on empty canvas creates a new anchor point.
+   * If near an existing point, that point is converted instead.
+   */
+  _onAnchorClick(position, modifiers = {}) {
+    const near = this._findNearestPoint(position, modifiers.snapEnabled !== false);
+    if (near) {
+      this._convertToAnchor(near);
+    } else {
+      this._recordSnapshot('Add anchor point');
+      const sketch = this.store.state.sketch;
+      const pt = new SketchPoint(this._nextPointId++, position.x, position.y);
+      pt.isAnchor = true;
+      sketch.points.push(pt);
+      flushSketchArraysInStore(this);
+      rebuildSketchObjectsInStore(this);
+      this.exitToSelect();
+    }
+  }
+
+  /**
+   * Converts an existing point to an anchor point.
+   */
+  _convertToAnchor(pt) {
+    if (pt.isAnchor) return;
+    this._recordSnapshot('Convert point to anchor');
+    pt.isAnchor = true;
+    flushSketchArraysInStore(this);
+    rebuildSketchObjectsInStore(this);
+    this.exitToSelect();
   }
 
   _removeOrphanPoint(point) {

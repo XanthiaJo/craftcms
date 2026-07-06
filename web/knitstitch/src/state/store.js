@@ -8,6 +8,8 @@ class Store {
       cellWidthPx: 20,
       cellHeightPx: 28,
       filledCells: new Set(),    // Set of "r,c" strings for manually toggled cells
+      cellFillEnabled: false,    // when true, grid clicks fill cells even in sketch view (set by Fill tool)
+      currentWorkspace: 'sketch',  // 'sketch' | 'overlay' | 'templates' | 'options'
       stitchesPer4Inches: 20,
       rowsPer4Inches: 28,
       finishedWidth: 0,
@@ -24,7 +26,7 @@ class Store {
       templateMeasurements: null, // set when a template is applied; shape depends on template
       // Sketch state
       sketch: {
-        isActive: false,
+        isActive: true,
         activeTool: 'Select',   // 'Select' | 'Line' | 'Dimension' | 'Constraint'
         constraintSubMode: null, // 'Perpendicular' | 'Midpoint'
         strokeColor: DEFAULT_STROKE_COLOR,

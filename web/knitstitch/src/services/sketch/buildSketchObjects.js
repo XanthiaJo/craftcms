@@ -33,6 +33,18 @@ export function buildSketchObjects(sketch, { findSharedPoint }) {
     });
   }
 
+  // Anchor points
+  for (const pt of sketch.points) {
+    if (!pt.isAnchor) continue;
+    objects.push({
+      kind: SketchObjectKind.Anchor,
+      label: `Anchor A${pt.id + 1}  (${pt.x.toFixed(0)},${pt.y.toFixed(0)})`,
+      refType: 'point',
+      refId: pt.id,
+      isSelected: pt.isSelected,
+    });
+  }
+
   for (const constraint of sketch.constraints || []) {
     let label = constraint?.description ?? 'Constraint';
     let kind = SketchObjectKind.Constraint;

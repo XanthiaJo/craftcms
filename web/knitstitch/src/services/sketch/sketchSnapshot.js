@@ -16,6 +16,7 @@ export function captureSketchSnapshot(sketch, service) {
       x: p.x,
       y: p.y,
       isSelected: p.isSelected,
+      isAnchor: p.isAnchor,
     })),
     lines: sketch.lines.map((l) => ({
       id: l.id,
@@ -74,6 +75,7 @@ export function restoreSketchSnapshot(snapshot, service) {
   const points = snapshot.points.map((raw) => {
     const p = new SketchPoint(raw.id, raw.x, raw.y);
     p.isSelected = raw.isSelected;
+    p.isAnchor = raw.isAnchor ?? false;
     pointById.set(p.id, p);
     return p;
   });
@@ -177,7 +179,7 @@ export function snapshotsEqual(a, b) {
     && a.pendingStartId === b.pendingStartId
     && a.dimPendingAId === b.dimPendingAId
     && a.constraintPendingLineId === b.constraintPendingLineId
-    && arraysEqual(a.points, b.points, (p1, p2) => p1.id === p2.id && p1.x === p2.x && p1.y === p2.y && p1.isSelected === p2.isSelected)
+    && arraysEqual(a.points, b.points, (p1, p2) => p1.id === p2.id && p1.x === p2.x && p1.y === p2.y && p1.isSelected === p2.isSelected && p1.isAnchor === p2.isAnchor)
     && arraysEqual(a.lines, b.lines, (l1, l2) => l1.id === l2.id && l1.startId === l2.startId && l1.endId === l2.endId && l1.isSelected === l2.isSelected)
     && arraysEqual(a.dimensions, b.dimensions, (d1, d2) => d1.id === d2.id && d1.aId === d2.aId && d1.bId === d2.bId && d1.offsetSign === d2.offsetSign && d1.drivenValue === d2.drivenValue && d1.isSelected === d2.isSelected)
     && arraysEqual(a.constraints, b.constraints, (c1, c2) => c1.id === c2.id && c1.type === c2.type && c1.pointAId === c2.pointAId && c1.pointBId === c2.pointBId && c1.lineAId === c2.lineAId && c1.lineBId === c2.lineBId && c1.isSelected === c2.isSelected)

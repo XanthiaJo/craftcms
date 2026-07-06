@@ -140,6 +140,11 @@ export function selectObjectByRef(service, refType, refId, multiSelect = false) 
     if (line) selectLine(service, line, multiSelect);
     return;
   }
+  if (refType === 'point') {
+    const point = service.store.state.sketch.points.find((candidate) => candidate.id === refId);
+    if (point) selectPoint(service, point, multiSelect);
+    return;
+  }
   if (refType === 'dimension') {
     const dim = service.store.state.sketch.dimensions.find((candidate) => candidate.id === refId);
     if (dim) selectDimension(service, dim, multiSelect);

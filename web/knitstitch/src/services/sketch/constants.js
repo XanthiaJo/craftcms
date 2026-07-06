@@ -5,7 +5,9 @@ export const SketchTool = {
   Select: 'Select',
   Line: 'Line',
   Dimension: 'Dimension',
-  Constraint: 'Constraint'
+  Constraint: 'Constraint',
+  Anchor: 'Anchor',
+  Fill: 'Fill'
 };
 
 export const ConstraintSubMode = {
@@ -23,4 +25,5 @@ export const SketchObjectKind = {
   Perpendicular: 'Perpendicular',
   Midpoint: 'Midpoint',
   Equal: 'Equal',
+  Anchor: 'Anchor',
 };

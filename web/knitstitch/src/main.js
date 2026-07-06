@@ -5,6 +5,7 @@ import { Store } from './state/store.js';
 import { StorePersistence } from './state/storePersistence.js';
 import { SketchService } from './services/sketch/sketchService.js';
 import { setupMainUi } from './ui/mainUi.js';
+import { computeFilledCellsFromSketch } from './services/sketch/closedShapeFill.js';
 
 const store = new Store();
 const persistence = new StorePersistence(store);
@@ -16,6 +17,7 @@ persistence.attach();
 if (typeof window !== 'undefined') {
   window.__knitstitchStore = store;
   window.__knitstitchSketchService = sketchService;
+  window.__knitstitchComputeFilledCellsFromSketch = computeFilledCellsFromSketch;
 }
 
 const mainUi = setupMainUi({ store, sketchService });

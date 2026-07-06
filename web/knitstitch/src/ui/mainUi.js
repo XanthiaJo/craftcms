@@ -1,7 +1,7 @@
 import { GaugeSettings } from '../models/gaugeSettings.js';
 import { PatternDimensions } from '../models/patternDimensions.js';
 import { FinishedSizeCalculator } from '../services/finishedSizeCalculator.js';
-import { updateCellSizing, getCombinedBoundingBox } from '../services/gridService.js';
+import { updateCellSizing, getCombinedBoundingBox, clearManualCellsOutsideSketch } from '../services/gridService.js';
 import { computeFilledCellsFromSketch } from '../services/sketch/closedShapeFill.js';
 import {
   ZOOM_STEP,
@@ -36,6 +36,7 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
     finishedWidth: getElement(documentObj, 'finished-width'),
     finishedHeight: getElement(documentObj, 'finished-height'),
     recalcBtn: getElement(documentObj, 'btn-recalculate'),
+    clearManualCellsBtn: getElement(documentObj, 'btn-clear-manual-cells'),
     sketchColorSelect: getElement(documentObj, 'sketch-color'),
     sketchThicknessSlider: getElement(documentObj, 'sketch-thickness'),
     sketchUndoBtn: getElement(documentObj, 'sketch-undo'),
@@ -44,6 +45,8 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
     sketchObjectList: getElement(documentObj, 'sketch-object-list'),
     toolLineBtn: getElement(documentObj, 'tool-line'),
     toolSelectBtn: getElement(documentObj, 'tool-select'),
+    toolAnchorBtn: getElement(documentObj, 'tool-anchor'),
+    toolFillBtn: getElement(documentObj, 'tool-fill'),
     toolDimensionBtn: getElement(documentObj, 'tool-dimension'),
     toolPerpendicularBtn: getElement(documentObj, 'tool-perpendicular'),
     toolMidpointBtn: getElement(documentObj, 'tool-midpoint'),
@@ -95,6 +98,7 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
       store.get('sketch.lines'),
       cw,
       ch,
+      0.3 // Use 30% threshold for consistency
     );
     const bbox = getCombinedBoundingBox(filledCells, sketchFilled);
     const filledCount = filledCells.size + sketchFilled.size;
@@ -127,6 +131,7 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
       store.get('sketch.lines'),
       cw,
       ch,
+      0.3 // Use 30% threshold for consistency
     );
     const bbox = getCombinedBoundingBox(filledCells, sketchFilled);
     const stitchCount = bbox ? (bbox.maxCol - bbox.minCol + 1) : 0;
@@ -148,6 +153,8 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
 
     toggleActive(refs.toolLineBtn, sketch.activeTool === SketchTool.Line);
     toggleActive(refs.toolSelectBtn, sketch.activeTool === SketchTool.Select);
+    toggleActive(refs.toolAnchorBtn, sketch.activeTool === SketchTool.Anchor);
+    toggleActive(refs.toolFillBtn, sketch.activeTool === SketchTool.Fill);
     toggleActive(refs.toolDimensionBtn, sketch.activeTool === SketchTool.Dimension);
     toggleActive(
       refs.toolPerpendicularBtn,
@@ -282,6 +289,14 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
 
   bindIfPresent(refs.recalcBtn, 'click', recalculateSize);
 
+  // Clear manual cells that are not inside a sketch shape
+  bindIfPresent(refs.clearManualCellsBtn, 'click', () => {
+    const cw = store.get('cellWidthPx');
+    const ch = store.get('cellHeightPx');
+    const sketchFilled = computeFilledCellsFromSketch(store.get('sketch.lines'), cw, ch);
+    clearManualCellsOutsideSketch(store, sketchFilled);
+  });
+
   bindIfPresent(refs.sketchColorSelect, 'change', () => {
     sketchService.strokeColor = refs.sketchColorSelect.value;
   });
@@ -309,6 +324,14 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
 
   bindIfPresent(refs.toolSelectBtn, 'click', () => {
     sketchService.activeTool = SketchTool.Select;
+  });
+
+  bindIfPresent(refs.toolAnchorBtn, 'click', () => {
+    sketchService.activeTool = SketchTool.Anchor;
+  });
+
+  bindIfPresent(refs.toolFillBtn, 'click', () => {
+    sketchService.activeTool = SketchTool.Fill;
   });
 
   bindIfPresent(refs.toolDimensionBtn, 'click', () => {
@@ -486,6 +509,7 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
     const originalSetWorkspace = windowObj.setWorkspace;
     windowObj.setWorkspace = function (ws, btn) {
       if (originalSetWorkspace) originalSetWorkspace.call(this, ws, btn);
+      store.set('currentWorkspace', ws);
       sketchService.isActive = ws === 'sketch' || ws === 'templates';
     };
   }

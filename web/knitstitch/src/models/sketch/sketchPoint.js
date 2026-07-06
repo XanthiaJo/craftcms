@@ -4,6 +4,7 @@ export class SketchPoint {
     this.x = x;
     this.y = y;
     this.isSelected = false;
+    this.isAnchor = false;
   }
 
   get dotX() {
@@ -15,6 +16,7 @@ export class SketchPoint {
   }
 
   toString() {
-    return `P${this.id} (${this.x.toFixed(1)}, ${this.y.toFixed(1)})`;
+    const prefix = this.isAnchor ? 'A' : 'P';
+    return `${prefix}${this.id} (${this.x.toFixed(1)}, ${this.y.toFixed(1)})`;
   }
 }

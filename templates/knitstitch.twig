@@ -22,11 +22,7 @@
     {# Ribbon workspace bar #}
     <div class="ribbon-bar">
       <div class="ribbon-modes">
-        <button class="workspace-btn active" onclick="setWorkspace('grid', this)" data-workspace="grid">
-          <span class="icon">&#x25A6;</span>
-          <span class="label">Grid</span>
-        </button>
-        <button class="workspace-btn" onclick="setWorkspace('sketch', this)" data-workspace="sketch">
+        <button class="workspace-btn active" onclick="setWorkspace('sketch', this)" data-workspace="sketch">
           <span class="icon">&#x270F;</span>
           <span class="label">Sketch</span>
         </button>
@@ -35,8 +31,12 @@
           <span class="label">Overlay</span>
         </button>
         <button class="workspace-btn" onclick="setWorkspace('templates', this)" data-workspace="templates">
-          <span class="icon">&#x1F381;</span>
+          <span class="icon">&#x1F4D0;</span>
           <span class="label">Templates</span>
+        </button>
+        <button class="workspace-btn" onclick="setWorkspace('options', this)" data-workspace="options">
+          <span class="icon">&#x2699;</span>
+          <span class="label">Options</span>
         </button>
       </div>
     </div>
@@ -63,8 +63,8 @@
       {# Right: Sidebar — content swaps with workspace #}
       <div class="sidebar" id="sidebar">
 
-        {# Grid workspace sidebar #}
-        <div class="workspace-panel active" id="panel-grid">
+        {# Options workspace sidebar (formerly Grid) #}
+        <div class="workspace-panel" id="panel-options">
           <div class="container-section--headed">
             <div class="container-section-header">Gauge (per 4 inches)</div>
             <div class="container-section-body">
@@ -88,6 +88,9 @@
               <div class="caption" id="cell-size-info">
                 Cell size: 20px wide x 28px high
               </div>
+              <div style="display:flex;gap:8px;margin-top:8px;">
+                <button class="button button-sm" id="btn-clear-manual-cells" title="Remove manually filled cells that are not inside a sketch shape">Clear Manual</button>
+              </div>
             </div>
           </div>
 
@@ -102,14 +105,14 @@
         </div>
 
         {# Sketch workspace sidebar #}
-        <div class="workspace-panel" id="panel-sketch">
+        <div class="workspace-panel active" id="panel-sketch">
           <div class="container-section--headed">
             <div class="container-section-header">Sketch</div>
             <div class="container-section-body">
               <div class="form-row">
                 <label>Line colour:</label>
                 <select id="sketch-color">
-                  <option value="#ca9b52" selected class="color-option"><span class="color-swatch" style="background:#ca9b52;"></span> Gold</option>
+                  <option value="#8b5d1f" selected class="color-option"><span class="color-swatch" style="background:#8b5d1f;"></span> Gold</option>
                   <option value="#E63946" class="color-option"><span class="color-swatch" style="background:#E63946;"></span> Red</option>
                   <option value="#FF6B35" class="color-option"><span class="color-swatch" style="background:#FF6B35;"></span> Orange</option>
                   <option value="#F4C430" class="color-option"><span class="color-swatch" style="background:#F4C430;"></span> Yellow</option>
@@ -149,6 +152,8 @@
               <p style="font-size:12px;font-weight:600;margin-bottom:6px;">Shape tools:</p>
               <div class="toggle-group">
                 <button class="button button-sm" id="tool-select">Select</button>
+                <button class="button button-sm" id="tool-fill">Fill</button>
+                <button class="button button-sm" id="tool-anchor">Anchor</button>
                 <button class="button button-sm" id="tool-line">Line</button>
                 <button class="button button-sm" disabled>Circle</button>
                 <button class="button button-sm" disabled>Rectangle</button>
