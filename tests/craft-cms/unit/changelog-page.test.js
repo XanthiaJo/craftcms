@@ -18,7 +18,7 @@ test('changelog page template renders the generated build history fragment', () 
   assert.match(template, /Change log unavailable/);
   assert.match(template, /generated from conventional commits and git tags/i);
   assert.match(generated, /<div class="container-sections">/);
-  assert.match(generated, /<section class="container-section--headed">/);
+  assert.match(generated, /<section class="panel panel--padded">/);
   assert.match(generated, /Build Snapshot/);
   assert.match(generated, /Change Types/);
   assert.match(generated, /aria-label="Change log sections"/);
@@ -30,7 +30,7 @@ test('changelog page template renders the generated build history fragment', () 
   assert.match(generated, /in index\.twig, category\.twig, and tag\.twig/i);
   assert.match(siteCss, /\.container-actions\s*\{[\s\S]*display:\s*flex;/);
   assert.match(siteCss, /\.container-actions\s*\{[\s\S]*align-items:\s*center;/);
-  assert.match(siteCss, /\.container-section--headed\s*\{[\s\S]*border:\s*1px solid var\(--border\);/);
+  assert.match(siteCss, /\.panel\s*\{[\s\S]*border:\s*1px solid var\(--border\);/);
   assert.doesNotMatch(siteCss, /\.change-log/);
   assert.doesNotMatch(generated, /\{\%|\{\{|\{#/);
   assert.doesNotMatch(generated, /change-log-list|change-log-item-title|change-log-item-meta/);
