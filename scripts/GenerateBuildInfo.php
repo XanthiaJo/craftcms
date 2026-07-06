@@ -394,19 +394,22 @@ JS;
     ];
 
     $content = '';
-    $content .= "<div class=\"panel-sections\">\n";
-    $content .= "  <section class=\"panel-section\">\n";
-    $content .= "    <h2>Build Snapshot</h2>\n";
-    $content .= "    <div class=\"panel-actions\">\n";
-    $content .= '      <span class="chip color-pair-ink">Version ' . escapeHtml($displayVersion) . "</span>\n";
-    $content .= '      <span class="chip color-pair-stone">' . escapeHtml((string)$commitCount) . " commits</span>\n";
+    $content .= "<div class=\"container-sections\">\n";
+    $content .= "  <section class=\"container-section--headed\">\n";
+    $content .= "    <div class=\"container-section-header\">Build Snapshot</div>\n";
+    $content .= "    <div class=\"container-section-body\">\n";
+    $content .= "      <div class=\"container-actions\">\n";
+    $content .= '        <span class="chip color-pair-ink">Version ' . escapeHtml($displayVersion) . "</span>\n";
+    $content .= '        <span class="chip color-pair-stone">' . escapeHtml((string)$commitCount) . " commits</span>\n";
+    $content .= "      </div>\n";
+    $content .= "      <p class=\"body\">Generated from conventional commits and git tags during the site build.</p>\n";
     $content .= "    </div>\n";
-    $content .= "    <p class=\"body\">Generated from conventional commits and git tags during the site build.</p>\n";
     $content .= "  </section>\n";
 
-    $content .= "  <section class=\"panel-section\">\n";
-    $content .= "    <h2>Change Types</h2>\n";
-    $content .= "    <nav class=\"panel-actions\" aria-label=\"Change log sections\">\n";
+    $content .= "  <section class=\"container-section--headed\">\n";
+    $content .= "    <div class=\"container-section-header\">Change Types</div>\n";
+    $content .= "    <div class=\"container-section-body\">\n";
+    $content .= "      <nav class=\"container-actions\" aria-label=\"Change log sections\">\n";
     foreach ($groupLabels as $groupKey => $groupLabel) {
         $items = $changeGroups[$groupKey] ?? [];
         if (!$items) {
@@ -414,9 +417,10 @@ JS;
         }
         $sectionId = $groupKey . '-changes';
         $chipColor = $groupChips[$groupKey] ?? 'ink';
-        $content .= '      <a class="chip color-pair-' . escapeHtml($chipColor) . '" href="#' . escapeHtml($sectionId) . '">' . escapeHtml($groupLabel) . "</a>\n";
+        $content .= '        <a class="chip color-pair-' . escapeHtml($chipColor) . '" href="#' . escapeHtml($sectionId) . '">' . escapeHtml($groupLabel) . "</a>\n";
     }
-    $content .= "    </nav>\n";
+    $content .= "      </nav>\n";
+    $content .= "    </div>\n";
     $content .= "  </section>\n";
 
     foreach ($groupLabels as $groupKey => $groupLabel) {
@@ -426,33 +430,35 @@ JS;
         }
         $sectionId = $groupKey . '-changes';
 
-        $content .= '  <section class="panel-section" id="' . escapeHtml($sectionId) . "\">\n";
-        $content .= '    <h3>' . escapeHtml($groupLabel) . "</h3>\n";
-        $content .= "    <ul class=\"list\">\n";
+        $content .= '  <section class="container-section--headed" id="' . escapeHtml($sectionId) . "\">\n";
+        $content .= '    <div class="container-section-header">' . escapeHtml($groupLabel) . "</div>\n";
+        $content .= "    <div class=\"container-section-body\">\n";
+        $content .= "      <ul class=\"list\">\n";
         foreach (array_reverse($items) as $item) {
             $chipColor = $groupChips[$groupKey] ?? 'ink';
-            $content .= "      <li>\n";
-            $content .= "        <div class=\"panel-content\">\n";
-            $content .= "          <div class=\"panel-actions\">\n";
-            $content .= '          <span class="chip color-pair-' . escapeHtml($chipColor) . '">' . escapeHtml($groupLabel) . "</span>\n";
-            $content .= '            <span class="caption">' . escapeHtml($item['version']) . ' - ' . escapeHtml($item['sha']) . ' - ' . escapeHtml($item['date']) . "</span>\n";
-            $content .= "          </div>\n";
-            $content .= '          <h4>' . escapeHtml(escapeTwigText($item['subject'])) . "</h4>\n";
+            $content .= "        <li>\n";
+            $content .= "          <div class=\"container-content\">\n";
+            $content .= "            <div class=\"container-actions\">\n";
+            $content .= '            <span class="chip color-pair-' . escapeHtml($chipColor) . '">' . escapeHtml($groupLabel) . "</span>\n";
+            $content .= '              <span class="caption">' . escapeHtml($item['version']) . ' - ' . escapeHtml($item['sha']) . ' - ' . escapeHtml($item['date']) . "</span>\n";
+            $content .= "            </div>\n";
+            $content .= '            <h4>' . escapeHtml(escapeTwigText($item['subject'])) . "</h4>\n";
             if (!empty($item['description'])) {
                 if (is_array($item['description'])) {
-                    $content .= "          <ul>\n";
+                    $content .= "            <ul>\n";
                     foreach ($item['description'] as $bullet) {
-                        $content .= '            <li>' . escapeHtml(escapeTwigText($bullet)) . "</li>\n";
+                        $content .= '              <li>' . escapeHtml(escapeTwigText($bullet)) . "</li>\n";
                     }
-                    $content .= "          </ul>\n";
+                    $content .= "            </ul>\n";
                 } else {
-                    $content .= '          <p class="panel-content">' . escapeHtml(escapeTwigText($item['description'])) . "</p>\n";
+                    $content .= '            <p class="container-content">' . escapeHtml(escapeTwigText($item['description'])) . "</p>\n";
                 }
             }
-            $content .= "        </div>\n";
-            $content .= "      </li>\n";
+            $content .= "          </div>\n";
+            $content .= "        </li>\n";
         }
-        $content .= "    </ul>\n";
+        $content .= "      </ul>\n";
+        $content .= "    </div>\n";
         $content .= "  </section>\n";
     }
 
