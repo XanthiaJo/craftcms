@@ -1,7 +1,8 @@
 import { GaugeSettings } from '../models/gaugeSettings.js';
 import { PatternDimensions } from '../models/patternDimensions.js';
 import { FinishedSizeCalculator } from '../services/finishedSizeCalculator.js';
-import { rebuildPreviewCells, updateCellSizing } from '../services/gridService.js';
+import { updateCellSizing, getCombinedBoundingBox } from '../services/gridService.js';
+import { computeFilledCellsFromSketch } from '../services/sketch/closedShapeFill.js';
 import {
   ZOOM_STEP,
   fitToView,
@@ -9,6 +10,7 @@ import {
   zoomAt,
   zoomCentered,
 } from '../services/zoomService.js';
+import { computeSockCounts, buildSockOutlineInInches } from '../services/sketch/sockMeasurements.js';
 import { SketchTool } from '../services/sketch/sketchService.js';
 
 function getElement(documentObj, id) {
@@ -29,8 +31,6 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
   const refs = {
     gaugeStitchesInput: getElement(documentObj, 'gauge-stitches'),
     gaugeRowsInput: getElement(documentObj, 'gauge-rows'),
-    gridColsInput: getElement(documentObj, 'grid-cols'),
-    gridRowsInput: getElement(documentObj, 'grid-rows'),
     gridInfo: getElement(documentObj, 'grid-info'),
     cellSizeInfo: getElement(documentObj, 'cell-size-info'),
     finishedWidth: getElement(documentObj, 'finished-width'),
@@ -62,6 +62,22 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
     zoomLevelDisplay: getElement(documentObj, 'zoom-level'),
     canvasWrapper: documentObj?.querySelector?.('.canvas-wrapper'),
     konvaStage: getElement(documentObj, 'konva-stage'),
+    measurementsPanel: getElement(documentObj, 'template-measurements-panel'),
+    measFootCirc: getElement(documentObj, 'measurement-foot-circ'),
+    measFootLen: getElement(documentObj, 'measurement-foot-len'),
+    measLegHeight: getElement(documentObj, 'measurement-leg-height'),
+    measEase: getElement(documentObj, 'measurement-ease'),
+    measRib: getElement(documentObj, 'measurement-rib'),
+    derivedWidth: getElement(documentObj, 'derived-width'),
+    derivedRib: getElement(documentObj, 'derived-rib'),
+    derivedSectionA: getElement(documentObj, 'derived-section-a'),
+    derivedNotch: getElement(documentObj, 'derived-notch'),
+    derivedNotch2: getElement(documentObj, 'derived-notch-2'),
+    derivedSectionB: getElement(documentObj, 'derived-section-b'),
+    derivedSectionC: getElement(documentObj, 'derived-section-c'),
+    derivedRib2: getElement(documentObj, 'derived-rib-2'),
+    derivedGauge: getElement(documentObj, 'derived-gauge'),
+    derivedGaugeRows: getElement(documentObj, 'derived-gauge-rows'),
   };
 
   const calc = new FinishedSizeCalculator();
@@ -69,18 +85,31 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
   function updateGridSidebar() {
     const gs = store.get('stitchesPer4Inches');
     const gr = store.get('rowsPer4Inches');
-    const cols = store.get('gridColumns');
-    const rows = store.get('gridRows');
     const cw = store.get('cellWidthPx');
     const ch = store.get('cellHeightPx');
     const fw = store.get('finishedWidth');
     const fh = store.get('finishedHeight');
 
+    const filledCells = store.get('filledCells');
+    const sketchFilled = computeFilledCellsFromSketch(
+      store.get('sketch.lines'),
+      cw,
+      ch,
+    );
+    const bbox = getCombinedBoundingBox(filledCells, sketchFilled);
+    const filledCount = filledCells.size + sketchFilled.size;
+
     if (refs.gaugeStitchesInput) refs.gaugeStitchesInput.value = gs;
     if (refs.gaugeRowsInput) refs.gaugeRowsInput.value = gr;
-    if (refs.gridColsInput) refs.gridColsInput.value = cols;
-    if (refs.gridRowsInput) refs.gridRowsInput.value = rows;
-    if (refs.gridInfo) refs.gridInfo.innerHTML = `<strong>Grid: ${cols} x ${rows} cells</strong> (${cols * rows} total cells)`;
+    if (refs.gridInfo) {
+      if (bbox) {
+        const w = bbox.maxCol - bbox.minCol + 1;
+        const h = bbox.maxRow - bbox.minRow + 1;
+        refs.gridInfo.innerHTML = `<strong>Pattern: ${w} x ${h} cells</strong> (${filledCount} filled)`;
+      } else {
+        refs.gridInfo.innerHTML = `<strong>No cells filled</strong> — click the grid or draw a closed shape`;
+      }
+    }
     if (refs.cellSizeInfo) refs.cellSizeInfo.textContent = `Cell size: ${cw}px wide x ${ch}px high`;
     if (refs.finishedWidth) refs.finishedWidth.textContent = `Width: ${fw > 0 ? fw.toFixed(2) : '--'} in`;
     if (refs.finishedHeight) refs.finishedHeight.textContent = `Height: ${fh > 0 ? fh.toFixed(2) : '--'} in`;
@@ -91,10 +120,18 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
       store.get('stitchesPer4Inches'),
       store.get('rowsPer4Inches')
     );
-    const dims = new PatternDimensions(
-      store.get('gridColumns'),
-      store.get('gridRows')
+    const cw = store.get('cellWidthPx');
+    const ch = store.get('cellHeightPx');
+    const filledCells = store.get('filledCells');
+    const sketchFilled = computeFilledCellsFromSketch(
+      store.get('sketch.lines'),
+      cw,
+      ch,
     );
+    const bbox = getCombinedBoundingBox(filledCells, sketchFilled);
+    const stitchCount = bbox ? (bbox.maxCol - bbox.minCol + 1) : 0;
+    const rowCount = bbox ? (bbox.maxRow - bbox.minRow + 1) : 0;
+    const dims = new PatternDimensions(stitchCount, rowCount);
     const result = calc.calculate(gauge, dims);
     store.set('finishedWidth', Math.round(result.widthInches * 100) / 100);
     store.set('finishedHeight', Math.round(result.heightInches * 100) / 100);
@@ -158,6 +195,65 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
     ).join('');
   }
 
+  function readMeasurementsFromInputs() {
+    return {
+      footCircumference: Number(refs.measFootCirc?.value) || 0,
+      footLength: Number(refs.measFootLen?.value) || 0,
+      legHeight: Number(refs.measLegHeight?.value) || 0,
+      negativeEasePct: Number(refs.measEase?.value) || 0,
+      ribbingLength: Number(refs.measRib?.value) || 0,
+    };
+  }
+
+  function writeMeasurementsToInputs(m) {
+    if (!m) return;
+    if (refs.measFootCirc) refs.measFootCirc.value = m.footCircumference;
+    if (refs.measFootLen) refs.measFootLen.value = m.footLength;
+    if (refs.measLegHeight) refs.measLegHeight.value = m.legHeight;
+    if (refs.measEase) refs.measEase.value = m.negativeEasePct;
+    if (refs.measRib) refs.measRib.value = m.ribbingLength;
+  }
+
+  function updateMeasurementDerived() {
+    const templateId = store.get('activeTemplateId');
+    if (!templateId) return;
+
+    const gauge = {
+      stitchesPer4Inches: store.get('stitchesPer4Inches'),
+      rowsPer4Inches: store.get('rowsPer4Inches'),
+    };
+    const m = store.get('templateMeasurements');
+    if (!m) return;
+
+    const counts = computeSockCounts(gauge, m);
+    const { sections } = buildSockOutlineInInches(gauge, m);
+
+    const fmt = (inches) => `${inches.toFixed(2)} in`;
+
+    if (refs.derivedWidth) refs.derivedWidth.textContent = `${counts.widthSts} sts / ${fmt(sections.width)}`;
+    if (refs.derivedRib) refs.derivedRib.textContent = `${counts.ribRows} rows / ${fmt(sections.topRib)}`;
+    if (refs.derivedSectionA) refs.derivedSectionA.textContent = `${counts.legRows} rows / ${fmt(sections.backLeg)}`;
+    if (refs.derivedNotch) refs.derivedNotch.textContent = `${counts.notchRowsTotal} rows / ${fmt(sections.heel)}`;
+    if (refs.derivedNotch2) refs.derivedNotch2.textContent = `${counts.notchRowsTotal} rows / ${fmt(sections.toe)}`;
+    if (refs.derivedSectionB) refs.derivedSectionB.textContent = `${counts.soleRows} rows / ${fmt(sections.sole)}`;
+    if (refs.derivedSectionC) refs.derivedSectionC.textContent = `${counts.instepRows} rows / ${fmt(sections.instep)}`;
+    if (refs.derivedRib2) refs.derivedRib2.textContent = `${counts.ribRows} rows / ${fmt(sections.bottomRib)}`;
+    if (refs.derivedGauge) refs.derivedGauge.textContent = gauge.stitchesPer4Inches;
+    if (refs.derivedGaugeRows) refs.derivedGaugeRows.textContent = gauge.rowsPer4Inches;
+  }
+
+  function updateMeasurementsPanelVisibility() {
+    const templateId = store.get('activeTemplateId');
+    if (refs.measurementsPanel) {
+      refs.measurementsPanel.style.display = templateId ? '' : 'none';
+    }
+    if (templateId) {
+      const m = store.get('templateMeasurements');
+      writeMeasurementsToInputs(m);
+      updateMeasurementDerived();
+    }
+  }
+
   function updateZoomDisplay() {
     const level = store.get('zoomLevel');
     if (refs.zoomLevelDisplay) {
@@ -171,6 +267,7 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
     updateOverlaySidebar();
     updateTemplatesSidebar();
     updateZoomDisplay();
+    updateMeasurementsPanelVisibility();
   }
 
   bindIfPresent(refs.gaugeStitchesInput, 'change', () => {
@@ -180,18 +277,6 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
 
   bindIfPresent(refs.gaugeRowsInput, 'change', () => {
     store.set('rowsPer4Inches', Number(refs.gaugeRowsInput.value) || 28);
-    recalculateSize();
-  });
-
-  bindIfPresent(refs.gridColsInput, 'change', () => {
-    store.set('gridColumns', Math.max(1, Number(refs.gridColsInput.value) || 30));
-    rebuildPreviewCells(store);
-    recalculateSize();
-  });
-
-  bindIfPresent(refs.gridRowsInput, 'change', () => {
-    store.set('gridRows', Math.max(1, Number(refs.gridRowsInput.value) || 30));
-    rebuildPreviewCells(store);
     recalculateSize();
   });
 
@@ -275,7 +360,21 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
     const btn = event.target.closest('button[data-template-id]');
     if (!btn) return;
     sketchService.applyTemplate(btn.dataset.templateId);
+    updateMeasurementsPanelVisibility();
   });
+
+  // --- Measurement inputs ---
+
+  function onMeasurementInput() {
+    const m = readMeasurementsFromInputs();
+    store.set('templateMeasurements', m);
+    sketchService.regenerateTemplate(m);
+    updateMeasurementDerived();
+  }
+
+  for (const ref of [refs.measFootCirc, refs.measFootLen, refs.measLegHeight, refs.measEase, refs.measRib]) {
+    bindIfPresent(ref, 'input', onMeasurementInput);
+  }
 
   // --- Zoom controls ---
 
@@ -292,11 +391,19 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
   }
 
   function getGridPixelSize() {
-    const cols = store.get('gridColumns');
-    const rows = store.get('gridRows');
     const cellW = store.get('cellWidthPx');
     const cellH = store.get('cellHeightPx');
-    return { w: cols * cellW, h: rows * cellH };
+    const filledCells = store.get('filledCells');
+    const sketchFilled = computeFilledCellsFromSketch(
+      store.get('sketch.lines'),
+      cellW,
+      cellH,
+    );
+    const bbox = getCombinedBoundingBox(filledCells, sketchFilled);
+    if (!bbox) return { w: 0, h: 0 };
+    const w = (bbox.maxCol - bbox.minCol + 1) * cellW;
+    const h = (bbox.maxRow - bbox.minRow + 1) * cellH;
+    return { w, h };
   }
 
   bindIfPresent(refs.zoomInBtn, 'click', () => {
@@ -337,10 +444,11 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
     ));
   });
 
-  // Middle-mouse drag to pan
+  // Right-mouse drag to pan
   let panState = null;
+  bindIfPresent(refs.konvaStage, 'contextmenu', (e) => { e.preventDefault(); });
   bindIfPresent(refs.konvaStage, 'mousedown', (e) => {
-    if (e.button !== 1) return; // middle button
+    if (e.button !== 2) return; // right button
     e.preventDefault();
     panState = { startX: e.clientX, startY: e.clientY, panX: store.get('panOffsetX'), panY: store.get('panOffsetY') };
   });
@@ -384,8 +492,7 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
 
   store.subscribe((path) => {
     if (
-      path === 'gridColumns' ||
-      path === 'gridRows' ||
+      path === 'filledCells' ||
       path === 'cellWidthPx' ||
       path === 'cellHeightPx' ||
       path === 'stitchesPer4Inches' ||
@@ -393,6 +500,9 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
       path === 'finishedWidth' ||
       path === 'finishedHeight'
     ) {
+      if (path === 'filledCells' || path === 'cellWidthPx' || path === 'cellHeightPx') {
+        recalculateSize();
+      }
       updateGridSidebar();
     }
   });
@@ -400,6 +510,10 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
   store.subscribe((path) => {
     if (path.startsWith('sketch.')) {
       updateSketchSidebar();
+      if (path === 'sketch.lines' || path === 'sketch.isActive') {
+        recalculateSize();
+        updateGridSidebar();
+      }
     }
   });
 
@@ -419,6 +533,17 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
     }
   });
 
+  store.subscribe((path) => {
+    if (
+      path === 'activeTemplateId' ||
+      path === 'templateMeasurements' ||
+      path === 'stitchesPer4Inches' ||
+      path === 'rowsPer4Inches'
+    ) {
+      updateMeasurementsPanelVisibility();
+    }
+  });
+
   return {
     recalculateSize,
     syncAll,
@@ -427,5 +552,6 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
     updateOverlaySidebar,
     updateTemplatesSidebar,
     updateZoomDisplay,
+    updateMeasurementsPanelVisibility,
   };
 }

@@ -1,33 +1,59 @@
-export function rebuildPreviewCells(store) {
-    const cols = store.get('gridColumns');
-    const rows = store.get('gridRows');
-    const count = cols * rows;
-    const cells = [];
-    const old = store.get('previewCells');
-    for (let i = 0; i < count; i++) {
-        cells.push({ isFilled: old[i]?.isFilled ?? false });
+/**
+ * Returns the key for a cell at (row, col).
+ */
+export function cellKey(row, col) {
+    return `${row},${col}`;
+}
+
+/**
+ * Toggle the fill state of a cell at (row, col).
+ */
+export function toggleCell(store, row, col) {
+    const key = cellKey(row, col);
+    const cells = store.get('filledCells');
+    const updated = new Set(cells);
+    if (updated.has(key)) {
+        updated.delete(key);
+    } else {
+        updated.add(key);
     }
-    store.set('previewCells', cells);
+    store.set('filledCells', updated);
 }
 
-export function togglePreviewCell(store, index) {
-    const cells = store.get('previewCells');
-    if (index < 0 || index >= cells.length) return;
-    const updated = cells.map((c, i) =>
-        i === index ? { isFilled: !c.isFilled } : c
-    );
-    store.set('previewCells', updated);
+/**
+ * Clear all manually filled cells.
+ */
+export function clearCells(store) {
+    store.set('filledCells', new Set());
 }
 
-export function fitGridToCanvas(store, canvasWidthPx, canvasHeightPx) {
-    if (canvasWidthPx <= 0 || canvasHeightPx <= 0) return;
-    const cellW = store.get('cellWidthPx');
-    const cellH = store.get('cellHeightPx');
-    const cols = Math.max(1, Math.floor(canvasWidthPx / cellW));
-    const rows = Math.max(1, Math.floor(canvasHeightPx / cellH));
-    store.set('gridColumns', cols);
-    store.set('gridRows', rows);
-    rebuildPreviewCells(store);
+/**
+ * Returns the bounding box of all filled cells as
+ * { minRow, minCol, maxRow, maxCol } or null if no cells are filled.
+ */
+export function getFilledBoundingBox(filledCells) {
+    if (!filledCells || filledCells.size === 0) return null;
+    let minRow = Infinity, minCol = Infinity, maxRow = -Infinity, maxCol = -Infinity;
+    for (const key of filledCells) {
+        const [r, c] = key.split(',').map(Number);
+        if (r < minRow) minRow = r;
+        if (c < minCol) minCol = c;
+        if (r > maxRow) maxRow = r;
+        if (c > maxCol) maxCol = c;
+    }
+    return { minRow, minCol, maxRow, maxCol };
+}
+
+/**
+ * Returns the bounding box of all filled cells (manual + sketch-derived)
+ * as { minRow, minCol, maxRow, maxCol } or null if no cells are filled.
+ */
+export function getCombinedBoundingBox(filledCells, sketchFilled) {
+    const all = new Set(filledCells);
+    if (sketchFilled) {
+        for (const key of sketchFilled) all.add(key);
+    }
+    return getFilledBoundingBox(all);
 }
 
 export function updateCellSizing(store, stitchesPer4Inches, rowsPer4Inches) {

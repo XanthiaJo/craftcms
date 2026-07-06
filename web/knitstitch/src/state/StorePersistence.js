@@ -10,17 +10,17 @@ const DEBOUNCE_MS = 300;
 
 // Paths saved to localStorage. Transient UI state is excluded.
 const PERSISTED_PATHS = new Set([
-  'gridColumns',
-  'gridRows',
   'cellWidthPx',
   'cellHeightPx',
   'stitchesPer4Inches',
   'rowsPer4Inches',
-  'previewCells',
+  'filledCells',
   'overlayImageSrc',
   'overlayOpacity',
   'overlayVisible',
   'zoomLevel',
+  'activeTemplateId',
+  'templateMeasurements',
   'sketch.strokeColor',
   'sketch.strokeThickness',
   'sketch.lines',
@@ -60,10 +60,10 @@ export class StorePersistence {
 
     // Scalar top-level keys
     const scalars = [
-      'gridColumns', 'gridRows', 'cellWidthPx', 'cellHeightPx',
+      'cellWidthPx', 'cellHeightPx',
       'stitchesPer4Inches', 'rowsPer4Inches',
       'overlayOpacity', 'overlayVisible', 'overlayImageSrc',
-      'zoomLevel',
+      'zoomLevel', 'activeTemplateId',
     ];
     for (const key of scalars) {
       if (saved[key] !== undefined) {
@@ -71,9 +71,30 @@ export class StorePersistence {
       }
     }
 
-    // previewCells — array
-    if (Array.isArray(saved.previewCells)) {
-      s.set('previewCells', saved.previewCells);
+    // templateMeasurements — object
+    if (saved.templateMeasurements && typeof saved.templateMeasurements === 'object') {
+      s.set('templateMeasurements', saved.templateMeasurements);
+    }
+
+    // filledCells — array of "r,c" strings → Set
+    if (Array.isArray(saved.filledCells)) {
+      s.set('filledCells', new Set(saved.filledCells));
+    }
+    // Migrate old previewCells array if present
+    if (Array.isArray(saved.previewCells) && !saved.filledCells) {
+      const oldCells = saved.previewCells;
+      const cols = saved.gridColumns || 30;
+      const filled = new Set();
+      for (let i = 0; i < oldCells.length; i++) {
+        if (oldCells[i]?.isFilled) {
+          const r = Math.floor(i / cols);
+          const c = i % cols;
+          filled.add(`${r},${c}`);
+        }
+      }
+      if (filled.size > 0) {
+        s.set('filledCells', filled);
+      }
     }
 
     // Sketch sub-keys
@@ -111,17 +132,17 @@ export class StorePersistence {
     const sketch = state.sketch;
 
     const payload = {
-      gridColumns: state.gridColumns,
-      gridRows: state.gridRows,
       cellWidthPx: state.cellWidthPx,
       cellHeightPx: state.cellHeightPx,
       stitchesPer4Inches: state.stitchesPer4Inches,
       rowsPer4Inches: state.rowsPer4Inches,
-      previewCells: state.previewCells,
+      filledCells: Array.from(state.filledCells),
       overlayImageSrc: state.overlayImageSrc,
       overlayOpacity: state.overlayOpacity,
       overlayVisible: state.overlayVisible,
       zoomLevel: state.zoomLevel,
+      activeTemplateId: state.activeTemplateId,
+      templateMeasurements: state.templateMeasurements,
       sketch: {
         strokeColor: sketch.strokeColor,
         strokeThickness: sketch.strokeThickness,
@@ -179,7 +200,11 @@ export class StorePersistence {
       const b = pointById.get(raw.b?.id) ?? new SketchPoint(raw.b?.id ?? 0, raw.b?.x ?? 0, raw.b?.y ?? 0);
       const dim = new SketchDimension(raw.id ?? 0, a, b, raw.offsetSign ?? 1);
       if (raw.drivenValue !== null && raw.drivenValue !== undefined) {
-        dim.setDrivenValue(raw.drivenValue);
+        if (raw.displayValue !== null && raw.displayValue !== undefined && raw.displaySuffix) {
+          dim.setDrivenDisplay(raw.drivenValue, raw.displayValue, raw.displaySuffix);
+        } else {
+          dim.setDrivenValue(raw.drivenValue);
+        }
       }
       dim.isSelected = !!raw.isSelected;
       return dim;

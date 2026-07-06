@@ -5,11 +5,9 @@ import { DEFAULT_STROKE_COLOR, DEFAULT_STROKE_THICKNESS } from '../services/sket
 class Store {
   constructor() {
     this.state = {
-      gridColumns: 30,
-      gridRows: 30,
       cellWidthPx: 20,
       cellHeightPx: 28,
-      previewCells: [],       // Array of { isFilled: bool }
+      filledCells: new Set(),    // Set of "r,c" strings for manually toggled cells
       stitchesPer4Inches: 20,
       rowsPer4Inches: 28,
       finishedWidth: 0,
@@ -21,6 +19,9 @@ class Store {
       zoomLevel: 1,
       panOffsetX: 0,
       panOffsetY: 0,
+      // Active template + measurements
+      activeTemplateId: null,
+      templateMeasurements: null, // set when a template is applied; shape depends on template
       // Sketch state
       sketch: {
         isActive: false,

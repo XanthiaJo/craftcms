@@ -13,31 +13,48 @@
 const EPSILON = 0.01;
 
 /**
- * Compute the set of grid cell indices that should be filled because they
+ * Compute the set of grid cell keys ("r,c") that should be filled because they
  * are 50%+ inside a closed shape formed by the sketch lines.
  *
+ * Instead of iterating a fixed grid, this computes the bounding box of all
+ * sketch polygons and only tests cells within that region.
+ *
  * @param {Array<{start:{x:number,y:number},end:{x:number,y:number}}>} lines
- * @param {number} cols
- * @param {number} rows
  * @param {number} cellW
  * @param {number} cellH
- * @returns {Set<number>} indices of cells to fill
+ * @returns {Set<string>} cell keys ("r,c") to fill
  */
-export function computeFilledCellsFromSketch(lines, cols, rows, cellW, cellH) {
-  if (!lines || lines.length < 3 || cols <= 0 || rows <= 0 || cellW <= 0 || cellH <= 0) {
+export function computeFilledCellsFromSketch(lines, cellW, cellH) {
+  if (!lines || lines.length < 3 || cellW <= 0 || cellH <= 0) {
     return new Set();
   }
 
   const polygons = findClosedPolygons(lines);
   if (polygons.length === 0) return new Set();
 
+  // Compute bounding box of all polygon vertices
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const poly of polygons) {
+    for (const p of poly) {
+      if (p.x < minX) minX = p.x;
+      if (p.y < minY) minY = p.y;
+      if (p.x > maxX) maxX = p.x;
+      if (p.y > maxY) maxY = p.y;
+    }
+  }
+
+  const minCol = Math.max(0, Math.floor(minX / cellW));
+  const maxCol = Math.ceil(maxX / cellW);
+  const minRow = Math.max(0, Math.floor(minY / cellH));
+  const maxRow = Math.ceil(maxY / cellH);
+
   const filled = new Set();
   const samples = 4;
   const total = samples * samples;
   const half = total / 2;
 
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
+  for (let r = minRow; r <= maxRow; r++) {
+    for (let c = minCol; c <= maxCol; c++) {
       const x0 = c * cellW;
       const y0 = r * cellH;
       let insideCount = 0;
@@ -51,7 +68,7 @@ export function computeFilledCellsFromSketch(lines, cols, rows, cellW, cellH) {
         }
       }
       if (insideCount >= half) {
-        filled.add(r * cols + c);
+        filled.add(`${r},${c}`);
       }
     }
   }
