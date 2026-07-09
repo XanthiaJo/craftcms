@@ -13,6 +13,7 @@ export class AppStage {
     }
 
     this.store = store;
+    this.sketchService = sketchService;
     this._resizeObserver = null;
 
     this.stage = new Konva.Stage({
@@ -36,6 +37,8 @@ export class AppStage {
 
     this._fitStageToContainer();
     this.gridLayer.redraw();
+    this.sketchService.ensureOriginAnchor();
+    this._centerViewportOnOrigin();
     this._applyZoomPan();
     this._setupResizeObserver();
 
@@ -49,6 +52,19 @@ export class AppStage {
         this._applyZoomPan();
       }
     });
+  }
+
+  /**
+   * Pan the viewport so the content origin (0, 0) is at the centre of the stage.
+   * This makes the default anchor point visible in the middle of the grid.
+   */
+  _centerViewportOnOrigin() {
+    const stageW = this.stage.width();
+    const stageH = this.stage.height();
+    if (stageW > 0 && stageH > 0) {
+      this.store.set('panOffsetX', stageW / 2);
+      this.store.set('panOffsetY', stageH / 2);
+    }
   }
 
   /**

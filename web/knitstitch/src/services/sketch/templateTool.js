@@ -110,6 +110,10 @@ export class TemplateTool {
       return p;
     });
 
+    // Anchor the template's reference point to the origin. For the sock template
+    // the reference point is the top-left corner (point 0).
+    this._anchorTemplateToOrigin(points, templateId);
+
     for (let i = 0; i < points.length; i++) {
       const start = points[i];
       const end = points[(i + 1) % points.length];
@@ -148,11 +152,72 @@ export class TemplateTool {
   }
 
   /**
+   * Offsets a set of freshly created template points so the template's reference
+   * point sits at the origin, then creates an anchor point at the origin and
+   * adds a coincident constraint between the anchor and the reference point.
+   *
+   * @param {SketchPoint[]} points
+   * @param {string} templateId
+   */
+  _anchorTemplateToOrigin(points, templateId) {
+    if (!points?.length) return;
+
+    const referenceIndex = this._templateReferencePointIndex(templateId);
+    const referencePoint = points[referenceIndex];
+    if (!referencePoint) return;
+
+    const offsetX = -referencePoint.x;
+    const offsetY = -referencePoint.y;
+    for (const p of points) {
+      p.x += offsetX;
+      p.y += offsetY;
+    }
+
+    const store = this.service.store;
+    let anchor = store.state.sketch.points.find((p) => p.isAnchor && p.x === 0 && p.y === 0);
+    if (!anchor) {
+      anchor = new SketchPoint(this.service._nextPointId++, 0, 0);
+      anchor.isAnchor = true;
+      store.state.sketch.points.push(anchor);
+    }
+
+    const constraint = new SketchConstraint(
+      'Coincident',
+      anchor,
+      referencePoint,
+      null,
+      null,
+      this.service._nextConstraintId++,
+    );
+    store.state.sketch.constraints.push(constraint);
+  }
+
+  /**
+   * Returns the index of the template point that should be placed at the origin.
+   * Each template defines its own reference corner/edge.
+   */
+  _templateReferencePointIndex(templateId) {
+    switch (templateId) {
+      case 'sock': return 0; // top-left corner
+      default: return 0;
+    }
+  }
+
+  /**
    * Creates driving dimensions for the sock template:
    * - 1 horizontal width dimension across the top
-   * - 7 vertical section dimensions on the left edge
-   * - 7 vertical section dimensions on the right edge (mirror)
-   * - 4 aligned dimensions for the left-side notch points (2 per notch)
+   * - 5 vertical section dimensions on each edge (non-notch segments only)
+   * - 8 aligned dimensions for the notch points (2 per side × 2 notches × 2 sides)
+   *
+   * The heel/toe span dimensions (e.g. 2→4) are intentionally omitted because
+   * the aligned notch dimensions already lock the same geometry; adding the
+   * spans over-constrains the region and the sequential solver cannot resolve
+   * them consistently during drags.
+   *
+   * The right-side notch points need their own aligned dimensions as well;
+   * Equal Length only locks line length, not absolute position, so without these
+   * dimensions the right toe/heel points would be free-floating relative to the
+   * dimensioned right edge.
    *
    * All dimensions show inch values (with " in" suffix) and have driven pixel
    * values set so the lock icon appears.
@@ -194,18 +259,21 @@ export class TemplateTool {
 
     addDim(points[0], points[1],  -1, sections.topRib,    pxPerInchY); // top ribbing
     addDim(points[1], points[2],  -1, sections.backLeg,   pxPerInchY); // back leg
-    addDim(points[2], points[4],  -1, sections.heel,      pxPerInchY); // heel (skips notch point 3)
+    // NOTE: the heel and toe spans (2→4 and 5→7) are intentionally omitted.
+    // The same distances are already captured by the two aligned notch
+    // dimensions on each side, and adding the spans over-constrains the notch
+    // region in a way the sequential solver cannot resolve.
     addDim(points[4], points[5],  -1, sections.sole,      pxPerInchY); // sole
-    addDim(points[5], points[7],  -1, sections.toe,       pxPerInchY); // toe (skips notch point 6)
     addDim(points[7], points[8],  -1, sections.instep,    pxPerInchY); // instep + front leg
     addDim(points[8], points[9],  -1, sections.bottomRib, pxPerInchY); // bottom ribbing
 
     // === Right edge: 7 vertical section dimensions (offset right) ===
     addDim(points[19], points[18], 1, sections.topRib,    pxPerInchY); // top ribbing
     addDim(points[18], points[17], 1, sections.backLeg,   pxPerInchY); // back leg
-    addDim(points[17], points[15], 1, sections.heel,      pxPerInchY); // heel (skips notch point 16)
+    // NOTE: the heel and toe spans (17→15 and 14→12) are intentionally omitted
+    // for the same reason as the left side: the aligned notch dimensions on the
+    // left already define the notch, and the Equal constraints mirror them.
     addDim(points[15], points[14], 1, sections.sole,      pxPerInchY); // sole
-    addDim(points[14], points[12], 1, sections.toe,       pxPerInchY); // toe (skips notch point 13)
     addDim(points[12], points[11], 1, sections.instep,    pxPerInchY); // instep + front leg
     addDim(points[11], points[10], 1, sections.bottomRib, pxPerInchY); // bottom ribbing
 
@@ -219,6 +287,14 @@ export class TemplateTool {
     const toeHalf = sections.toe / 2;
     addAlignedDim(points[5], points[6], 1, sections.notchDepth, toeHalf); // 5→6
     addAlignedDim(points[6], points[7], 1, sections.notchDepth, toeHalf); // 6→7
+
+    // === Right-side notch points: 2 aligned dimensions each ===
+    // These mirror the left-side notch dimensions so the right heel/toe points
+    // (16 and 13) are fully determined and cannot slide along the right edge.
+    addAlignedDim(points[16], points[17], -1, sections.notchDepth, heelHalf); // 16→17
+    addAlignedDim(points[15], points[16], -1, sections.notchDepth, heelHalf); // 15→16
+    addAlignedDim(points[13], points[12], -1, sections.notchDepth, toeHalf); // 13→12
+    addAlignedDim(points[14], points[13], -1, sections.notchDepth, toeHalf); // 14→13
   }
 
   /**

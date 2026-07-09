@@ -63,6 +63,23 @@ export class SketchService {
     this._seedIdCountersFromSketch();
   }
 
+  /**
+   * Ensures the sketch has an origin anchor point at (0, 0). This is the fixed
+   * reference that templates and fully constrained sketches are rooted to.
+   * Called by AppStage when the grid first loads.
+   */
+  ensureOriginAnchor() {
+    const sketch = this.store.state.sketch;
+    const exists = sketch.points.some((p) => p.isAnchor && p.x === 0 && p.y === 0);
+    if (exists) return;
+
+    const anchor = new SketchPoint(this._nextPointId++, 0, 0);
+    anchor.isAnchor = true;
+    sketch.points.push(anchor);
+    this.store.set('sketch.points', [...sketch.points]);
+    this._seedIdCountersFromSketch();
+  }
+
   _syncToStore() {
     syncSketchStateToStore(this.store);
   }
@@ -139,6 +156,7 @@ export class SketchService {
     }
     switch (this.activeTool) {
       case SketchTool.Line:
+      case SketchTool.ConstructionLine:
         this._lineTool.onLineClick(position, modifiers);
         break;
       case SketchTool.Select:
@@ -192,6 +210,7 @@ export class SketchService {
     if (!this.isActive) return;
     switch (this.activeTool) {
       case SketchTool.Line:
+      case SketchTool.ConstructionLine:
         this._lineTool.onLineMouseMove(position, modifiers);
         break;
       case SketchTool.Select:
@@ -331,14 +350,14 @@ export class SketchService {
   clear() {
     this._recordSnapshot('Clear sketch');
     const sketch = this.store.state.sketch;
+
+    // Preserve anchor points so the origin reference stays on the canvas.
+    const keptPoints = sketch.points.filter((p) => p.isAnchor);
+    sketch.points = keptPoints;
     sketch.lines = [];
-    sketch.points = [];
     sketch.dimensions = [];
     sketch.constraints = [];
-    this._nextPointId = 0;
-    this._nextLineId = 0;
-    this._nextDimId = 0;
-    this._nextConstraintId = 0;
+    this._seedIdCountersFromSketch();
     this._pendingStart = null;
     setSketchPreviewLine(this, null);
     setSketchSnapCandidate(this, null);
@@ -346,7 +365,7 @@ export class SketchService {
     this._selectedLines.clear();
     rebuildSketchObjectsInStore(this);
     this.store.set('sketch.lines', []);
-    this.store.set('sketch.points', []);
+    this.store.set('sketch.points', [...sketch.points]);
     this.store.set('sketch.dimensions', []);
     this.store.set('sketch.constraints', []);
   }
