@@ -623,4 +623,108 @@ test.describe('Sketch constraints', () => {
       constraints: 0,
     });
   });
+
+  test('sock template: driven dimensions stay locked when a corner is dragged', async ({ page }) => {
+    const box = await openSketch(page);
+
+    // Apply the sock template
+    await page.getByRole('button', { name: 'Templates' }).click();
+    await page.getByRole('button', { name: 'Sock' }).click();
+    await page.getByRole('button', { name: 'Sketch' }).click();
+    await page.getByRole('button', { name: 'Select' }).click();
+
+    // Verify every driven dimension matches its locked pixel value before dragging.
+    let state = await page.evaluate(() => {
+      const sketch = window.__knitstitchStore?.state?.sketch;
+      const dims = sketch?.dimensions ?? [];
+      const errors = dims
+        .filter((dim) => dim?.isConstrained)
+        .map((dim) => {
+          const dx = dim.b.x - dim.a.x;
+          const dy = dim.b.y - dim.a.y;
+          let actual;
+          if (dim.kind === 'Horizontal') actual = Math.abs(dx);
+          else if (dim.kind === 'Vertical') actual = Math.abs(dy);
+          else actual = Math.hypot(dx, dy);
+          return Math.abs(actual - dim.drivenValue);
+        });
+      return {
+        maxErrorBefore: errors.length ? Math.max(...errors) : 0,
+        p19: { x: sketch?.points?.[19]?.x ?? 0, y: sketch?.points?.[19]?.y ?? 0 },
+      };
+    });
+
+    expect(state.maxErrorBefore).toBeLessThan(1);
+
+    // Drag the top-right corner (point 19) a long way from the template.
+    const p19 = state.p19;
+    await dragStage(page, box, { x: p19.x, y: p19.y }, { x: p19.x + 120, y: p19.y + 90 });
+
+    // After the drag, no driven dimension should be violated: every measured
+    // distance must stay within a small tolerance of its locked driven value.
+    state = await page.evaluate(() => {
+      const sketch = window.__knitstitchStore?.state?.sketch;
+      const dims = sketch?.dimensions ?? [];
+      const errors = [];
+      for (const dim of dims) {
+        if (!dim?.isConstrained) continue;
+        const dx = dim.b.x - dim.a.x;
+        const dy = dim.b.y - dim.a.y;
+        let actual;
+        if (dim.kind === 'Horizontal') actual = Math.abs(dx);
+        else if (dim.kind === 'Vertical') actual = Math.abs(dy);
+        else actual = Math.hypot(dx, dy);
+        errors.push(Math.abs(actual - dim.drivenValue));
+      }
+      return {
+        maxErrorAfter: errors.length ? Math.max(...errors) : 0,
+      };
+    });
+
+    expect(state.maxErrorAfter).toBeLessThan(2);
+  });
+
+  test('sock template: top width stays locked when right-edge ribbing point is dragged', async ({ page }) => {
+    const box = await openSketch(page);
+
+    // Apply the sock template
+    await page.getByRole('button', { name: 'Templates' }).click();
+    await page.getByRole('button', { name: 'Sock' }).click();
+    await page.getByRole('button', { name: 'Sketch' }).click();
+    await page.getByRole('button', { name: 'Select' }).click();
+
+    // Point 18 is the end of the top ribbing on the right edge. Dragging it
+    // causes both the width dimension (0→19) and the right top-rib dimension
+    // (19→18) to drive point 19, which exposes the sequential-dimension bug.
+    let state = await page.evaluate(() => {
+      const sketch = window.__knitstitchStore?.state?.sketch;
+      const widthDim = sketch?.dimensions?.[0];
+      const p18 = sketch?.points?.[18];
+      const p19 = sketch?.points?.[19];
+      const p0 = sketch?.points?.[0];
+      return {
+        expectedWidth: widthDim?.drivenValue,
+        p18: { x: p18?.x ?? 0, y: p18?.y ?? 0 },
+        initialWidth: Math.hypot((p19?.x ?? 0) - (p0?.x ?? 0), (p19?.y ?? 0) - (p0?.y ?? 0)),
+      };
+    });
+
+    expect(state.expectedWidth).toBeGreaterThan(0);
+    expect(state.initialWidth).toBeCloseTo(state.expectedWidth, 1);
+
+    await dragStage(page, box, { x: state.p18.x, y: state.p18.y }, { x: state.p18.x + 120, y: state.p18.y + 90 });
+
+    state = await page.evaluate(() => {
+      const sketch = window.__knitstitchStore?.state?.sketch;
+      const widthDim = sketch?.dimensions?.[0];
+      const p19 = sketch?.points?.[19];
+      const p0 = sketch?.points?.[0];
+      return {
+        expectedWidth: widthDim?.drivenValue,
+        actualWidth: Math.hypot((p19?.x ?? 0) - (p0?.x ?? 0), (p19?.y ?? 0) - (p0?.y ?? 0)),
+      };
+    });
+
+    expect(state.actualWidth).toBeCloseTo(state.expectedWidth, 1);
+  });
 });

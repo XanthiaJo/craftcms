@@ -1,15 +1,12 @@
 import { defineConfig } from '@playwright/test';
 
+// E2E tests run against the Craft CMS DDEV site. Start DDEV first (`ddev start`)
+// so that http://craftcms.ddev.site/knit-stitch is reachable. No fixture file
+// or local Vite server is required.
 export default defineConfig({
   testDir: './e2e',
   use: {
-    baseURL: 'http://127.0.0.1:4173',
+    baseURL: 'http://craftcms.ddev.site',
     trace: 'on-first-retry',
-  },
-  webServer: {
-    command: 'npm run dev -- --host 127.0.0.1 --port 4173',
-    url: 'http://127.0.0.1:4173/tests/fixtures/knitstitch-playwright.html',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120000,
   },
 });
