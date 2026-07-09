@@ -16,8 +16,7 @@ export const ConstraintSubMode = {
   Perpendicular: 'Perpendicular',
   Midpoint: 'Midpoint',
   Equal: 'Equal',
-  Horizontal: 'Horizontal',
-  Vertical: 'Vertical'
+  HorizontalVertical: 'HorizontalVertical'
 };
 
 export const SketchObjectKind = {

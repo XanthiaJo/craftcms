@@ -355,13 +355,5 @@ export class TemplateTool {
     addPerpendicular(points[9],  lines[8],  lines[9]);
     addPerpendicular(points[10], lines[9],  lines[10]);
     addPerpendicular(points[19], lines[18], lines[19]);
-
-    // Right heel notch = Left heel notch
-    addEqual(lines[16], lines[2]);  // Line(17→16) = Line(2→3)  — notch in
-    addEqual(lines[15], lines[3]);  // Line(16→15) = Line(3→4)  — notch out
-
-    // Right toe notch = Left toe notch
-    addEqual(lines[12], lines[5]);  // Line(13→12) = Line(5→6)  — notch in (reversed direction)
-    addEqual(lines[13], lines[6]);  // Line(14→13) = Line(6→7)  — notch out (reversed direction)
   }
 }

@@ -535,4 +535,8 @@ export class SketchService {
   regenerateTemplate(measurements) {
     this._templateTool.regenerate(measurements);
   }
+
+  checkOverconstraints() {
+    return checkOverconstraints(this.store.state.sketch);
+  }
 }

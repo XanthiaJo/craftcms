@@ -44,9 +44,8 @@ export class ConstraintTool {
       return;
     }
 
-    if (constraintSubMode === ConstraintSubMode.Horizontal
-      || constraintSubMode === ConstraintSubMode.Vertical) {
-      this._tryCreateAxisConstraint(line, constraintSubMode, position);
+    if (constraintSubMode === ConstraintSubMode.HorizontalVertical) {
+      this._tryCreateAxisConstraint(line, position);
       return;
     }
 
@@ -243,10 +242,15 @@ export class ConstraintTool {
     return true;
   }
 
-  _tryCreateAxisConstraint(line, subMode, position = null) {
+  _tryCreateAxisConstraint(line, position = null) {
     if (!line) return false;
 
-    const type = subMode === ConstraintSubMode.Horizontal ? 'Horizontal' : 'Vertical';
+    // Auto-detect: if the line is closer to horizontal, apply Horizontal;
+    // otherwise apply Vertical. This mirrors Fusion 360's H/V constraint.
+    const dx = Math.abs(line.end.x - line.start.x);
+    const dy = Math.abs(line.end.y - line.start.y);
+    const type = dx >= dy ? 'Horizontal' : 'Vertical';
+
     const existing = this._findAxisConstraint(line, type);
     if (existing) {
       this.service.selectConstraint(existing);

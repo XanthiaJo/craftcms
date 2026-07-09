@@ -69,6 +69,11 @@ _Last updated: 2026-07-06_
 - [ ] Clear-template button
 - [ ] Improved measurement input sidebar
 - [ ] Export/import sketch state
+- [ ] Multiselect objects in list
+- [ ] Delete multiple objects via the list
+- [ ] Clicking an object in the list focuses it on the canvas
+- [ ] Moveable dimension labels (drag to reposition)
+- [ ] Seperate constraints from dimensions in the object list
 
 ---
 

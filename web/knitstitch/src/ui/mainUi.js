@@ -43,6 +43,7 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
     sketchClearBtn: getElement(documentObj, 'sketch-clear'),
     sketchDeleteBtn: getElement(documentObj, 'sketch-delete'),
     sketchObjectList: getElement(documentObj, 'sketch-object-list'),
+    sketchConstraintStatus: getElement(documentObj, 'sketch-constraint-status'),
     toolLineBtn: getElement(documentObj, 'tool-line'),
     toolConstructionLineBtn: getElement(documentObj, 'tool-construction-line'),
     toolSelectBtn: getElement(documentObj, 'tool-select'),
@@ -50,8 +51,7 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
     toolFillBtn: getElement(documentObj, 'tool-fill'),
     toolDimensionBtn: getElement(documentObj, 'tool-dimension'),
     toolPerpendicularBtn: getElement(documentObj, 'tool-perpendicular'),
-    toolHorizontalBtn: getElement(documentObj, 'tool-horizontal'),
-    toolVerticalBtn: getElement(documentObj, 'tool-vertical'),
+    toolHvBtn: getElement(documentObj, 'tool-hv'),
     toolMidpointBtn: getElement(documentObj, 'tool-midpoint'),
     toolEqualBtn: getElement(documentObj, 'tool-equal'),
     overlayFileInput: getElement(documentObj, 'overlay-file'),
@@ -165,12 +165,8 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
       sketch.activeTool === SketchTool.Constraint && sketch.constraintSubMode === 'Perpendicular'
     );
     toggleActive(
-      refs.toolHorizontalBtn,
-      sketch.activeTool === SketchTool.Constraint && sketch.constraintSubMode === 'Horizontal'
-    );
-    toggleActive(
-      refs.toolVerticalBtn,
-      sketch.activeTool === SketchTool.Constraint && sketch.constraintSubMode === 'Vertical'
+      refs.toolHvBtn,
+      sketch.activeTool === SketchTool.Constraint && sketch.constraintSubMode === 'HorizontalVertical'
     );
     toggleActive(
       refs.toolMidpointBtn,
@@ -198,6 +194,15 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
           }</span> ${o.label}
         </li>`
       ).join('');
+    }
+
+    if (refs.sketchConstraintStatus) {
+      const issues = sketchService.checkOverconstraints();
+      if (issues.length) {
+        refs.sketchConstraintStatus.textContent = `${issues.length} overconstraint${issues.length === 1 ? '' : 's'}: ${issues.map((i) => i.message).join('; ')}`;
+      } else {
+        refs.sketchConstraintStatus.textContent = '';
+      }
     }
   }
 
@@ -363,14 +368,9 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
     sketchService.constraintSubMode = 'Perpendicular';
   });
 
-  bindIfPresent(refs.toolHorizontalBtn, 'click', () => {
+  bindIfPresent(refs.toolHvBtn, 'click', () => {
     sketchService.activeTool = SketchTool.Constraint;
-    sketchService.constraintSubMode = 'Horizontal';
-  });
-
-  bindIfPresent(refs.toolVerticalBtn, 'click', () => {
-    sketchService.activeTool = SketchTool.Constraint;
-    sketchService.constraintSubMode = 'Vertical';
+    sketchService.constraintSubMode = 'HorizontalVertical';
   });
 
   bindIfPresent(refs.toolMidpointBtn, 'click', () => {
