@@ -81,7 +81,8 @@ export class LineTool {
   }
 
   _commitLine(start, end) {
-    const line = new SketchLine(this.service._nextLineId++, start, end);
+    const isConstruction = this.service.activeTool === 'ConstructionLine';
+    const line = new SketchLine(this.service._nextLineId++, start, end, isConstruction);
     this.service.store.state.sketch.lines.push(line);
     this.service.store.set('sketch.lines', [...this.service.store.state.sketch.lines]);
     rebuildSketchObjects(this.service);

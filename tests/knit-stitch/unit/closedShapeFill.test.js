@@ -4,8 +4,8 @@ import {
   findClosedPolygons,
 } from '../../../web/knitstitch/src/services/sketch/closedShapeFill.js';
 
-function line(sx, sy, ex, ey) {
-  return { start: { x: sx, y: sy }, end: { x: ex, y: ey } };
+function line(sx, sy, ex, ey, isConstruction = false) {
+  return { start: { x: sx, y: sy }, end: { x: ex, y: ey }, isConstruction };
 }
 
 describe('findClosedPolygons', () => {
@@ -68,6 +68,18 @@ describe('findClosedPolygons', () => {
       line(100, 100, 200, 100),
     ];
     expect(findClosedPolygons(lines)).toEqual([]);
+  });
+
+  it('ignores construction lines when finding polygons', () => {
+    const lines = [
+      line(0, 0, 100, 0),
+      line(100, 0, 100, 100),
+      line(100, 100, 0, 0),
+      line(0, 0, 50, 50, true), // construction diagonal
+    ];
+    const polys = findClosedPolygons(lines);
+    expect(polys.length).toBe(1);
+    expect(polys[0]).toHaveLength(3);
   });
 
   it('matches points by coordinates, not object identity', () => {
@@ -183,5 +195,15 @@ describe('computeFilledCellsFromSketch', () => {
     ];
     expect(computeFilledCellsFromSketch(lines, 0, 10).size).toBe(0);
     expect(computeFilledCellsFromSketch(lines, 10, 0).size).toBe(0);
+  });
+
+  it('does not fill from a closed shape made only of construction lines', () => {
+    const lines = [
+      line(10, 10, 90, 10, true),
+      line(90, 10, 90, 90, true),
+      line(90, 90, 10, 90, true),
+      line(10, 90, 10, 10, true),
+    ];
+    expect(computeFilledCellsFromSketch(lines, cellW, cellH).size).toBe(0);
   });
 });

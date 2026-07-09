@@ -123,6 +123,7 @@ export class SketchLayer {
         points: [line.start.x, line.start.y, line.end.x, line.end.y],
         stroke: line.isSelected ? triplet.select : color,
         strokeWidth: line.isSelected ? thickness + 1 : thickness,
+        dash: line.isConstruction ? [8, 6] : undefined,
         hitStrokeWidth: Math.max(10, thickness + 4),
         listening: true,
       });

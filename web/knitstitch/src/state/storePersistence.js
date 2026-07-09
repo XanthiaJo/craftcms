@@ -188,7 +188,8 @@ export class StorePersistence {
       const line = new SketchLine(
         raw.id ?? 0,
         pointById.get(raw.start?.id) ?? new SketchPoint(raw.start?.id ?? 0, raw.start?.x ?? 0, raw.start?.y ?? 0),
-        pointById.get(raw.end?.id) ?? new SketchPoint(raw.end?.id ?? 0, raw.end?.x ?? 0, raw.end?.y ?? 0)
+        pointById.get(raw.end?.id) ?? new SketchPoint(raw.end?.id ?? 0, raw.end?.x ?? 0, raw.end?.y ?? 0),
+        !!raw.isConstruction
       );
       line.isSelected = !!raw.isSelected;
       return line;

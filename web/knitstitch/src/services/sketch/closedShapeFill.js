@@ -26,11 +26,12 @@ const EPSILON = 0.01;
  * @returns {Set<string>} cell keys ("r,c") to fill
  */
 export function computeFilledCellsFromSketch(lines, cellW, cellH, fillThreshold = 0.5) {
-  if (!lines || lines.length < 3 || cellW <= 0 || cellH <= 0) {
+  const realLines = (lines || []).filter((l) => !l.isConstruction);
+  if (realLines.length < 3 || cellW <= 0 || cellH <= 0) {
     return new Set();
   }
 
-  const polygons = findClosedPolygons(lines);
+  const polygons = findClosedPolygons(realLines);
   if (polygons.length === 0) return new Set();
 
   // Compute bounding box of all polygon vertices
@@ -86,7 +87,8 @@ export function computeFilledCellsFromSketch(lines, cellW, cellH, fillThreshold 
  * @returns {Array<Array<{x:number,y:number}>>}
  */
 export function findClosedPolygons(lines) {
-  if (!lines || lines.length < 3) return [];
+  const realLines = (lines || []).filter((l) => !l.isConstruction);
+  if (realLines.length < 3) return [];
 
   // Build a coordinate-keyed node map and an adjacency list.
   const nodeKey = (p) => `${round(p.x)},${round(p.y)}`;
