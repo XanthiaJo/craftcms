@@ -443,6 +443,24 @@ export class ConstraintSolver {
     return true;
   }
 
+  enforceHorizontalConstraint(sketch, constraint) {
+    if (constraint?.type !== 'Horizontal') return false;
+    return this._enforceAxisConstraint(constraint.lineA, 'y');
+  }
+
+  enforceVerticalConstraint(sketch, constraint) {
+    if (constraint?.type !== 'Vertical') return false;
+    return this._enforceAxisConstraint(constraint.lineA, 'x');
+  }
+
+  _enforceAxisConstraint(line, axis) {
+    if (!line) return false;
+    const avg = (line.start[axis] + line.end[axis]) / 2;
+    line.start[axis] = avg;
+    line.end[axis] = avg;
+    return true;
+  }
+
   _applyEqualConstraints(sketch, movedPoint, originalPosition = null) {
     if (!originalPosition || !sketch.constraints?.length) return;
 

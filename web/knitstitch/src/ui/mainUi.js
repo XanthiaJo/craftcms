@@ -44,11 +44,14 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
     sketchDeleteBtn: getElement(documentObj, 'sketch-delete'),
     sketchObjectList: getElement(documentObj, 'sketch-object-list'),
     toolLineBtn: getElement(documentObj, 'tool-line'),
+    toolConstructionLineBtn: getElement(documentObj, 'tool-construction-line'),
     toolSelectBtn: getElement(documentObj, 'tool-select'),
     toolAnchorBtn: getElement(documentObj, 'tool-anchor'),
     toolFillBtn: getElement(documentObj, 'tool-fill'),
     toolDimensionBtn: getElement(documentObj, 'tool-dimension'),
     toolPerpendicularBtn: getElement(documentObj, 'tool-perpendicular'),
+    toolHorizontalBtn: getElement(documentObj, 'tool-horizontal'),
+    toolVerticalBtn: getElement(documentObj, 'tool-vertical'),
     toolMidpointBtn: getElement(documentObj, 'tool-midpoint'),
     toolEqualBtn: getElement(documentObj, 'tool-equal'),
     overlayFileInput: getElement(documentObj, 'overlay-file'),
@@ -152,6 +155,7 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
     if (refs.sketchDeleteBtn) refs.sketchDeleteBtn.disabled = !sketchService.hasSelection;
 
     toggleActive(refs.toolLineBtn, sketch.activeTool === SketchTool.Line);
+    toggleActive(refs.toolConstructionLineBtn, sketch.activeTool === SketchTool.ConstructionLine);
     toggleActive(refs.toolSelectBtn, sketch.activeTool === SketchTool.Select);
     toggleActive(refs.toolAnchorBtn, sketch.activeTool === SketchTool.Anchor);
     toggleActive(refs.toolFillBtn, sketch.activeTool === SketchTool.Fill);
@@ -159,6 +163,14 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
     toggleActive(
       refs.toolPerpendicularBtn,
       sketch.activeTool === SketchTool.Constraint && sketch.constraintSubMode === 'Perpendicular'
+    );
+    toggleActive(
+      refs.toolHorizontalBtn,
+      sketch.activeTool === SketchTool.Constraint && sketch.constraintSubMode === 'Horizontal'
+    );
+    toggleActive(
+      refs.toolVerticalBtn,
+      sketch.activeTool === SketchTool.Constraint && sketch.constraintSubMode === 'Vertical'
     );
     toggleActive(
       refs.toolMidpointBtn,
@@ -176,7 +188,11 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
              data-ref-id="${o.refId ?? ''}">
           <span>${
             o.kind === 'Line' ? '&#9473;'
+              : o.kind === 'Point' ? '&#9679;'
+              : o.kind === 'Anchor' ? '&#9632;'
               : o.kind === 'Perpendicular' ? '&#8869;'
+              : o.kind === 'Horizontal' ? '&#9472;'
+              : o.kind === 'Vertical' ? '&#9474;'
               : o.kind === 'Equal' ? '&#8801;'
               : '&#9679;'
           }</span> ${o.label}
@@ -322,6 +338,10 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
     sketchService.activeTool = SketchTool.Line;
   });
 
+  bindIfPresent(refs.toolConstructionLineBtn, 'click', () => {
+    sketchService.activeTool = SketchTool.ConstructionLine;
+  });
+
   bindIfPresent(refs.toolSelectBtn, 'click', () => {
     sketchService.activeTool = SketchTool.Select;
   });
@@ -341,6 +361,16 @@ export function setupMainUi({ store, sketchService, documentObj = globalThis.doc
   bindIfPresent(refs.toolPerpendicularBtn, 'click', () => {
     sketchService.activeTool = SketchTool.Constraint;
     sketchService.constraintSubMode = 'Perpendicular';
+  });
+
+  bindIfPresent(refs.toolHorizontalBtn, 'click', () => {
+    sketchService.activeTool = SketchTool.Constraint;
+    sketchService.constraintSubMode = 'Horizontal';
+  });
+
+  bindIfPresent(refs.toolVerticalBtn, 'click', () => {
+    sketchService.activeTool = SketchTool.Constraint;
+    sketchService.constraintSubMode = 'Vertical';
   });
 
   bindIfPresent(refs.toolMidpointBtn, 'click', () => {

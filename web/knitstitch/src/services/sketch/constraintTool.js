@@ -44,6 +44,12 @@ export class ConstraintTool {
       return;
     }
 
+    if (constraintSubMode === ConstraintSubMode.Horizontal
+      || constraintSubMode === ConstraintSubMode.Vertical) {
+      this._tryCreateAxisConstraint(line, constraintSubMode, position);
+      return;
+    }
+
     this.service.selectLine(line, multiSelect);
   }
 
@@ -235,6 +241,50 @@ export class ConstraintTool {
     flushSketchArrays(this.service);
     rebuildSketchObjects(this.service);
     return true;
+  }
+
+  _tryCreateAxisConstraint(line, subMode, position = null) {
+    if (!line) return false;
+
+    const type = subMode === ConstraintSubMode.Horizontal ? 'Horizontal' : 'Vertical';
+    const existing = this._findAxisConstraint(line, type);
+    if (existing) {
+      this.service.selectConstraint(existing);
+      return true;
+    }
+
+    this.service._recordSnapshot(`Add ${type.toLowerCase()} constraint`);
+    const constraint = new SketchConstraint(
+      type,
+      null,
+      null,
+      line,
+      null,
+      this.service._nextConstraintId++
+    );
+    this.store.state.sketch.constraints.push(constraint);
+    assignConstraintIds(this.service);
+    if (type === 'Horizontal') {
+      this.service._constraintSolver.enforceHorizontalConstraint(
+        this.store.state.sketch, constraint
+      );
+    } else {
+      this.service._constraintSolver.enforceVerticalConstraint(
+        this.store.state.sketch, constraint
+      );
+    }
+    for (const dim of this.store.state.sketch.dimensions) dim.recompute();
+    this.service.selectConstraint(constraint);
+    flushSketchArrays(this.service);
+    rebuildSketchObjects(this.service);
+    return true;
+  }
+
+  _findAxisConstraint(line, type) {
+    return this.store.state.sketch.constraints.find((constraint) => {
+      if (constraint?.type !== type) return false;
+      return constraint.lineA === line;
+    }) ?? null;
   }
 
   _findEqualConstraint(lineA, lineB) {

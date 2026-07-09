@@ -4,9 +4,10 @@ export function buildSketchObjects(sketch, { findSharedPoint }) {
   const objects = [];
 
   for (const line of sketch.lines) {
+    const prefix = line.isConstruction ? 'Construction ' : '';
     objects.push({
       kind: SketchObjectKind.Line,
-      label: `Line ${line.id + 1}  (${line.start.x.toFixed(0)},${line.start.y.toFixed(0)}) -> (${line.end.x.toFixed(0)},${line.end.y.toFixed(0)})`,
+      label: `${prefix}Line ${line.id + 1}  (${line.start.x.toFixed(0)},${line.start.y.toFixed(0)}) -> (${line.end.x.toFixed(0)},${line.end.y.toFixed(0)})`,
       refType: 'line',
       refId: line.id,
       isSelected: line.isSelected,
@@ -33,12 +34,22 @@ export function buildSketchObjects(sketch, { findSharedPoint }) {
     });
   }
 
-  // Anchor points
+  // Points (anchors are shown first)
   for (const pt of sketch.points) {
     if (!pt.isAnchor) continue;
     objects.push({
       kind: SketchObjectKind.Anchor,
       label: `Anchor A${pt.id + 1}  (${pt.x.toFixed(0)},${pt.y.toFixed(0)})`,
+      refType: 'point',
+      refId: pt.id,
+      isSelected: pt.isSelected,
+    });
+  }
+  for (const pt of sketch.points) {
+    if (pt.isAnchor) continue;
+    objects.push({
+      kind: SketchObjectKind.Point,
+      label: `Point P${pt.id + 1}  (${pt.x.toFixed(0)},${pt.y.toFixed(0)})`,
       refType: 'point',
       refId: pt.id,
       isSelected: pt.isSelected,
@@ -76,6 +87,18 @@ export function buildSketchObjects(sketch, { findSharedPoint }) {
         ? `Equal L${a.id + 1} & L${b.id + 1}`
         : `Equal ${constraint.description}`;
       kind = SketchObjectKind.Equal;
+    } else if (constraint?.type === 'Horizontal') {
+      const line = constraint.lineA;
+      label = line
+        ? `Horizontal L${line.id + 1}`
+        : `Horizontal ${constraint.description}`;
+      kind = SketchObjectKind.Horizontal;
+    } else if (constraint?.type === 'Vertical') {
+      const line = constraint.lineA;
+      label = line
+        ? `Vertical L${line.id + 1}`
+        : `Vertical ${constraint.description}`;
+      kind = SketchObjectKind.Vertical;
     }
 
     objects.push({

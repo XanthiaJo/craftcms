@@ -138,10 +138,56 @@ function renderEqualIcon(group, constraint, service) {
   group.add(iconGroup);
 }
 
+function renderHorizontalIcon(group, constraint, service) {
+  const line = constraint.lineA;
+  if (!line) return;
+
+  const midX = (line.start.x + line.end.x) / 2;
+  const midY = (line.start.y + line.end.y) / 2;
+  const color = iconColor(constraint);
+  const iconSize = 6;
+
+  const iconGroup = new Konva.Group({ listening: true });
+  iconGroup.add(new Konva.Line({
+    points: [midX - iconSize, midY, midX + iconSize, midY],
+    stroke: color,
+    strokeWidth: 2,
+    lineCap: 'round',
+    listening: true,
+    hitStrokeWidth: 14,
+  }));
+  attachConstraintClick(iconGroup, constraint, service);
+  group.add(iconGroup);
+}
+
+function renderVerticalIcon(group, constraint, service) {
+  const line = constraint.lineA;
+  if (!line) return;
+
+  const midX = (line.start.x + line.end.x) / 2;
+  const midY = (line.start.y + line.end.y) / 2;
+  const color = iconColor(constraint);
+  const iconSize = 6;
+
+  const iconGroup = new Konva.Group({ listening: true });
+  iconGroup.add(new Konva.Line({
+    points: [midX, midY - iconSize, midX, midY + iconSize],
+    stroke: color,
+    strokeWidth: 2,
+    lineCap: 'round',
+    listening: true,
+    hitStrokeWidth: 14,
+  }));
+  attachConstraintClick(iconGroup, constraint, service);
+  group.add(iconGroup);
+}
+
 const REGISTRY = {
   Perpendicular: renderPerpendicularIcon,
   Midpoint: renderMidpointIcon,
   Equal: renderEqualIcon,
+  Horizontal: renderHorizontalIcon,
+  Vertical: renderVerticalIcon,
 };
 
 /**
