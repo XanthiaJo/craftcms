@@ -118,10 +118,18 @@ export function applyDrivenDimensions(dimensions, constraints, movedPoints, fixe
     dimInfos.push({ dim, target });
   }
 
-  const roots = fixed?.size > 0 ? fixed : movedPoints;
-  const reachable = new Set(roots);
+  const reachable = new Set(fixed ?? []);
   const depth = new Map();
-  for (const p of roots) depth.set(p, 0);
+  for (const p of fixed ?? []) depth.set(p, 0);
+  // Dragged points are also roots so that dimensions in unconnected sketch
+  // regions can still propagate. They start with a high depth so fixed-root
+  // propagation takes precedence in the depth-based driver selection.
+  for (const p of movedPoints ?? []) {
+    if (!reachable.has(p)) {
+      reachable.add(p);
+      depth.set(p, Infinity);
+    }
+  }
 
   let progress = true;
   let iterations = 0;
@@ -201,6 +209,40 @@ export function applyDrivenDimensions(dimensions, constraints, movedPoints, fixe
         progress = true;
       }
     }
+
+    // Enforce Horizontal/Vertical constraints as hard constraints when at least
+    // one endpoint is already reachable. The free endpoint inherits the matching
+    // coordinate from the reachable one, becoming reachable itself.
+    for (const c of constraints || []) {
+      if ((c?.type !== 'Horizontal' && c?.type !== 'Vertical') || !c.lineA) continue;
+      const a = c.lineA.start;
+      const b = c.lineA.end;
+      const aReach = reachable.has(a);
+      const bReach = reachable.has(b);
+      const axis = c.type === 'Horizontal' ? 'y' : 'x';
+
+      if (aReach && bReach) {
+        const aDepth = depth.get(a) ?? Infinity;
+        const bDepth = depth.get(b) ?? Infinity;
+        const leader = aDepth <= bDepth ? a : b;
+        const follower = leader === a ? b : a;
+        if (Math.abs(follower[axis] - leader[axis]) > EPSILON) {
+          follower[axis] = leader[axis];
+          progress = true;
+        }
+      } else if (aReach && !bReach) {
+        b[axis] = a[axis];
+        reachable.add(b);
+        depth.set(b, (depth.get(a) ?? 0) + 1);
+        progress = true;
+      } else if (!aReach && bReach) {
+        a[axis] = b[axis];
+        reachable.add(a);
+        depth.set(a, (depth.get(b) ?? 0) + 1);
+        progress = true;
+      }
+    }
+
   }
 }
 

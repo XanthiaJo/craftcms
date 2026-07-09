@@ -3,6 +3,7 @@ import { GlobalConstraintSolver } from '../../../web/knitstitch/src/services/ske
 import { SketchPoint } from '../../../web/knitstitch/src/models/sketch/sketchPoint.js';
 import { SketchLine } from '../../../web/knitstitch/src/models/sketch/sketchLine.js';
 import { SketchDimension } from '../../../web/knitstitch/src/models/sketch/sketchDimension.js';
+import { SketchConstraint } from '../../../web/knitstitch/src/models/sketch/sketchConstraint.js';
 import { Store } from '../../../web/knitstitch/src/state/store.js';
 import { SketchService } from '../../../web/knitstitch/src/services/sketch/sketchService.js';
 
@@ -95,6 +96,29 @@ describe('GlobalConstraintSolver driven dimensions', () => {
     const p0 = store.state.sketch.points[0];
     expect(p0.x).toBeCloseTo(0, 5);
     expect(p0.y).toBeCloseTo(0, 5);
+  });
+
+  it('keeps a vertical constraint enforced after dragging the free endpoint', () => {
+    const solver = new GlobalConstraintSolver();
+    const a = new SketchPoint(0, 0, 0);
+    a.isAnchor = true;
+    const b = new SketchPoint(1, 50, 100);
+    const line = new SketchLine(0, a, b);
+    const constraint = new SketchConstraint('Vertical', a, b, line, null, 0);
+
+    const sketch = {
+      points: [a, b],
+      lines: [line],
+      dimensions: [],
+      constraints: [constraint],
+    };
+
+    b.x = 200;
+    b.y = 300;
+    const result = solver.solve(sketch, new Set([b]));
+
+    expect(result).not.toBeNull();
+    expect(b.x).toBeCloseTo(a.x, 5);
   });
 
   it('keeps all sock template dimensions locked when dragging outline points', () => {
