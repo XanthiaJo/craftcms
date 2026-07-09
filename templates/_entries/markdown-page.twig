@@ -23,12 +23,16 @@
     <div class="shell page-layout">
         <div class="container">
         {% if markdownSource %}
-            <div class="body">
-                {{ markdownSource|markdown('gfm')|purify }}
+            <div class="panel panel--padded">
+                <div class="body">
+                    {{ markdownSource|markdown('gfm')|purify }}
+                </div>
             </div>
         {% else %}
-            <h1>Markdown source unavailable</h1>
-            <p class="body">Add a GitHub raw markdown URL in the entry editor to render this page.</p>
+            <div class="panel panel--padded">
+                <h1>Markdown source unavailable</h1>
+                <p class="body">Add a GitHub raw markdown URL in the entry editor to render this page.</p>
+            </div>
         {% endif %}
         </div>
 
