@@ -6,6 +6,7 @@ import { ConstraintTool } from './constraintTool.js';
 import { LineTool } from './lineTool.js';
 import { TemplateTool } from './templateTool.js';
 import { HistoryManager } from './historyManager.js';
+import { checkOverconstraints } from './overconstraintChecker.js';
 import { nearestPoint } from '../../utils/geometry.js';
 import { restoreSketchSnapshot } from './sketchSnapshot.js';
 import {
@@ -252,7 +253,26 @@ export class SketchService {
 
   onCanvasMouseUp() {
     this._history.endDrag();
+    const draggedPoint = this._dragPoint;
     this._dragPoint = null;
+    if (draggedPoint) {
+      // Recompute dimension kinds once the drag is finished so Horizontal/Vertical
+      // kinds only take effect after the user has released the point.
+      for (const dim of this.store.state.sketch.dimensions) dim.recompute();
+      const movedPoints = new Set([draggedPoint]);
+      if (this._useGlobalSolver) {
+        this._globalConstraintSolver.solve(this.store.state.sketch, movedPoints);
+      } else {
+        this._constraintSolver.solveConstraintsForPoint(
+          this.store.state.sketch,
+          draggedPoint,
+          null,
+          {}
+        );
+      }
+      flushSketchArraysInStore(this);
+      rebuildSketchObjectsInStore(this);
+    }
   }
 
   _onSelectMouseMove(position, modifiers = {}) {
@@ -265,7 +285,7 @@ export class SketchService {
       // Global solver handles all constraints simultaneously
       const movedPoints = new Set([this._dragPoint]);
       const result = this._globalConstraintSolver.solve(this.store.state.sketch, movedPoints);
-      
+
       // If global solver returns null (too many driven dimensions), fall back to local solver
       if (result === null) {
         this._constraintSolver.solveConstraintsForPoint(
@@ -284,9 +304,11 @@ export class SketchService {
         modifiers
       );
     }
-    
+
     assignSketchConstraintIds(this);
-    for (const dim of this.store.state.sketch.dimensions) dim.recompute();
+    // During a drag, preserve the dimension kind so the solver doesn't switch a
+    // dimension to Horizontal/Vertical and lock the line before the user releases.
+    for (const dim of this.store.state.sketch.dimensions) dim.recompute(true);
 
     flushSketchArraysInStore(this);
     rebuildSketchObjectsInStore(this);

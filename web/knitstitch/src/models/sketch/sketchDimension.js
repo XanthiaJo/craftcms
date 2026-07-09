@@ -58,14 +58,16 @@ export class SketchDimension {
     this.recompute();
   }
 
-  recompute() {
+  recompute(preserveKind = false) {
     const dx       = this.b.x - this.a.x;
     const dy       = this.b.y - this.a.y;
     const angleDeg = Math.abs(Math.atan2(Math.abs(dy), Math.abs(dx)) * 180 / Math.PI);
 
-    this.kind = angleDeg <= SNAP_ANGLE_DEG          ? DimensionKind.Horizontal
-              : angleDeg >= 90 - SNAP_ANGLE_DEG     ? DimensionKind.Vertical
-              : DimensionKind.Aligned;
+    if (!preserveKind) {
+      this.kind = angleDeg <= SNAP_ANGLE_DEG          ? DimensionKind.Horizontal
+                : angleDeg >= 90 - SNAP_ANGLE_DEG     ? DimensionKind.Vertical
+                : DimensionKind.Aligned;
+    }
 
     const measured = this.kind === DimensionKind.Horizontal ? Math.abs(dx)
                    : this.kind === DimensionKind.Vertical   ? Math.abs(dy)
