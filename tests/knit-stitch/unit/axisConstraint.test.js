@@ -11,8 +11,8 @@ function makeService() {
   return { store, service };
 }
 
-describe('Horizontal/Vertical constraints', () => {
-  it('makes a diagonal line horizontal on constraint creation', () => {
+describe('H/V constraint (auto-detect)', () => {
+  it('makes a near-horizontal line horizontal', () => {
     const { service, store } = makeService();
     service.onCanvasClick({ x: 0, y: 0 });
     service.onCanvasClick({ x: 60, y: 20 });
@@ -20,7 +20,7 @@ describe('Horizontal/Vertical constraints', () => {
     expect(line.end.y).not.toBe(line.start.y);
 
     service.activeTool = SketchTool.Constraint;
-    service.constraintSubMode = ConstraintSubMode.Horizontal;
+    service.constraintSubMode = ConstraintSubMode.HorizontalVertical;
     service.onConstraintLineClick(line);
 
     expect(store.state.sketch.constraints).toHaveLength(1);
@@ -28,7 +28,7 @@ describe('Horizontal/Vertical constraints', () => {
     expect(line.start.y).toBeCloseTo(line.end.y, 5);
   });
 
-  it('makes a diagonal line vertical on constraint creation', () => {
+  it('makes a near-vertical line vertical', () => {
     const { service, store } = makeService();
     service.onCanvasClick({ x: 0, y: 0 });
     service.onCanvasClick({ x: 20, y: 60 });
@@ -36,7 +36,7 @@ describe('Horizontal/Vertical constraints', () => {
     expect(line.end.x).not.toBe(line.start.x);
 
     service.activeTool = SketchTool.Constraint;
-    service.constraintSubMode = ConstraintSubMode.Vertical;
+    service.constraintSubMode = ConstraintSubMode.HorizontalVertical;
     service.onConstraintLineClick(line);
 
     expect(store.state.sketch.constraints).toHaveLength(1);
@@ -44,14 +44,14 @@ describe('Horizontal/Vertical constraints', () => {
     expect(line.start.x).toBeCloseTo(line.end.x, 5);
   });
 
-  it('does not duplicate a horizontal constraint on the same line', () => {
+  it('does not duplicate an axis constraint on the same line', () => {
     const { service, store } = makeService();
     service.onCanvasClick({ x: 0, y: 0 });
     service.onCanvasClick({ x: 60, y: 20 });
     const line = store.state.sketch.lines[0];
 
     service.activeTool = SketchTool.Constraint;
-    service.constraintSubMode = ConstraintSubMode.Horizontal;
+    service.constraintSubMode = ConstraintSubMode.HorizontalVertical;
     service.onConstraintLineClick(line);
     service.onConstraintLineClick(line);
 

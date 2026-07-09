@@ -15,44 +15,65 @@ async function openSketch(page) {
 
   // The live site sizes the canvas via flexbox, so the canvas height depends
   // on the viewport. Set a large viewport so all test coordinates fit.
-  await page.setViewportSize({ width: 1600, height: 1080 });
+  await page.setViewportSize({ width: 1600, height: 1400 });
 
   await page.getByRole('button', { name: 'Sketch' }).click();
   await page.getByRole('button', { name: 'Select' }).click();
 
   // Konva's getRelativePointerPosition() calculates pointer coordinates
-  // relative to the inner .konvajs-content div (not #konva-stage itself),
-  // using getBoundingClientRect() on that content div. The canvas can be
-  // offset from #konva-stage by flexbox centering and borders, so we must
-  // use the content div's rect as the click origin.
+  // relative to the inner .konvajs-content div (not #konva-stage itself).
+  // The app centres the viewport on the origin (0,0), so the content origin is
+  // at the centre of the canvas, not the top-left. We need to know the pan
+  // offset so stage-relative click coordinates can be converted to screen.
   const canvas = page.locator('#konva-stage canvas').first();
   await expect(canvas).toBeVisible();
-  const box = await canvas.boundingBox();
-  if (!box) throw new Error('Could not find canvas bounding box');
-  return box;
+  const canvasBox = await canvas.boundingBox();
+  if (!canvasBox) throw new Error('Could not find canvas bounding box');
+
+  const origin = await page.evaluate(() => {
+    const store = window.__knitstitchStore;
+    return {
+      x: store?.get('panOffsetX') ?? canvasBox.width / 2,
+      y: store?.get('panOffsetY') ?? canvasBox.height / 2,
+      scale: store?.get('zoomLevel') ?? 1,
+    };
+  });
+
+  return {
+    x: Math.round(canvasBox.x + origin.x),
+    y: Math.round(canvasBox.y + origin.y),
+    width: canvasBox.width,
+    height: canvasBox.height,
+    scale: origin.scale,
+  };
+}
+
+async function clickStage(page, box, point) {
+  await page.mouse.click(box.x + point.x * box.scale, box.y + point.y * box.scale);
 }
 
 async function dragStage(page, box, from, to) {
-  await page.mouse.move(box.x + from.x, box.y + from.y);
+  await page.mouse.move(box.x + from.x * box.scale, box.y + from.y * box.scale);
   await page.mouse.down();
-  await page.mouse.move(box.x + to.x, box.y + to.y, { steps: 12 });
+  await page.mouse.move(box.x + to.x * box.scale, box.y + to.y * box.scale, { steps: 12 });
   await page.mouse.up();
 }
 
 test.describe('Sketch Cell Fill Updates', () => {
-  test('cell fill updates when dragging template points', async ({ page }) => {
+  test('cell fill updates when dragging a manually drawn point', async ({ page }) => {
     const box = await openSketch(page);
 
-    // Apply the sock template
-    await page.getByRole('button', { name: 'Templates' }).click();
-    await page.getByRole('button', { name: 'Sock' }).click();
-    await page.getByRole('button', { name: 'Sketch' }).click();
+    // Draw a simple rectangle: (0,0) -> (100,0) -> (100,100) -> (0,100) -> (0,0)
+    await page.getByRole('button', { name: 'Line' }).click();
+    await clickStage(page, box, { x: 0, y: 0 });
+    await clickStage(page, box, { x: 100, y: 0 });
+    await clickStage(page, box, { x: 100, y: 100 });
+    await clickStage(page, box, { x: 0, y: 100 });
+    // Snap back to the first point to close the rectangle.
+    await clickStage(page, box, { x: 2, y: 2 });
+
     await page.getByRole('button', { name: 'Select' }).click();
 
-    // Wait for template to be applied
-    await page.waitForTimeout(500);
-
-    // Get initial cell fill count
     const initialFillCount = await page.evaluate(() => {
       const sketch = window.__knitstitchStore?.state?.sketch;
       const lines = sketch.lines || [];
@@ -66,25 +87,10 @@ test.describe('Sketch Cell Fill Updates', () => {
     console.log('Initial fill count:', initialFillCount);
     expect(initialFillCount).toBeGreaterThan(0);
 
-    // Get point 19 coordinates (top-right corner)
-    const point19 = await page.evaluate(() => {
-      const sketch = window.__knitstitchStore?.state?.sketch;
-      const points = sketch.points || [];
-      const p19 = points[19];
-      return { x: p19.x, y: p19.y };
-    });
-
-    // Perform the drag (same as constraint test)
-    console.log('Dragging point 19 from', point19.x, point19.y, 'to', point19.x + 40, point19.y + 30);
-    await dragStage(page, box, point19, { 
-      x: point19.x + 40, 
-      y: point19.y + 30 
-    });
-
-    // Wait for updates to complete
+    // Drag the bottom-right corner outward to enlarge the rectangle.
+    await dragStage(page, box, { x: 100, y: 100 }, { x: 150, y: 150 });
     await page.waitForTimeout(300);
 
-    // Get final fill count
     const finalFillCount = await page.evaluate(() => {
       const sketch = window.__knitstitchStore?.state?.sketch;
       const lines = sketch.lines || [];
@@ -97,9 +103,7 @@ test.describe('Sketch Cell Fill Updates', () => {
 
     console.log('Final fill count:', finalFillCount);
 
-    // Verify that the fill count changed
     expect(finalFillCount).not.toBe(initialFillCount, 'Cell fill count should change after dragging a point');
-    
     console.log('✅ SUCCESS: Cell fill updates correctly when points are dragged!');
     console.log(`   Fill count changed from ${initialFillCount} to ${finalFillCount} cells`);
   });

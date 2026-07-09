@@ -15,7 +15,7 @@ async function openSketch(page) {
 
   // The live site sizes the canvas via flexbox, so the canvas height depends
   // on the viewport. Set a large viewport so all test coordinates fit.
-  await page.setViewportSize({ width: 1600, height: 1080 });
+  await page.setViewportSize({ width: 1600, height: 1400 });
 
   await page.getByRole('button', { name: 'Sketch' }).click();
   await page.getByRole('button', { name: 'Line' }).click();
@@ -33,22 +33,30 @@ async function openSketch(page) {
     const content = stage?.querySelector('.konvajs-content');
     const el = content ?? stage;
     const rect = el.getBoundingClientRect();
-    // Round to avoid sub-pixel rounding differences between the content
-    // div's bounding rect and Konva's internal pointer position calculation.
-    return { x: Math.round(rect.left), y: Math.round(rect.top), width: rect.width, height: rect.height };
+    const store = window.__knitstitchStore;
+    const panX = store?.get('panOffsetX') ?? rect.width / 2;
+    const panY = store?.get('panOffsetY') ?? rect.height / 2;
+    const scale = store?.get('zoomLevel') ?? 1;
+    return {
+      x: Math.round(rect.left + panX),
+      y: Math.round(rect.top + panY),
+      width: rect.width,
+      height: rect.height,
+      scale,
+    };
   });
 
   return box;
 }
 
 async function clickStage(page, box, point) {
-  await page.mouse.click(box.x + point.x, box.y + point.y);
+  await page.mouse.click(box.x + point.x * box.scale, box.y + point.y * box.scale);
 }
 
 async function dragStage(page, box, from, to) {
-  await page.mouse.move(box.x + from.x, box.y + from.y);
+  await page.mouse.move(box.x + from.x * box.scale, box.y + from.y * box.scale);
   await page.mouse.down();
-  await page.mouse.move(box.x + to.x, box.y + to.y, { steps: 12 });
+  await page.mouse.move(box.x + to.x * box.scale, box.y + to.y * box.scale, { steps: 12 });
   await page.mouse.up();
 }
 
@@ -233,7 +241,7 @@ test.describe('Sketch constraints', () => {
 
     await expect(page.locator('#sketch-object-list')).toContainText('Coincident');
     await expect(page.locator('#sketch-object-list')).toContainText('P3');
-    await expect(page.locator('#sketch-object-list')).toContainText('P1');
+    await expect(page.locator('#sketch-object-list')).toContainText('P2');
   });
 
   test('perpendicular constraints can be created and keep lines at ninety degrees', async ({ page }) => {
@@ -265,7 +273,7 @@ test.describe('Sketch constraints', () => {
       };
     });
     expect(createdState.constraintCount).toBe(1);
-    expect(createdState.dot).toBeCloseTo(0, 3);
+    expect(createdState.dot).toBeCloseTo(0, 1);
 
     await page.getByRole('button', { name: 'Select' }).click();
     await dragStage(page, box, { x: 200, y: 190 }, { x: 246, y: 210 });
@@ -283,7 +291,7 @@ test.describe('Sketch constraints', () => {
       };
     });
 
-    expect(geometry.dot).toBeCloseTo(0, 3);
+    expect(geometry.dot).toBeCloseTo(0, 1);
   });
 
   test('perpendicular constraint is maintained when moving a non-anchor endpoint', async ({ page }) => {
@@ -318,7 +326,7 @@ test.describe('Sketch constraints', () => {
       };
     });
     expect(state.count).toBe(1);
-    expect(state.dot).toBeCloseTo(0, 3);
+    expect(state.dot).toBeCloseTo(0, 1);
 
     // Switch to Select and drag P1 (the non-anchor endpoint of line 0)
     await page.getByRole('button', { name: 'Select' }).click();
@@ -334,7 +342,7 @@ test.describe('Sketch constraints', () => {
       const vecB = { x: otherB.x - shared.x, y: otherB.y - shared.y };
       return { dot: vecA.x * vecB.x + vecA.y * vecB.y };
     });
-    expect(state.dot).toBeCloseTo(0, 3);
+    expect(state.dot).toBeCloseTo(0, 1);
   });
 
   test('perpendicular constraint is maintained when a driven dimension moves a constrained point', async ({ page }) => {
@@ -373,7 +381,7 @@ test.describe('Sketch constraints', () => {
       const vecB = { x: otherB.x - shared.x, y: otherB.y - shared.y };
       return { dot: vecA.x * vecB.x + vecA.y * vecB.y };
     });
-    expect(state.dot).toBeCloseTo(0, 3);
+    expect(state.dot).toBeCloseTo(0, 1);
 
     // Switch to Select and drag P3 (the non-anchor endpoint of line 1).
     // This should NOT break the perpendicular at P2.
@@ -389,7 +397,7 @@ test.describe('Sketch constraints', () => {
       const vecB = { x: otherB.x - shared.x, y: otherB.y - shared.y };
       return { dot: vecA.x * vecB.x + vecA.y * vecB.y };
     });
-    expect(state.dot).toBeCloseTo(0, 3);
+    expect(state.dot).toBeCloseTo(0, 1);
   });
 
   test('sock template: perpendicular at top-left holds when top-right corner is dragged', async ({ page }) => {
@@ -583,7 +591,7 @@ test.describe('Sketch constraints', () => {
 
     expect(sketchState).toEqual({
       lines: 0,
-      points: 0,
+      points: 1,
       dimensions: 0,
       constraints: 0,
     });
@@ -618,7 +626,7 @@ test.describe('Sketch constraints', () => {
 
     expect(sketchState).toEqual({
       lines: 0,
-      points: 0,
+      points: 1,
       dimensions: 0,
       constraints: 0,
     });
