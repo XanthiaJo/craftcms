@@ -82,6 +82,20 @@ if ($ref !== 'refs/heads/master') {
 $repoRoot = dirname(__DIR__);
 // Ensure common binary paths are in PATH for PHP exec()
 $extraPaths = ['/usr/local/bin', '/usr/bin', '/bin', '/usr/local/git/bin', '/opt/git/bin'];
+
+// Add nvm-installed Node.js binaries (user-space install without sudo)
+$homeDir = getenv('HOME') ?: '/home/' . get_current_user();
+$nvmDir = $homeDir . '/.nvm/versions/node';
+if (is_dir($nvmDir)) {
+    foreach (scandir($nvmDir) as $entry) {
+        if ($entry === '.' || $entry === '..') continue;
+        $nvmBin = $nvmDir . '/' . $entry . '/bin';
+        if (is_dir($nvmBin)) {
+            $extraPaths[] = $nvmBin;
+        }
+    }
+}
+
 $envPath = getenv('PATH');
 foreach ($extraPaths as $p) {
     if (is_dir($p) && strpos($envPath, $p) === false) {
