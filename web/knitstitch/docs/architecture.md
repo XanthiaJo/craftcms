@@ -30,7 +30,7 @@ Craft CMS page (/knit-stitch)
 | **Store** | Holds all state (sketch entities, grid cells, zoom/pan, gauge settings). Notifies subscribers when state changes. |
 | **SketchService** | Thin coordinator. Receives canvas events, delegates to the active tool, manages selection and undo/redo. No business logic — just forwarders. |
 | **AppStage** | Creates the Konva canvas and mounts three layers: grid (bottom), overlay (middle), sketch (top). Handles resize and zoom/pan. |
-| **MainUI** | Wires sidebar buttons, measurement inputs, zoom controls, and store subscriptions. The largest UI file (~600 lines) and the next refactor target. |
+| **MainUI** | Thin orchestrator that wires 7 focused panel controllers (grid, sketch, overlay, template, zoom, keyboard). Each controller owns its own refs, events, and store subscriptions. |
 
 ## Canvas layers
 
@@ -102,7 +102,14 @@ The entire app state (sketch entities, grid cells, gauge, zoom/pan) is saved to 
 src/
   main.js                  — bootstrap
   ui/
-    mainUi.js              — sidebar and controls
+    mainUi.js              — thin orchestrator
+    uiUtils.js             — shared DOM helpers
+    gridPanelController.js — grid sidebar
+    sketchPanelController.js — sketch sidebar
+    overlayPanelController.js — overlay sidebar
+    templatePanelController.js — template sidebar
+    zoomController.js      — zoom/pan controls
+    keyboardController.js  — keyboard shortcuts
   konva/
     appStage.js            — Konva stage + layers
     gridLayer.js           — infinite grid

@@ -13,7 +13,14 @@ For the surface-level file summaries, see [../project-map.md](../project-map.md)
 | File | Lines | Summary |
 | --- | --- | --- |
 | `src/main.js` | 33 | App bootstrap: creates Store, SketchService, persistence, AppStage, UI. Exposes `window.__knitstitchStore` and `window.__knitstitchSketchService` for E2E tests. |
-| `src/ui/mainUi.js` | 611 | Main UI: binds sidebar inputs, wires workspace switching, wheel zoom, pan, store subscriptions. **Next refactor target.** |
+| `src/ui/mainUi.js` | 63 | Thin orchestrator: wires panel controllers, cross-panel syncAll, setWorkspace wrapper. |
+| `src/ui/uiUtils.js` | 35 | Shared DOM helpers: `getElement`, `bindIfPresent`, `toggleActive`, `collectRefs`. |
+| `src/ui/gridPanelController.js` | 124 | Grid sidebar: gauge inputs, grid info, finished size, clear-manual. |
+| `src/ui/sketchPanelController.js` | 158 | Sketch sidebar: tool buttons, object list, constraint status, color/undo/delete. |
+| `src/ui/overlayPanelController.js` | 64 | Overlay sidebar: image browse/clear, visibility, opacity. |
+| `src/ui/templatePanelController.js` | 131 | Template sidebar: template list, measurement inputs, derived values. |
+| `src/ui/zoomController.js` | 123 | Zoom/pan: zoom buttons, wheel zoom, right-mouse pan, zoom display. |
+| `src/ui/keyboardController.js` | 30 | Keyboard shortcuts: Escape, Delete. |
 
 ### Konva layers
 

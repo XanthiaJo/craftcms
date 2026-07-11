@@ -4,7 +4,7 @@ A high-level feature roadmap organised by area. Checked items are shipped; unche
 
 For implementation details, internal notes, and refactoring phases see [agents/roadmap.md](agents/roadmap.md).
 
-_Last updated: 2026-07-11_
+_Last updated: 2026-07-12_
 
 ---
 
@@ -93,4 +93,4 @@ _Last updated: 2026-07-11_
 ## Architecture
 
 - [x] Slim `sketchService.js` into a thin coordinator with a tool registry
-- [ ] Split `mainUi.js` into focused panel controllers
+- [x] Split `mainUi.js` into focused panel controllers

@@ -2,7 +2,7 @@
 
 Internal, detail-heavy notes for agents working on KnitStitch. This is the companion to the human-readable [../roadmap.md](../roadmap.md).
 
-_Last updated: 2026-07-11_
+_Last updated: 2026-07-12_
 
 ---
 
@@ -15,7 +15,7 @@ _Last updated: 2026-07-11_
 | E2E test coverage | 19 passing (run via Playwright against DDEV) |
 | Unit test coverage | 67 passing across 12 files |
 | Sketch service refactor (`sketchService.js`) | Complete — tool registry extracted, service is a thin coordinator (~300 lines, all forwarders) |
-| UI refactor (`mainUi.js`) | Not started |
+| UI refactor (`mainUi.js`) | Complete — split into 7 focused panel controllers, mainUi.js is a 63-line orchestrator |
 
 ---
 
@@ -180,38 +180,24 @@ Each template needs:
 
 ## Refactor Plans
 
-### `mainUi.js` refactor plan
+### `mainUi.js` refactor — COMPLETE
 
-`mainUi.js` is a single 579-line `setupMainUi` function that mixes DOM ref collection, sidebar rendering for 6 independent panels, event binding for ~25 controls, 5 store subscriptions, zoom/pan logic, and keyboard shortcuts. It should be split into focused panel controllers that share a common ref-binding utility.
+`mainUi.js` was a single 611-line `setupMainUi` function mixing DOM ref collection, sidebar rendering for 6 independent panels, event binding for ~25 controls, 5 store subscriptions, zoom/pan logic, and keyboard shortcuts. It has been split into 7 focused panel controllers plus a 63-line thin orchestrator.
 
-#### Current structure
+#### What was done
 
-| Section | Lines | Concern |
-|---|---|---|
-| Refs object | 31–84 | 50+ DOM element lookups in one block |
-| `updateGridSidebar` | 88–119 | Grid info, cell size, finished size display |
-| `recalculateSize` | 121–142 | Gauge → cell size → finished size pipeline |
-| `updateSketchSidebar` | 144–184 | Tool toggle state, object list HTML |
-| `updateOverlaySidebar` | 186–193 | Overlay image path, visibility, opacity |
-| `updateTemplatesSidebar` | 195–201 | Template button list |
-| Measurement helpers | 203–260 | Read/write inputs, derived values, panel visibility |
-| `updateZoomDisplay` | 262–267 | Zoom percentage label |
-| `syncAll` | 269–276 | Calls all update functions |
-| Event bindings | 278–504 | Gauge, sketch tools, overlay, templates, measurements, zoom, pan, keyboard |
-| Store subscriptions | 515–567 | 5 separate subscribe calls with path filtering |
+| Phase | File | Lines | Owns |
+|---|---|---|---|
+| 1 — Shared UI utilities | `uiUtils.js` | 35 | `getElement`, `bindIfPresent`, `toggleActive`, `collectRefs` |
+| 2 — Grid panel | `gridPanelController.js` | 124 | Gauge inputs, grid info, finished size, clear-manual |
+| 3 — Sketch panel | `sketchPanelController.js` | 158 | Tool buttons, object list, constraint status, color/undo/delete |
+| 4 — Overlay panel | `overlayPanelController.js` | 64 | Image browse/clear, visibility, opacity |
+| 5 — Template panel | `templatePanelController.js` | 131 | Template list, measurement inputs, derived values |
+| 6 — Zoom controller | `zoomController.js` | 123 | Zoom buttons, wheel zoom, right-mouse pan, zoom display |
+| 7 — Keyboard controller | `keyboardController.js` | 30 | Escape and Delete key handling |
+| 8 — Slim orchestrator | `mainUi.js` | 63 | Wires controllers, cross-panel syncAll, setWorkspace wrapper |
 
-#### Phases
-
-| Phase | Action | Target |
-|---|---|---|
-| 1 — Shared UI utilities | Create `src/ui/uiUtils.js` with `getElement`, `bindIfPresent`, `toggleActive`; import in all panel controllers | Reusable helpers |
-| 2 — Grid panel | Create `src/ui/gridPanelController.js` owning grid refs and subscription | Self-contained grid sidebar |
-| 3 — Sketch panel | Create `src/ui/sketchPanelController.js` owning tool buttons, object list, sketch subscription | Largest sidebar section split out |
-| 4 — Overlay panel | Create `src/ui/overlayPanelController.js` owning overlay controls and subscription | Fully self-contained |
-| 5 — Template panel | Create `src/ui/templatePanelController.js` owning template/measurement refs and subscription | Second-largest section split out |
-| 6 — Zoom controller | Create `src/ui/zoomController.js` owning zoom buttons, wheel zoom, pan state | Canvas-level interaction |
-| 7 — Keyboard controller | Create `src/ui/keyboardController.js` for Escape/Delete key handling | Independent of sidebar |
-| 8 — Slim mainUi.js | Thin orchestrator calling each setup function; keep `setWorkspace` wrapper | Under 80 lines |
+Each controller owns its own refs, event bindings, and store subscriptions. The orchestrator connects the cross-panel `syncAll` and the `sketch.lines → recalculateSize` bridge subscription.
 
 ### `sketchService.js` refactor — COMPLETE
 

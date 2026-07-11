@@ -137,7 +137,14 @@ For low-level import/export maps and dependency graphs, see [agents/project-map.
 
 | File | Summary |
 | --- | --- |
-| `src/ui/mainUi.js` | Main UI: binds sidebar inputs, wires workspace switching, zoom/pan, store subscriptions. |
+| `src/ui/mainUi.js` | Thin orchestrator: wires panel controllers, cross-panel syncAll, setWorkspace wrapper. |
+| `src/ui/uiUtils.js` | Shared DOM helpers: `getElement`, `bindIfPresent`, `toggleActive`, `collectRefs`. |
+| `src/ui/gridPanelController.js` | Grid sidebar: gauge inputs, grid info, finished size, clear-manual. |
+| `src/ui/sketchPanelController.js` | Sketch sidebar: tool buttons, object list, constraint status, color/undo/delete. |
+| `src/ui/overlayPanelController.js` | Overlay sidebar: image browse/clear, visibility, opacity. |
+| `src/ui/templatePanelController.js` | Template sidebar: template list, measurement inputs, derived values. |
+| `src/ui/zoomController.js` | Zoom/pan: zoom buttons, wheel zoom, right-mouse pan, zoom display. |
+| `src/ui/keyboardController.js` | Keyboard shortcuts: Escape exits to Select, Delete removes selection. |
 
 ## Utils
 
