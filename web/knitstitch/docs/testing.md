@@ -10,10 +10,10 @@ cd tests/knit-stitch
 
 ## Quick start
 
-| Suite | Command | Files |
-| --- | --- | --- |
-| Unit | `npx vitest run` | `tests/knit-stitch/unit/**/*.test.js` |
-| E2E | `npx playwright test` | `tests/knit-stitch/e2e/**/*.spec.js` |
+| Suite | Command | Files | Count |
+| --- | --- | --- | --- |
+| Unit | `npx vitest run` | `tests/knit-stitch/unit/**/*.test.js` | 67 tests across 12 files |
+| E2E | `npx playwright test` | `tests/knit-stitch/e2e/**/*.spec.js` | 19 tests across 2 files |
 
 ## Unit tests (Vitest)
 
@@ -31,7 +31,7 @@ For watch mode during development:
 npx vitest
 ```
 
-Vitest reads `vitest.config.js` in this directory. That config uses Node environment and only includes `unit/**/*.test.js`.
+Vitest reads `vitest.config.js` in this directory. That config uses Node environment and only includes `unit/**/*.test.js`. The `package.json` in `tests/knit-stitch/` declares `"type": "module"` so Node loads Vite's ESM build (avoiding the CJS deprecation warning).
 
 ### What to unit test
 

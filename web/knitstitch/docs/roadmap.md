@@ -2,9 +2,9 @@
 
 A high-level feature roadmap organised by area. Checked items are shipped; unchecked items are planned or in progress.
 
-For implementation details, internal notes, and refactoring phases see [roadmap-agent.md](roadmap-agent.md).
+For implementation details, internal notes, and refactoring phases see [agents/roadmap.md](agents/roadmap.md).
 
-_Last updated: 2026-07-06_
+_Last updated: 2026-07-11_
 
 ---
 

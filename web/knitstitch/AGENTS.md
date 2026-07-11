@@ -37,7 +37,8 @@ Primary source layout:
 - [src/state/storePersistence.js](</E:/Coding Projects/craftcms/web/knitstitch/src/state/storePersistence.js>) - localStorage persistence with legacy migration
 - [src/utils/geometry.js](</E:/Coding Projects/craftcms/web/knitstitch/src/utils/geometry.js>) - pure geometry helpers (distance, nearestPoint, applyAngleSnap)
 - [tests/knit-stitch/](</E:/Coding Projects/craftcms/tests/knit-stitch/>) - Vitest and Playwright coverage (at repo root, not inside `web/knitstitch/`)
-- [docs/](</E:/Coding Projects/craftcms/web/knitstitch/docs/>) - project map, roadmap, tests map
+- [docs/](</E:/Coding Projects/craftcms/web/knitstitch/docs/>) - human-level docs: architecture overview, project map, roadmap, testing guide
+- [docs/agents/](</E:/Coding Projects/craftcms/web/knitstitch/docs/agents/>) - agent-level docs: low-level architecture, import/export maps, detailed roadmap
 
 ## DRY Rules
 

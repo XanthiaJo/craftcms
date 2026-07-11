@@ -1,8 +1,8 @@
 # KnitStitch Agent Roadmap
 
-Internal, detail-heavy notes for agents working on KnitStitch. This is the companion to the human-readable [roadmap.md](roadmap.md).
+Internal, detail-heavy notes for agents working on KnitStitch. This is the companion to the human-readable [../roadmap.md](../roadmap.md).
 
-_Last updated: 2026-07-06_
+_Last updated: 2026-07-11_
 
 ---
 
@@ -11,11 +11,11 @@ _Last updated: 2026-07-06_
 | Area | Status |
 |---|---|
 | Global constraint solver | Shipped |
-| Constraint types | 5 shipped (Coincident, Perpendicular, Midpoint, Equal Length, Driven Dimensions) |
-| E2E test coverage | 17/17 listed (run via Playwright against DDEV) |
-| Unit test coverage | Pure logic + solver helpers covered |
+| Constraint types | 6 shipped (Coincident, Perpendicular, Midpoint, Equal Length, Horizontal/Vertical, Driven Dimensions) |
+| E2E test coverage | 19 passing (run via Playwright against DDEV) |
+| Unit test coverage | 67 passing across 12 files |
+| Sketch service refactor (`sketchService.js`) | Complete — tool registry extracted, service is a thin coordinator (~300 lines, all forwarders) |
 | UI refactor (`mainUi.js`) | Not started |
-| Sketch service refactor (`sketchService.js`) | Not started |
 
 ---
 
@@ -213,41 +213,41 @@ Each template needs:
 | 7 — Keyboard controller | Create `src/ui/keyboardController.js` for Escape/Delete key handling | Independent of sidebar |
 | 8 — Slim mainUi.js | Thin orchestrator calling each setup function; keep `setWorkspace` wrapper | Under 80 lines |
 
-### `sketchService.js` refactor plan
+### `sketchService.js` refactor — COMPLETE
 
-`sketchService.js` is 496 lines and has accumulated thin proxy methods, inline anchor logic, tool-dispatch switch statements that grow with each tool, and undo fallback logic. The coordinator role is correct, but several chunks should be extracted to match the pattern established by `lineTool.js`, `dimensionTool.js`, and `constraintTool.js`.
+The sketch service has been refactored from a 496-line monolith into a ~300-line thin coordinator. All logic has been extracted into focused modules under `src/services/sketch/`.
 
-#### Current structure
+#### What was done
+
+| Phase | Action | Status |
+|---|---|---|
+| 1 — Anchor tool | Extracted into `tools/anchorTool.js` | Done |
+| 2 — Selection | Extracted into `state/sketchSelection.js` and `state/selection.js` | Done |
+| 3 — Sketch cleanup | Extracted into `state/sketchCleanup.js` and `state/deleteSketchSelection.js` | Done |
+| 4 — Tool registry | Created `tools/toolRegistry.js` with `Map<SketchTool, Tool>` dispatch | Done |
+| 5 — Lifecycle | Extracted into `state/lifecycle.js` (ensureOriginAnchor, undo, clear, cancelCurrentLine, exitToSelect) | Done |
+| 6 — Properties | Extracted into `state/properties.js` (store-backed getters/setters) | Done |
+| 7 — Store sync | Extracted into `state/sketchStoreSync.js` | Done |
+| 8 — ID management | Extracted into `state/sketchIdManager.js` | Done |
+| 9 — History | Extracted into `state/historyManager.js` | Done |
+| 10 — Snapshots | Extracted into `state/sketchSnapshot.js` | Done |
+| 11 — Drag handling | Extracted into `interactions/dragHandler.js` | Done |
+| 12 — Feedback | Extracted into `state/sketchFeedback.js` | Done |
+
+#### Current structure (post-refactor)
+
+`sketchService.js` is now a thin coordinator. Every method is a one-line forwarder to an extracted module. The service owns no business logic — it just wires together the tool registry, solvers, history manager, and state helpers.
 
 | Section | Lines | Concern |
 |---|---|---|
-| Constructor + ID counters | 38–61 | State init, sub-tool composition |
-| Store-backed getters/setters | 63–129 | isActive, activeTool, constraintSubMode, strokeColor, strokeThickness |
-| Tool dispatch (click) | 131–186 | onCanvasClick, onLineClick, onPointClick — switch per tool |
-| Tool dispatch (mouse) | 188–251 | onCanvasMouseMove, startDrag, _onSelectMouseMove |
-| Selection queries | 253–259 | hasSelection |
-| Cancel/exit | 261–276 | cancelCurrentLine, exitToSelect |
-| Undo/clear | 278–329 | undo (with fallback), clear |
-| Anchor logic | 331–366 | _findNearestPoint, _onAnchorClick, _convertToAnchor |
-| Orphan cleanup | 368–385 | _removeOrphanPoint |
-| Sub-tool proxies | 387–406 | Proxies for constraint/dimension tool methods |
-| Store-sync proxies | 408–438 | Selection, preview line, snap candidate helpers |
-| Delete | 440–467 | deleteSelected |
-| Geometry proxies | 469–483 | _applyAngleSnap, _rebuildObjects, _findLinesForPoint, _findSharedPoint |
-| Template proxies | 485–495 | templates, applyTemplate, regenerateTemplate |
-
-#### Phases
-
-| Phase | Action | Notes |
-|---|---|---|
-| 1 — Anchor tool | Extract `_onAnchorClick`/`_convertToAnchor` into `src/services/sketch/tools/anchorTool.js`; compose in `SketchService` | Includes `onAnchorMouseMove` for snap candidate |
-| 2 — Selection service | Extract selection state and select/clear methods into `src/services/sketch/selectionService.js` | `deleteSelected` stays but delegates clearing |
-| 3 — Sketch cleanup | Extract `_removeOrphanPoint` into a pure `sketchCleanup.js` function | Also a home for `deleteSketchSelection` |
-| 4 — Remove sub-tool proxies | Add getters (`dimTool`, `constraintTool`, `lineTool`, `anchorTool`); call sub-tools directly from `sketchLayer.js` and tests | Remove one-line proxies |
-| 5 — Tool registry | Replace switch statements with a `Map<SketchTool, Tool>` and uniform `Tool` interface | `Select` becomes `selectTool.js` |
-| 6 — Simplify undo fallback | Seed initial empty-state snapshot in `clear()`; remove fallback branch | Test undo after clear |
-| 7 — Geometry utils | Import `applyAngleSnap` directly in `lineTool.js`; remove proxy | Pure helper |
-| 8 — Slim sketchService.js | Thin coordinator with registry lookups and delegation | Target under 200 lines |
+| Constructor | 22–43 | State init, tool registry, history manager, solver composition |
+| Tool accessors | 45–64 | Getters that delegate to `ToolRegistry.getTool()` |
+| Event forwarders | 66–92 | onCanvasClick, onLineClick, onPointClick, onCanvasMouseMove, etc. → tool registry |
+| Lifecycle forwarders | 106–124 | ensureOriginAnchor, undo, clear, cancelCurrentLine, _recordSnapshot → lifecycle.js |
+| Selection forwarders | 126–156 | deleteSelected, clearSelection, selectPoint/Line/Dimension/Constraint/ObjectByRef → sketchSelection.js |
+| Property getters/setters | 158–208 | isActive, activeTool, constraintSubMode, strokeColor, strokeThickness, _pendingStart, templates → properties.js |
+| Internal helpers | 218–276 | _findNearestPoint, _removeOrphanPoint, _applyAngleSnap, _rebuildObjects, etc. → geometry.js, sketchStoreSync.js, sketchCleanup.js |
+| Tool-specific forwarders | 278–297 | onConstraintLineClick, _openDimEdit, _applyDimConstraint, etc. → constraintTool/dimensionTool |
 
 ---
 
