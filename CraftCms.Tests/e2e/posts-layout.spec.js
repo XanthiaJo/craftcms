@@ -4,7 +4,7 @@ const path = require('node:path');
 
 const { buildPostsLayoutFixture } = require('../support/posts-layout-fixture');
 
-const rootDir = path.resolve(__dirname, '..', '..', '..');
+const rootDir = path.resolve(__dirname, '..', '..');
 const siteCssPath = path.join(rootDir, 'web', 'css', 'site.css');
 const siteCss = fs.readFileSync(siteCssPath, 'utf8');
 

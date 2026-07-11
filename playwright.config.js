@@ -6,9 +6,11 @@ const { defineConfig } = require('@playwright/test');
 const KNITSTITCH_BASE_URL = process.env.KNITSTITCH_BASE_URL || 'https://craftcms.ddev.site';
 
 module.exports = defineConfig({
-  outputDir: './test-results',
   fullyParallel: false,
-  reporter: 'list',
+  reporter: [
+    ['list'],
+    ['./KnitStitch.Tests/reporters/flatArtifactReporter.cjs'],
+  ],
   use: {
     headless: false,
     screenshot: 'only-on-failure',
@@ -27,9 +29,11 @@ module.exports = defineConfig({
     // Craft CMS E2E tests (self-contained fixtures via page.setContent)
     {
       name: 'craftcms',
-      testDir: './tests/craft-cms/e2e',
+      testDir: './CraftCms.Tests/e2e',
+      outputDir: './CraftCms.Tests/test-results',
       use: {
         browserName: 'chromium',
+        trace: 'retain-on-failure',
         launchOptions: {
           args: [
             '--no-sandbox',
@@ -43,10 +47,26 @@ module.exports = defineConfig({
     // KnitStitch E2E tests (run against the live DDEV site)
     {
       name: 'knitstitch',
-      testDir: './tests/knit-stitch/e2e',
+      testDir: './KnitStitch.Tests/e2e',
+      outputDir: './KnitStitch.Tests/test-results',
+      testIgnore: '**/sketchConstraints*.spec.js',
       use: {
         baseURL: KNITSTITCH_BASE_URL,
-        trace: 'on-first-retry',
+        trace: 'retain-on-failure',
+        // DDEV serves over HTTPS with a self-signed cert.
+        ignoreHTTPSErrors: true,
+      },
+    },
+    // KnitStitch constraint tests — full traces + screenshots on every run while debugging
+    {
+      name: 'knitstitch-constraints',
+      testDir: './KnitStitch.Tests/e2e',
+      outputDir: './KnitStitch.Tests/test-results-constraints',
+      testMatch: '**/sketchConstraints*.spec.js',
+      use: {
+        baseURL: KNITSTITCH_BASE_URL,
+        screenshot: 'on',
+        trace: 'on',
         // DDEV serves over HTTPS with a self-signed cert.
         ignoreHTTPSErrors: true,
       },

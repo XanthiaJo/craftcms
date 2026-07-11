@@ -1,0 +1,38 @@
+{
+  "folders": [
+    {
+      "name": "CraftCms",
+      "path": "."
+    },
+    {
+      "name": "CraftCms.Tests",
+      "path": "CraftCms.Tests"
+    },
+    {
+      "name": "KnitStitch",
+      "path": "web/knitstitch"
+    },
+    {
+      "name": "KnitStitch.Tests",
+      "path": "KnitStitch.Tests"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "web/knitstitch": true,
+      "KnitStitch.Tests": true,
+      "CraftCms.Tests": true
+    },
+    "search.exclude": {
+      "web/dist": true,
+      "node_modules": true,
+      "vendor": true
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "dbaeumer.vscode-eslint",
+      "ms-playwright.playwright"
+    ]
+  }
+}

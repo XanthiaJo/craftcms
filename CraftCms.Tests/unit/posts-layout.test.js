@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
 
-const rootDir = path.resolve(__dirname, '..', '..', '..');
+const rootDir = path.resolve(__dirname, '..', '..');
 const postsTemplate = fs.readFileSync(path.join(rootDir, 'templates', 'posts.twig'), 'utf8');
 const siteCss = fs.readFileSync(path.join(rootDir, 'web', 'css', 'site.css'), 'utf8');
 const styleGuide = fs.readFileSync(path.join(rootDir, 'templates', 'style-guide.twig'), 'utf8');

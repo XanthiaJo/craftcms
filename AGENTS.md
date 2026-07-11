@@ -24,7 +24,7 @@ Prefer generic element selectors for common semantic elements. Class-qualified s
 - prefer `ul`/`ol` over `.bullet-list`, `.number-list` — generic lists are styled by default with en-dash bullets and custom counters
 - use shared CSS classes (e.g. `.subtitle`, `.caption`, `.body`, `.card-heading`, `.card-excerpt`) when a component needs distinct styling, rather than scoping element selectors under a parent class
 
-The test at [tests/craft-cms/unit/css-selector-simplicity.test.js](</E:/Coding Projects/craftcms/tests/craft-cms/unit/css-selector-simplicity.test.js>) reports all class-qualified selectors for typical elements so the team can decide which to keep, replace with a generic selector, or replace with a shared class.
+The test at [CraftCms.Tests/unit/css-selector-simplicity.test.js](</E:/Coding Projects/craftcms/CraftCms.Tests/unit/css-selector-simplicity.test.js>) reports all class-qualified selectors for typical elements so the team can decide which to keep, replace with a generic selector, or replace with a shared class.
 
 For the full CSS component reference (cards, panels, images, lists), see [docs/css-guidelines.md](</E:/Coding Projects/craftcms/docs/css-guidelines.md>).
 

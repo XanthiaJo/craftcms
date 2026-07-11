@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
 
-const rootDir = path.resolve(__dirname, '..', '..', '..');
+const rootDir = path.resolve(__dirname, '..', '..');
 const cssPath = path.join(rootDir, 'web', 'css', 'site.css');
 
 const typicalElements = [

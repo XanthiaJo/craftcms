@@ -2,12 +2,12 @@ const { defineConfig } = require('@playwright/test');
 
 module.exports = defineConfig({
   testDir: './e2e',
-  outputDir: '../../test-results',
+  outputDir: './test-results',
   fullyParallel: false,
   reporter: 'list',
   use: {
     headless: false,
-    screenshot: 'only-on-failure',
+    trace: 'retain-on-failure',
   },
   projects: [
     {
