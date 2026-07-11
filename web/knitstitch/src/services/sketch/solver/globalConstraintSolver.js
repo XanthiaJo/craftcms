@@ -65,8 +65,8 @@ export class GlobalConstraintSolver {
 
     const terms = buildErrorTerms(constraints);
 
-    applyDrivenDimensions(dimensions, constraints, movedPoints, fixed);
-    propagateCoincident(constraints, fixed, movedPoints);
+    const reachable = applyDrivenDimensions(dimensions, constraints, movedPoints, fixed);
+    propagateCoincident(constraints, fixed, movedPoints, reachable);
 
     let step = INITIAL_STEP;
     let prevError = totalError(terms);
@@ -79,8 +79,8 @@ export class GlobalConstraintSolver {
 
       const saved = this._savePositions(free);
       this._applyGradients(free, grads, step);
-      applyDrivenDimensions(dimensions, constraints, movedPoints, fixed);
-      propagateCoincident(constraints, fixed, movedPoints);
+      const reachable = applyDrivenDimensions(dimensions, constraints, movedPoints, fixed);
+      propagateCoincident(constraints, fixed, movedPoints, reachable);
 
       const newError = totalError(terms);
       if (newError < prevError) {

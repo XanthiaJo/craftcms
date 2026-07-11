@@ -1,7 +1,9 @@
 import { SketchDimension } from '../../../models/sketch/sketchDimension.js';
+import { wouldOverconstrain } from '../solver/dofAnalyzer.js';
 import {
   rebuildSketchObjects,
   setSnapCandidate,
+  showCursorMessage,
 } from '../state/sketchStateHelpers.js';
 
 /**
@@ -59,6 +61,19 @@ export class DimensionTool {
         const targetPx = hasDisplay
           ? value / dim.displayValue * (dim.drivenValue ?? this._measureDimPx(dim))
           : value;
+
+        // Check if driving this dimension would over-constrain the sketch
+        const overcheck = wouldOverconstrain(this.store.state.sketch, {
+          isDimension: true,
+          pointA: dim.a,
+          pointB: dim.b,
+        });
+        if (overcheck.wouldOverconstrain) {
+          showCursorMessage(this.service, 'Over-constrained: this dimension would remove too many degrees of freedom', dim.labelPos);
+          this.store.set('sketch.pendingDimEdit', null);
+          return;
+        }
+
         this._applyDimConstraint(dim, targetPx);
         if (hasDisplay) {
           dim.displayValue = value;
@@ -107,6 +122,7 @@ export class DimensionTool {
     }
 
     dim.setDrivenValue(targetPx);
+    this.service._reconvergeConstraints();
     for (const d of this.store.state.sketch.dimensions) {
       if (!Object.is(d, dim) && (Object.is(d.a, free) || Object.is(d.b, free)))
         d.recompute();

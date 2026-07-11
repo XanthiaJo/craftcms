@@ -6,6 +6,9 @@ import { StorePersistence } from './state/storePersistence.js';
 import { SketchService } from './services/sketch/sketchService.js';
 import { setupMainUi } from './ui/mainUi.js';
 import { computeFilledCellsFromSketch } from './services/sketch/fill/closedShapeFill.js';
+import { SketchPoint } from './models/sketch/sketchPoint.js';
+import { SketchLine } from './models/sketch/sketchLine.js';
+import { SketchConstraint } from './models/sketch/sketchConstraint.js';
 
 const store = new Store();
 const persistence = new StorePersistence(store);
@@ -18,6 +21,7 @@ if (typeof window !== 'undefined') {
   window.__knitstitchStore = store;
   window.__knitstitchSketchService = sketchService;
   window.__knitstitchComputeFilledCellsFromSketch = computeFilledCellsFromSketch;
+  window.__knitstitchModules = { SketchPoint, SketchLine, SketchConstraint };
 }
 
 const mainUi = setupMainUi({ store, sketchService });

@@ -239,8 +239,8 @@ The sketch service has been refactored from a 496-line monolith into a ~300-line
 
 ## Runtime / Local Setup Notes
 
-- Tests live at `tests/knit-stitch/`, not inside `web/knitstitch/`.
-- Unit tests: `cd tests/knit-stitch && npx vitest run`
-- E2E tests: `cd tests/knit-stitch && npx playwright test` (requires `ddev start`)
+- Tests live at `KnitStitch.Tests/`, not inside `web/knitstitch/`.
+- Unit tests: `cd KnitStitch.Tests && npx vitest run`
+- E2E tests: `cd KnitStitch.Tests && npx playwright test` (requires `ddev start`)
 - Build: `cd web/knitstitch && npm run build`
 - `web/dist/` is generated and should not be committed.

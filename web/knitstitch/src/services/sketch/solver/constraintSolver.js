@@ -455,6 +455,28 @@ export class ConstraintSolver {
 
   _enforceAxisConstraint(line, axis) {
     if (!line) return false;
+
+    const startAnchored = line.start?.isAnchor;
+    const endAnchored = line.end?.isAnchor;
+
+    if (startAnchored && endAnchored) {
+      // Both endpoints anchored: line is over-constrained; don't move either.
+      return false;
+    }
+
+    if (startAnchored) {
+      // Anchor wins: free endpoint inherits the anchor's coordinate.
+      line.end[axis] = line.start[axis];
+      return true;
+    }
+
+    if (endAnchored) {
+      // Anchor wins: free endpoint inherits the anchor's coordinate.
+      line.start[axis] = line.end[axis];
+      return true;
+    }
+
+    // Neither endpoint anchored: center the line on the axis (existing behavior).
     const avg = (line.start[axis] + line.end[axis]) / 2;
     line.start[axis] = avg;
     line.end[axis] = avg;
@@ -505,16 +527,41 @@ export class ConstraintSolver {
 
   _scaleLineToLength(line, targetLength) {
     if (!line) return;
+
+    const startAnchored = line.start?.isAnchor;
+    const endAnchored = line.end?.isAnchor;
+
+    if (startAnchored && endAnchored) {
+      // Both endpoints anchored: length is fully determined, cannot scale.
+      return;
+    }
+
     const dx = line.end.x - line.start.x;
     const dy = line.end.y - line.start.y;
     const currentLength = Math.hypot(dx, dy);
     if (currentLength < EPSILON) return;
 
+    const ux = dx / currentLength;
+    const uy = dy / currentLength;
+
+    if (startAnchored) {
+      // Anchor stays fixed; move the free endpoint along the line direction.
+      line.end.x = line.start.x + ux * targetLength;
+      line.end.y = line.start.y + uy * targetLength;
+      return;
+    }
+
+    if (endAnchored) {
+      // Anchor stays fixed; move the free endpoint along the line direction.
+      line.start.x = line.end.x - ux * targetLength;
+      line.start.y = line.end.y - uy * targetLength;
+      return;
+    }
+
+    // Neither endpoint anchored: center-scale around the midpoint.
     const midX = (line.start.x + line.end.x) / 2;
     const midY = (line.start.y + line.end.y) / 2;
     const half = targetLength / 2;
-    const ux = dx / currentLength;
-    const uy = dy / currentLength;
 
     line.start.x = midX - ux * half;
     line.start.y = midY - uy * half;

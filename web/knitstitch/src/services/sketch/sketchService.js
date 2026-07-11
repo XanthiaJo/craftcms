@@ -251,6 +251,19 @@ export class SketchService {
     assignConstraintIds(this);
   }
 
+  /**
+   * Re-converge all constraints using the global solver.
+   *
+   * Called after a constraint is created (or deleted) to ensure that the
+   * one-shot local enforcement didn't break other constraints on shared
+   * points. The global solver iterates to satisfy all constraints
+   * simultaneously.
+   */
+  _reconvergeConstraints() {
+    if (!this._globalConstraintSolver) return;
+    this._globalConstraintSolver.solve(this.store.state.sketch, new Set());
+  }
+
   _setPreviewLine(line) {
     setPreviewLine(this, line);
   }

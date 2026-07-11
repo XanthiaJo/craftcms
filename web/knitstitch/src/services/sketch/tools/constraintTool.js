@@ -1,5 +1,6 @@
 import { SketchConstraint } from '../../../models/sketch/sketchConstraint.js';
 import { ConstraintSubMode } from '../constants.js';
+import { wouldOverconstrain } from '../solver/dofAnalyzer.js';
 import {
   assignConstraintIds,
   findSharedPoint,
@@ -140,6 +141,17 @@ export class ConstraintTool {
       return false;
     }
 
+    const overcheck = wouldOverconstrain(this.store.state.sketch, {
+      type: 'Perpendicular',
+      lineA: firstLine,
+      lineB: secondLine,
+    });
+    if (overcheck.wouldOverconstrain) {
+      this.service.clearSelection();
+      showCursorMessage(this.service, 'Over-constrained: this would remove too many degrees of freedom', position);
+      return false;
+    }
+
     this.service._recordSnapshot('Add perpendicular constraint');
     const constraint = new SketchConstraint(
       'Perpendicular',
@@ -154,6 +166,7 @@ export class ConstraintTool {
     this.service._constraintSolver.enforcePerpendicularConstraint(
       this.store.state.sketch, constraint, secondLine
     );
+    this.service._reconvergeConstraints();
     for (const dim of this.store.state.sketch.dimensions) dim.recompute();
     this.service.selectConstraint(constraint);
     flushSketchArrays(this.service);
@@ -176,6 +189,17 @@ export class ConstraintTool {
       return true;
     }
 
+    const overcheck = wouldOverconstrain(this.store.state.sketch, {
+      type: 'Midpoint',
+      pointA: point,
+      lineA: line,
+    });
+    if (overcheck.wouldOverconstrain) {
+      this.service.clearSelection();
+      showCursorMessage(this.service, 'Over-constrained: this would remove too many degrees of freedom', position);
+      return false;
+    }
+
     this.service._recordSnapshot('Add midpoint constraint');
     const constraint = new SketchConstraint(
       'Midpoint',
@@ -190,6 +214,7 @@ export class ConstraintTool {
     this.service._constraintSolver.enforceMidpointConstraint(
       this.store.state.sketch, constraint
     );
+    this.service._reconvergeConstraints();
     for (const dim of this.store.state.sketch.dimensions) dim.recompute();
     this.service.selectConstraint(constraint);
     flushSketchArrays(this.service);
@@ -221,6 +246,17 @@ export class ConstraintTool {
       return true;
     }
 
+    const overcheck = wouldOverconstrain(this.store.state.sketch, {
+      type: 'Equal',
+      lineA: firstLine,
+      lineB: secondLine,
+    });
+    if (overcheck.wouldOverconstrain) {
+      this.service.clearSelection();
+      showCursorMessage(this.service, 'Over-constrained: this would remove too many degrees of freedom', position);
+      return false;
+    }
+
     this.service._recordSnapshot('Add equal constraint');
     const constraint = new SketchConstraint(
       'Equal',
@@ -235,6 +271,7 @@ export class ConstraintTool {
     this.service._constraintSolver.enforceEqualConstraint(
       this.store.state.sketch, constraint, secondLine
     );
+    this.service._reconvergeConstraints();
     for (const dim of this.store.state.sketch.dimensions) dim.recompute();
     this.service.selectConstraint(constraint);
     flushSketchArrays(this.service);
@@ -257,6 +294,16 @@ export class ConstraintTool {
       return true;
     }
 
+    const overcheck = wouldOverconstrain(this.store.state.sketch, {
+      type,
+      lineA: line,
+    });
+    if (overcheck.wouldOverconstrain) {
+      this.service.clearSelection();
+      showCursorMessage(this.service, 'Over-constrained: this would remove too many degrees of freedom', position);
+      return false;
+    }
+
     this.service._recordSnapshot(`Add ${type.toLowerCase()} constraint`);
     const constraint = new SketchConstraint(
       type,
@@ -277,6 +324,7 @@ export class ConstraintTool {
         this.store.state.sketch, constraint
       );
     }
+    this.service._reconvergeConstraints();
     for (const dim of this.store.state.sketch.dimensions) dim.recompute();
     this.service.selectConstraint(constraint);
     flushSketchArrays(this.service);

@@ -60,10 +60,16 @@ export function isFeasible(dimensions, movedPoints, fixed) {
 }
 
 /**
- * Snap coincident points to their component leader (anchor, moved point, or
- * arbitrary representative).
+ * Snap coincident points to their component leader.
+ *
+ * Leader priority:
+ * 1. Fixed point (anchor) — never moves
+ * 2. Moved point (user drag) — user's cursor position wins
+ * 3. Reachable point (positioned by applyDrivenDimensions) — hard constraint
+ *    position wins over gradient descent
+ * 4. No leader — snap to centroid (least disruptive, works with gradient descent)
  */
-export function propagateCoincident(constraints, fixed, movedPoints) {
+export function propagateCoincident(constraints, fixed, movedPoints, reachable = null) {
   const adj = new Map();
   for (const c of constraints || []) {
     if (c?.type !== 'Coincident' || !c.pointA || !c.pointB) continue;
@@ -80,23 +86,43 @@ export function propagateCoincident(constraints, fixed, movedPoints) {
     const component = [];
     const queue = [start];
     let leader = null;
+    let leaderPriority = 0; // 0 = none, 1 = reachable, 2 = moved, 3 = fixed
     while (queue.length > 0) {
       const p = queue.shift();
       if (visited.has(p)) continue;
       visited.add(p);
       component.push(p);
-      if (fixed?.has(p)) leader = p;
-      else if (!leader && movedPoints?.has(p)) leader = p;
+
+      let priority = 0;
+      if (fixed?.has(p)) priority = 3;
+      else if (movedPoints?.has(p)) priority = 2;
+      else if (reachable?.has(p)) priority = 1;
+
+      if (priority > leaderPriority) {
+        leader = p;
+        leaderPriority = priority;
+      }
+
       for (const partner of adj.get(p) || []) {
         if (!visited.has(partner)) queue.push(partner);
       }
     }
 
-    if (!leader) leader = component[0];
-    for (const p of component) {
-      if (p === leader) continue;
-      p.x = leader.x;
-      p.y = leader.y;
+    if (leader) {
+      for (const p of component) {
+        if (p === leader) continue;
+        p.x = leader.x;
+        p.y = leader.y;
+      }
+    } else {
+      let cx = 0, cy = 0;
+      for (const p of component) { cx += p.x; cy += p.y; }
+      cx /= component.length;
+      cy /= component.length;
+      for (const p of component) {
+        p.x = cx;
+        p.y = cy;
+      }
     }
   }
 }
@@ -242,8 +268,9 @@ export function applyDrivenDimensions(dimensions, constraints, movedPoints, fixe
         progress = true;
       }
     }
-
   }
+
+  return reachable;
 }
 
 function isLineDetermined(line, reachable) {

@@ -1,4 +1,5 @@
 import { SketchTool } from '../services/sketch/sketchService.js';
+import { analyzeDof } from '../services/sketch/solver/dofAnalyzer.js';
 import { collectRefs, bindIfPresent, toggleActive } from './uiUtils.js';
 
 const REF_IDS = {
@@ -81,11 +82,24 @@ export function setupSketchPanel({ store, sketchService, documentObj = globalThi
 
     if (refs.sketchConstraintStatus) {
       const issues = sketchService.checkOverconstraints();
-      if (issues.length) {
-        refs.sketchConstraintStatus.textContent = `${issues.length} overconstraint${issues.length === 1 ? '' : 's'}: ${issues.map((i) => i.message).join('; ')}`;
-      } else {
-        refs.sketchConstraintStatus.textContent = '';
+      const dof = analyzeDof(store.state.sketch);
+      const parts = [];
+
+      // DOF status
+      if (dof.status === 'over') {
+        parts.push('Over-constrained');
+      } else if (dof.status === 'well') {
+        parts.push('Fully constrained');
+      } else if (dof.dof > 0) {
+        parts.push(`${dof.dof} degree${dof.dof === 1 ? '' : 's'} of freedom remaining`);
       }
+
+      // Overconstraint checker messages
+      if (issues.length) {
+        parts.push(`${issues.length} overconstraint${issues.length === 1 ? '' : 's'}: ${issues.map((i) => i.message).join('; ')}`);
+      }
+
+      refs.sketchConstraintStatus.textContent = parts.join(' — ');
     }
   }
 
