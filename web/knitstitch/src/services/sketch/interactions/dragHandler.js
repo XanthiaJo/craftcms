@@ -1,6 +1,6 @@
 export function startDrag(service, position, modifiers = {}) {
     const near = service._findNearestPoint(position, modifiers.snapEnabled !== false);
-    if (near) {
+    if (near && !near.isAnchor) {
       service._dragPoint = near;
       service.selectPoint(near);
       service._history.beginDrag();
@@ -33,7 +33,7 @@ export function onCanvasMouseUp(service, ) {
     }
 }
 export function onSelectMouseMove(service, position, modifiers = {}) {
-    if (!service._dragPoint) return;
+    if (!service._dragPoint || service._dragPoint.isAnchor) return;
     const originalPosition = { x: service._dragPoint.x, y: service._dragPoint.y };
     service._dragPoint.x = position.x;
     service._dragPoint.y = position.y;
