@@ -53,3 +53,12 @@ export function applyAngleSnap(start, end, thresholdDeg) {
   if (angleDeg >= 90 - thresholdDeg) return { x: start.x, y: end.y };
   return { x: end.x, y: end.y };
 }
+export function findSharedPoint(lineA, lineB) {
+  if (!lineA || !lineB) return null;
+  if (lineA.start === lineB.start || lineA.start === lineB.end) return lineA.start;
+  if (lineA.end === lineB.start || lineA.end === lineB.end) return lineA.end;
+  return null;
+}
+export function findLinesForPoint(point, lines) {
+  return lines.filter((line) => line.start === point || line.end === point);
+}

@@ -7,35 +7,19 @@ import { LineTool } from './tools/lineTool.js';
 import { TemplateTool } from './templates/templateTool.js';
 import { HistoryManager } from './state/historyManager.js';
 import { checkOverconstraints } from './solver/overconstraintChecker.js';
-import { nearestPoint } from '../../utils/geometry.js';
-import { restoreSketchSnapshot } from './state/sketchSnapshot.js';
-import {
-  ConstraintSubMode,
-  SNAP_RADIUS,
-  SketchObjectKind,
-  SketchTool,
-} from './constants.js';
-import { SketchPoint } from '../../models/sketch/sketchPoint.js';
+import { nearestPoint, applyAngleSnap, findSharedPoint, findLinesForPoint } from '../../utils/geometry.js';
+import { ConstraintSubMode, SNAP_RADIUS, SNAP_ANGLE_DEG, SketchObjectKind, SketchTool } from './constants.js';
 import { AnchorTool } from './tools/anchorTool.js';
 import { removeOrphanPoint } from './state/sketchCleanup.js';
-import { deleteSketchSelection } from './state/deleteSketchSelection.js';
-import {
-  assignConstraintIds as assignSketchConstraintIds,
-  clearSelection as clearSketchSelection,
-  findSharedPoint as findSketchSharedPoint,
-  flushSketchArrays as flushSketchArraysInStore,
-  nextId as nextSketchId,
-  rebuildSketchObjects as rebuildSketchObjectsInStore,
-  seedIdCountersFromSketch as seedSketchIdCountersFromSketch,
-  selectConstraint as selectSketchConstraint,
-  selectDimension as selectSketchDimension,
-  selectLine as selectSketchLine,
-  selectObjectByRef as selectSketchObjectByRef,
-  selectPoint as selectSketchPoint,
-  setPreviewLine as setSketchPreviewLine,
-  setSnapCandidate as setSketchSnapCandidate,
-  syncSketchStateToStore,
-} from './state/sketchStateHelpers.js';
+import { syncSketchStateToStore, rebuildSketchObjects, flushSketchArrays, setPreviewLine, setSnapCandidate } from './state/sketchStoreSync.js';
+import { nextId, seedIdCountersFromSketch, assignConstraintIds } from './state/sketchIdManager.js';
+import { onCanvasClick, onLineClick, onPointClick, onCanvasMouseMove, onRightMouseDown, onCanvasMouseDown, exitToSelect } from './interactions/pointerHandlers.js';
+import { startDrag, onCanvasMouseUp, onSelectMouseMove } from './interactions/dragHandler.js';
+import { ensureOriginAnchor, undo, clear, cancelCurrentLine, recordSnapshot } from './state/lifecycle.js';
+import { clearSelection, selectPoint, selectLine, selectDimension, selectConstraint, selectObjectByRef } from './state/sketchSelection.js';
+import { deleteSelected, getHasSelection } from './state/selection.js';
+import { getIsActive, setIsActive, getActiveTool, setActiveTool, getConstraintSubMode, setConstraintSubMode, getStrokeColor, setStrokeColor, getStrokeThickness, setStrokeThickness, getPendingStart, setPendingStart, getTemplates } from './state/properties.js';
+import { applyTemplate, regenerateTemplate } from './templates/templateActions.js';
 
 export { ConstraintSubMode, SketchObjectKind, SketchTool } from './constants.js';
 
@@ -63,337 +47,160 @@ export class SketchService {
 
     this.strokeColorOptions = STROKE_COLOR_OPTIONS;
 
-    this._syncToStore();
-    this._seedIdCountersFromSketch();
-  }
-
-  /**
-   * Ensures the sketch has an origin anchor point at (0, 0). This is the fixed
-   * reference that templates and fully constrained sketches are rooted to.
-   * Called by AppStage when the grid first loads.
-   */
-  ensureOriginAnchor() {
-    const sketch = this.store.state.sketch;
-    const exists = sketch.points.some((p) => p.isAnchor && p.x === 0 && p.y === 0);
-    if (exists) return;
-
-    const anchor = new SketchPoint(this._nextPointId++, 0, 0);
-    anchor.isAnchor = true;
-    anchor.isOrigin = true;
-    sketch.points.push(anchor);
-    this.store.set('sketch.points', [...sketch.points]);
-    this._seedIdCountersFromSketch();
-  }
-
-  _syncToStore() {
     syncSketchStateToStore(this.store);
-  }
-
-  _seedIdCountersFromSketch() {
-    seedSketchIdCountersFromSketch(this);
-  }
-
-  _recordSnapshot(description) {
-    this._history.record(description);
-  }
-
-  _nextId(items) {
-    return nextSketchId(items);
-  }
-
-  get _pendingStart() {
-    return this._lineTool.pendingStart;
-  }
-
-  set _pendingStart(value) {
-    this._lineTool.pendingStart = value;
-  }
-
-  get isActive() {
-    return this.store.get('sketch.isActive');
-  }
-
-  set isActive(value) {
-    this.store.set('sketch.isActive', value);
-    if (!value) this.cancelCurrentLine();
-  }
-
-  get activeTool() {
-    return this.store.get('sketch.activeTool');
-  }
-
-  set activeTool(value) {
-    this.store.set('sketch.activeTool', value);
-    // Fill tool enables cell-fill mode; any other tool disables it
-    this.store.set('cellFillEnabled', value === SketchTool.Fill);
-    this.cancelCurrentLine();
-  }
-
-  get constraintSubMode() {
-    return this.store.get('sketch.constraintSubMode');
-  }
-
-  set constraintSubMode(value) {
-    this.store.set('sketch.constraintSubMode', value);
-  }
-
-  get strokeColor() {
-    return this.store.get('sketch.strokeColor');
-  }
-
-  set strokeColor(value) {
-    this.store.set('sketch.strokeColor', value);
-  }
-
-  get strokeThickness() {
-    return this.store.get('sketch.strokeThickness');
-  }
-
-  set strokeThickness(value) {
-    this.store.set('sketch.strokeThickness', value);
+    seedIdCountersFromSketch(this);
   }
 
   onCanvasClick(position, modifiers = {}) {
-    if (!this.isActive) return;
-    if (this._suppressNextClick) {
-      this._suppressNextClick = false;
-      return;
-    }
-    switch (this.activeTool) {
-      case SketchTool.Line:
-      case SketchTool.ConstructionLine:
-        this._lineTool.onLineClick(position, modifiers);
-        break;
-      case SketchTool.Select:
-        this.clearSelection();
-        break;
-      case SketchTool.Dimension:
-        this._dimensionTool.onDimensionClick(position, modifiers);
-        break;
-      case SketchTool.Constraint:
-        this._constraintTool.onConstraintClick(position, modifiers);
-        break;
-      case SketchTool.Anchor:
-        this._anchorTool.onClick(position, modifiers);
-        break;
-    }
+    return onCanvasClick(this, position, modifiers);
   }
 
   onLineClick(line, position, modifiers = {}) {
-    if (!this.isActive) return;
-    const multiSelect = modifiers.multiSelect ?? false;
-    if (this.activeTool === SketchTool.Select) {
-      this.selectLine(line, multiSelect);
-      return;
-    }
-    if (this.activeTool === SketchTool.Constraint) {
-      this._constraintTool.onConstraintLineClick(line, multiSelect, position);
-      return;
-    }
-    this.onCanvasClick(position, modifiers);
+    return onLineClick(this, line, position, modifiers);
   }
 
   onPointClick(pt, position, modifiers = {}) {
-    if (!this.isActive) return;
-    const multiSelect = modifiers.multiSelect ?? false;
-    if (this.activeTool === SketchTool.Select) {
-      this.selectPoint(pt, multiSelect);
-      return;
-    }
-    if (this.activeTool === SketchTool.Constraint) {
-      this._constraintTool.onConstraintPointClick(pt, multiSelect, position);
-      return;
-    }
-    if (this.activeTool === SketchTool.Anchor) {
-      this._anchorTool.convertToAnchor(pt);
-      return;
-    }
-    this.onCanvasClick(position ?? { x: pt.x, y: pt.y }, modifiers);
+    return onPointClick(this, pt, position, modifiers);
   }
 
   onCanvasMouseMove(position, modifiers = {}) {
-    if (!this.isActive) return;
-    switch (this.activeTool) {
-      case SketchTool.Line:
-      case SketchTool.ConstructionLine:
-        this._lineTool.onLineMouseMove(position, modifiers);
-        break;
-      case SketchTool.Select:
-        this._onSelectMouseMove(position, modifiers);
-        break;
-      case SketchTool.Dimension:
-        this._setSnapCandidate(this._findNearestPoint(position, modifiers.snapEnabled !== false));
-        break;
-      case SketchTool.Constraint:
-        this._setSnapCandidate(null);
-        break;
-      case SketchTool.Anchor:
-        this._anchorTool.onMouseMove(position, modifiers);
-        break;
-    }
+    return onCanvasMouseMove(this, position, modifiers);
   }
 
   onRightMouseDown() {
-    if (!this.isActive) return;
-    this._suppressNextClick = true;
+    return onRightMouseDown(this);
   }
 
   onCanvasMouseDown(position, modifiers = {}) {
-    if (!this.isActive || this.activeTool !== SketchTool.Select) return;
-    this.startDrag(position, modifiers);
-  }
-
-  startDrag(position, modifiers = {}) {
-    const near = this._findNearestPoint(position, modifiers.snapEnabled !== false);
-    if (near) {
-      this._dragPoint = near;
-      this.selectPoint(near);
-      this._history.beginDrag();
-    } else {
-      this._dragPoint = null;
-      this._history.cancelDrag();
-    }
-  }
-
-  onCanvasMouseUp() {
-    this._history.endDrag();
-    const draggedPoint = this._dragPoint;
-    this._dragPoint = null;
-    if (draggedPoint) {
-      // Recompute dimension kinds once the drag is finished so Horizontal/Vertical
-      // kinds only take effect after the user has released the point.
-      for (const dim of this.store.state.sketch.dimensions) dim.recompute();
-      const movedPoints = new Set([draggedPoint]);
-      if (this._useGlobalSolver) {
-        this._globalConstraintSolver.solve(this.store.state.sketch, movedPoints);
-      } else {
-        this._constraintSolver.solveConstraintsForPoint(
-          this.store.state.sketch,
-          draggedPoint,
-          null,
-          {}
-        );
-      }
-      flushSketchArraysInStore(this);
-      rebuildSketchObjectsInStore(this);
-    }
-  }
-
-  _onSelectMouseMove(position, modifiers = {}) {
-    if (!this._dragPoint) return;
-    const originalPosition = { x: this._dragPoint.x, y: this._dragPoint.y };
-    this._dragPoint.x = position.x;
-    this._dragPoint.y = position.y;
-    
-    if (this._useGlobalSolver) {
-      // Global solver handles all constraints simultaneously
-      const movedPoints = new Set([this._dragPoint]);
-      const result = this._globalConstraintSolver.solve(this.store.state.sketch, movedPoints);
-
-      // If global solver returns null (too many driven dimensions), fall back to local solver
-      if (result === null) {
-        this._constraintSolver.solveConstraintsForPoint(
-          this.store.state.sketch,
-          this._dragPoint,
-          originalPosition,
-          modifiers
-        );
-      }
-    } else {
-      // Local solver (current approach)
-      this._constraintSolver.solveConstraintsForPoint(
-        this.store.state.sketch,
-        this._dragPoint,
-        originalPosition,
-        modifiers
-      );
-    }
-
-    assignSketchConstraintIds(this);
-    // During a drag, preserve the dimension kind so the solver doesn't switch a
-    // dimension to Horizontal/Vertical and lock the line before the user releases.
-    for (const dim of this.store.state.sketch.dimensions) dim.recompute(true);
-
-    flushSketchArraysInStore(this);
-    rebuildSketchObjectsInStore(this);
-  }
-
-  get hasSelection() {
-    const sketch = this.store.state.sketch;
-    return this._selectedPoints.size > 0
-      || this._selectedLines.size > 0
-      || sketch.dimensions.some((d) => d.isSelected)
-      || sketch.constraints.some((c) => c?.isSelected);
-  }
-
-  cancelCurrentLine() {
-    this._lineTool.cancel();
-    if (this._dimPendingA) {
-      this._removeOrphanPoint(this._dimPendingA);
-      this._dimPendingA = null;
-      this.clearSelection();
-    }
-    this._constraintPendingLine = null;
-    this.store.set('sketch.pendingDimEdit', null);
+    return onCanvasMouseDown(this, position, modifiers);
   }
 
   exitToSelect() {
-    this.cancelCurrentLine();
-    this.clearSelection();
-    this.store.set('sketch.activeTool', SketchTool.Select);
+    return exitToSelect(this);
+  }
+
+  startDrag(position, modifiers = {}) {
+    return startDrag(this, position, modifiers);
+  }
+
+  onCanvasMouseUp() {
+    return onCanvasMouseUp(this);
+  }
+
+  _onSelectMouseMove(position, modifiers = {}) {
+    return onSelectMouseMove(this, position, modifiers);
+  }
+
+  ensureOriginAnchor() {
+    return ensureOriginAnchor(this);
   }
 
   undo() {
-    // If there is an in-progress drag, complete it without recording it, then
-    // continue with the next undo.
-    this._dragPoint = null;
-    this._history.cancelDrag();
-
-    const action = this._history.pop();
-    if (action) {
-      restoreSketchSnapshot(action.snapshot, this);
-      return;
-    }
-
-    // Fallback for empty history: cancel an in-progress line.
-    const sketch = this.store.state.sketch;
-    if (this._pendingStart) {
-      this._removeOrphanPoint(this._pendingStart);
-      this._pendingStart = null;
-      setSketchPreviewLine(this, null);
-      setSketchSnapCandidate(this, null);
-      rebuildSketchObjectsInStore(this);
-    } else if (sketch.lines.length > 0) {
-      const last = sketch.lines[sketch.lines.length - 1];
-      sketch.lines.pop();
-      this._removeOrphanPoint(last.start);
-      this._removeOrphanPoint(last.end);
-      rebuildSketchObjectsInStore(this);
-      this.store.set('sketch.lines', [...sketch.lines]);
-    }
+    return undo(this);
   }
 
   clear() {
-    this._recordSnapshot('Clear sketch');
-    const sketch = this.store.state.sketch;
+    return clear(this);
+  }
 
-    // Preserve anchor points so the origin reference stays on the canvas.
-    const keptPoints = sketch.points.filter((p) => p.isAnchor);
-    sketch.points = keptPoints;
-    sketch.lines = [];
-    sketch.dimensions = [];
-    sketch.constraints = [];
-    this._seedIdCountersFromSketch();
-    this._pendingStart = null;
-    setSketchPreviewLine(this, null);
-    setSketchSnapCandidate(this, null);
-    this._selectedPoints.clear();
-    this._selectedLines.clear();
-    rebuildSketchObjectsInStore(this);
-    this.store.set('sketch.lines', []);
-    this.store.set('sketch.points', [...sketch.points]);
-    this.store.set('sketch.dimensions', []);
-    this.store.set('sketch.constraints', []);
+  cancelCurrentLine() {
+    return cancelCurrentLine(this);
+  }
+
+  _recordSnapshot(description) {
+    return recordSnapshot(this, description);
+  }
+
+  deleteSelected() {
+    return deleteSelected(this);
+  }
+
+  get hasSelection() {
+    return getHasSelection(this);
+  }
+
+  clearSelection() {
+    return clearSelection(this);
+  }
+
+  selectPoint(point, multiSelect = false) {
+    return selectPoint(this, point, multiSelect);
+  }
+
+  selectLine(line, multiSelect = false) {
+    return selectLine(this, line, multiSelect);
+  }
+
+  selectDimension(dim, multiSelect = false) {
+    return selectDimension(this, dim, multiSelect);
+  }
+
+  selectConstraint(constraint, multiSelect = false) {
+    return selectConstraint(this, constraint, multiSelect);
+  }
+
+  selectObjectByRef(refType, refId, multiSelect = false) {
+    return selectObjectByRef(this, refType, refId, multiSelect);
+  }
+
+  get isActive() {
+    return getIsActive(this);
+  }
+
+  set isActive(value) {
+    setIsActive(this, value);
+  }
+
+  get activeTool() {
+    return getActiveTool(this);
+  }
+
+  set activeTool(value) {
+    setActiveTool(this, value);
+  }
+
+  get constraintSubMode() {
+    return getConstraintSubMode(this);
+  }
+
+  set constraintSubMode(value) {
+    setConstraintSubMode(this, value);
+  }
+
+  get strokeColor() {
+    return getStrokeColor(this);
+  }
+
+  set strokeColor(value) {
+    setStrokeColor(this, value);
+  }
+
+  get strokeThickness() {
+    return getStrokeThickness(this);
+  }
+
+  set strokeThickness(value) {
+    setStrokeThickness(this, value);
+  }
+
+  get _pendingStart() {
+    return getPendingStart(this);
+  }
+
+  set _pendingStart(value) {
+    setPendingStart(this, value);
+  }
+
+  get templates() {
+    return getTemplates(this);
+  }
+
+  applyTemplate(templateId) {
+    return applyTemplate(this, templateId);
+  }
+
+  regenerateTemplate(measurements) {
+    return regenerateTemplate(this, measurements);
   }
 
   _findNearestPoint(position, allowSnap = true, excludePoint = null) {
@@ -408,6 +215,54 @@ export class SketchService {
     }
   }
 
+  _applyAngleSnap(start, end) {
+    return applyAngleSnap(start, end, SNAP_ANGLE_DEG);
+  }
+
+  _findLinesForPoint(point) {
+    return findLinesForPoint(point, this.store.state.sketch.lines);
+  }
+
+  _findSharedPoint(lineA, lineB) {
+    return findSharedPoint(lineA, lineB);
+  }
+
+  _rebuildObjects() {
+    rebuildSketchObjects(this);
+  }
+
+  _flushSketchArrays() {
+    flushSketchArrays(this);
+  }
+
+  _assignConstraintIds() {
+    assignConstraintIds(this);
+  }
+
+  _setPreviewLine(line) {
+    setPreviewLine(this, line);
+  }
+
+  _setSnapCandidate(point) {
+    setSnapCandidate(this, point);
+  }
+
+  _recordSnapshot(description) {
+    recordSnapshot(this, description);
+  }
+
+  _syncToStore() {
+    syncSketchStateToStore(this.store);
+  }
+
+  _seedIdCountersFromSketch() {
+    seedIdCountersFromSketch(this);
+  }
+
+  _nextId(items) {
+    return nextId(items);
+  }
+
   onConstraintLineClick(line, multiSelect = false, position = null) {
     this._constraintTool.onConstraintLineClick(line, multiSelect, position);
   }
@@ -416,7 +271,6 @@ export class SketchService {
     this._constraintTool.onConstraintPointClick(point, multiSelect, position);
   }
 
-  // Proxies so sketchLayer and tests can call these without knowing the sub-tool classes
   _openDimEdit(dim) {
     this._dimensionTool.openDimEdit(dim);
   }
@@ -427,95 +281,6 @@ export class SketchService {
 
   _tryCreatePerpendicularConstraint(lineA, lineB, position = null) {
     return this._constraintTool._tryCreatePerpendicularConstraint(lineA, lineB, position);
-  }
-
-  _setPreviewLine(line) {
-    setSketchPreviewLine(this, line);
-  }
-
-  _setSnapCandidate(point) {
-    setSketchSnapCandidate(this, point);
-  }
-
-  clearSelection() {
-    clearSketchSelection(this);
-  }
-
-  selectPoint(point, multiSelect = false) {
-    selectSketchPoint(this, point, multiSelect);
-  }
-
-  selectLine(line, multiSelect = false) {
-    selectSketchLine(this, line, multiSelect);
-  }
-
-  selectDimension(dim, multiSelect = false) {
-    selectSketchDimension(this, dim, multiSelect);
-  }
-
-  selectConstraint(constraint, multiSelect = false) {
-    selectSketchConstraint(this, constraint, multiSelect);
-  }
-
-  selectObjectByRef(refType, refId, multiSelect = false) {
-    selectSketchObjectByRef(this, refType, refId, multiSelect);
-  }
-
-  deleteSelected() {
-    if (!this.hasSelection) return;
-    this._recordSnapshot('Delete selection');
-    const sketch = this.store.state.sketch;
-    const { dimsToRemove, linesToRemove } = deleteSketchSelection({
-      sketch,
-      selectedLines: this._selectedLines,
-      selectedPoints: this._selectedPoints,
-    });
-
-    for (const point of this._selectedPoints) {
-      this._removeOrphanPoint(point);
-    }
-    for (const line of linesToRemove) {
-      this._removeOrphanPoint(line.start);
-      this._removeOrphanPoint(line.end);
-    }
-    for (const dim of dimsToRemove) {
-      this._removeOrphanPoint(dim.a);
-      this._removeOrphanPoint(dim.b);
-    }
-
-    this._selectedPoints.clear();
-    this._selectedLines.clear();
-    setSketchSnapCandidate(this, null);
-    rebuildSketchObjectsInStore(this);
-    flushSketchArraysInStore(this);
-  }
-
-  _applyAngleSnap(start, end) {
-    return applyAngleSnap(start, end, SNAP_ANGLE_DEG);
-  }
-
-  _rebuildObjects() {
-    rebuildSketchObjectsInStore(this);
-  }
-
-  _findLinesForPoint(point) {
-    return this.store.state.sketch.lines.filter((line) => line.start === point || line.end === point);
-  }
-
-  _findSharedPoint(lineA, lineB) {
-    return findSketchSharedPoint(lineA, lineB);
-  }
-
-  get templates() {
-    return this._templateTool.templates;
-  }
-
-  applyTemplate(templateId) {
-    this._templateTool.generate(templateId);
-  }
-
-  regenerateTemplate(measurements) {
-    this._templateTool.regenerate(measurements);
   }
 
   checkOverconstraints() {
