@@ -1,0 +1,158 @@
+import { SketchTool } from '../services/sketch/sketchService.js';
+import { collectRefs, bindIfPresent, toggleActive } from './uiUtils.js';
+
+const REF_IDS = {
+  sketchColorSelect: 'sketch-color',
+  sketchThicknessSlider: 'sketch-thickness',
+  sketchUndoBtn: 'sketch-undo',
+  sketchClearBtn: 'sketch-clear',
+  sketchDeleteBtn: 'sketch-delete',
+  sketchObjectList: 'sketch-object-list',
+  sketchConstraintStatus: 'sketch-constraint-status',
+  toolLineBtn: 'tool-line',
+  toolConstructionLineBtn: 'tool-construction-line',
+  toolSelectBtn: 'tool-select',
+  toolAnchorBtn: 'tool-anchor',
+  toolFillBtn: 'tool-fill',
+  toolDimensionBtn: 'tool-dimension',
+  toolPerpendicularBtn: 'tool-perpendicular',
+  toolHvBtn: 'tool-hv',
+  toolMidpointBtn: 'tool-midpoint',
+  toolEqualBtn: 'tool-equal',
+};
+
+const OBJECT_ICONS = {
+  Line: '&#9473;',
+  Point: '&#9679;',
+  Anchor: '&#9632;',
+  Perpendicular: '&#8869;',
+  Horizontal: '&#9472;',
+  Vertical: '&#9474;',
+  Equal: '&#8801;',
+};
+
+/**
+ * Owns the sketch sidebar: tool buttons, color/thickness, undo/clear/delete,
+ * object list, and constraint status display.
+ */
+export function setupSketchPanel({ store, sketchService, documentObj = globalThis.document }) {
+  const refs = collectRefs(documentObj, REF_IDS);
+
+  function updateSketchSidebar() {
+    const sketch = store.state.sketch;
+    if (refs.sketchColorSelect) refs.sketchColorSelect.value = sketch.strokeColor;
+    if (refs.sketchThicknessSlider) refs.sketchThicknessSlider.value = sketch.strokeThickness;
+    if (refs.sketchUndoBtn) refs.sketchUndoBtn.disabled = sketch.lines.length === 0 && !sketchService._pendingStart;
+    if (refs.sketchClearBtn) refs.sketchClearBtn.disabled = sketch.lines.length === 0;
+    if (refs.sketchDeleteBtn) refs.sketchDeleteBtn.disabled = !sketchService.hasSelection;
+
+    toggleActive(refs.toolLineBtn, sketch.activeTool === SketchTool.Line);
+    toggleActive(refs.toolConstructionLineBtn, sketch.activeTool === SketchTool.ConstructionLine);
+    toggleActive(refs.toolSelectBtn, sketch.activeTool === SketchTool.Select);
+    toggleActive(refs.toolAnchorBtn, sketch.activeTool === SketchTool.Anchor);
+    toggleActive(refs.toolFillBtn, sketch.activeTool === SketchTool.Fill);
+    toggleActive(refs.toolDimensionBtn, sketch.activeTool === SketchTool.Dimension);
+    toggleActive(
+      refs.toolPerpendicularBtn,
+      sketch.activeTool === SketchTool.Constraint && sketch.constraintSubMode === 'Perpendicular',
+    );
+    toggleActive(
+      refs.toolHvBtn,
+      sketch.activeTool === SketchTool.Constraint && sketch.constraintSubMode === 'HorizontalVertical',
+    );
+    toggleActive(
+      refs.toolMidpointBtn,
+      sketch.activeTool === SketchTool.Constraint && sketch.constraintSubMode === 'Midpoint',
+    );
+    toggleActive(
+      refs.toolEqualBtn,
+      sketch.activeTool === SketchTool.Constraint && sketch.constraintSubMode === 'Equal',
+    );
+
+    if (refs.sketchObjectList) {
+      refs.sketchObjectList.innerHTML = sketch.objects.map((o) =>
+        `<li class="${o.isSelected ? 'selected' : ''} ${o.refType ? 'is-selectable' : 'is-readonly'}"
+             data-ref-type="${o.refType ?? ''}"
+             data-ref-id="${o.refId ?? ''}">
+          <span>${OBJECT_ICONS[o.kind] ?? '&#9679;'}</span> ${o.label}
+        </li>`,
+      ).join('');
+    }
+
+    if (refs.sketchConstraintStatus) {
+      const issues = sketchService.checkOverconstraints();
+      if (issues.length) {
+        refs.sketchConstraintStatus.textContent = `${issues.length} overconstraint${issues.length === 1 ? '' : 's'}: ${issues.map((i) => i.message).join('; ')}`;
+      } else {
+        refs.sketchConstraintStatus.textContent = '';
+      }
+    }
+  }
+
+  // --- Event bindings ---
+
+  bindIfPresent(refs.sketchColorSelect, 'change', () => {
+    sketchService.strokeColor = refs.sketchColorSelect.value;
+  });
+
+  bindIfPresent(refs.sketchThicknessSlider, 'input', () => {
+    sketchService.strokeThickness = Number(refs.sketchThicknessSlider.value);
+  });
+
+  bindIfPresent(refs.sketchUndoBtn, 'click', () => sketchService.undo());
+  bindIfPresent(refs.sketchClearBtn, 'click', () => sketchService.clear());
+  bindIfPresent(refs.sketchDeleteBtn, 'click', () => sketchService.deleteSelected());
+
+  bindIfPresent(refs.sketchObjectList, 'click', (event) => {
+    const row = event.target.closest('li[data-ref-type]');
+    if (!row) return;
+    const refType = row.dataset.refType;
+    const rawRefId = row.dataset.refId;
+    if (!refType || rawRefId === '') return;
+    sketchService.selectObjectByRef(refType, Number(rawRefId), event.ctrlKey);
+  });
+
+  bindIfPresent(refs.toolLineBtn, 'click', () => {
+    sketchService.activeTool = SketchTool.Line;
+  });
+  bindIfPresent(refs.toolConstructionLineBtn, 'click', () => {
+    sketchService.activeTool = SketchTool.ConstructionLine;
+  });
+  bindIfPresent(refs.toolSelectBtn, 'click', () => {
+    sketchService.activeTool = SketchTool.Select;
+  });
+  bindIfPresent(refs.toolAnchorBtn, 'click', () => {
+    sketchService.activeTool = SketchTool.Anchor;
+  });
+  bindIfPresent(refs.toolFillBtn, 'click', () => {
+    sketchService.activeTool = SketchTool.Fill;
+  });
+  bindIfPresent(refs.toolDimensionBtn, 'click', () => {
+    sketchService.activeTool = SketchTool.Dimension;
+  });
+  bindIfPresent(refs.toolPerpendicularBtn, 'click', () => {
+    sketchService.activeTool = SketchTool.Constraint;
+    sketchService.constraintSubMode = 'Perpendicular';
+  });
+  bindIfPresent(refs.toolHvBtn, 'click', () => {
+    sketchService.activeTool = SketchTool.Constraint;
+    sketchService.constraintSubMode = 'HorizontalVertical';
+  });
+  bindIfPresent(refs.toolMidpointBtn, 'click', () => {
+    sketchService.activeTool = SketchTool.Constraint;
+    sketchService.constraintSubMode = 'Midpoint';
+  });
+  bindIfPresent(refs.toolEqualBtn, 'click', () => {
+    sketchService.activeTool = SketchTool.Constraint;
+    sketchService.constraintSubMode = 'Equal';
+  });
+
+  // Store subscription
+  store.subscribe((path) => {
+    if (path.startsWith('sketch.')) {
+      updateSketchSidebar();
+    }
+  });
+
+  return { updateSketchSidebar };
+}
