@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { FinishedSizeCalculator } from '../../../web/knitstitch/src/services/finishedSizeCalculator.js';
-import { GaugeSettings } from '../../../web/knitstitch/src/models/gaugeSettings.js';
-import { PatternDimensions } from '../../../web/knitstitch/src/models/patternDimensions.js';
+import { FinishedSizeCalculator } from '../../web/knitstitch/src/services/finishedSizeCalculator.js';
+import { GaugeSettings } from '../../web/knitstitch/src/models/gaugeSettings.js';
+import { PatternDimensions } from '../../web/knitstitch/src/models/patternDimensions.js';
 
 describe('FinishedSizeCalculator', () => {
     it('should calculate correct size for 20 st/28 rows per 4in', () => {

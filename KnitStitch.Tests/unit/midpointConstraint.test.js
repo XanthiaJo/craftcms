@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { Store } from '../../../web/knitstitch/src/state/store.js';
-import { SketchService, SketchTool } from '../../../web/knitstitch/src/services/sketch/sketchService.js';
-import { ConstraintSubMode } from '../../../web/knitstitch/src/services/sketch/constants.js';
-import { ConstraintSolver } from '../../../web/knitstitch/src/services/sketch/solver/constraintSolver.js';
-import { SketchPoint } from '../../../web/knitstitch/src/models/sketch/sketchPoint.js';
-import { SketchLine } from '../../../web/knitstitch/src/models/sketch/sketchLine.js';
-import { SketchConstraint } from '../../../web/knitstitch/src/models/sketch/sketchConstraint.js';
+import { Store } from '../../web/knitstitch/src/state/store.js';
+import { SketchService, SketchTool } from '../../web/knitstitch/src/services/sketch/sketchService.js';
+import { ConstraintSubMode } from '../../web/knitstitch/src/services/sketch/constants.js';
+import { ConstraintSolver } from '../../web/knitstitch/src/services/sketch/solver/constraintSolver.js';
+import { SketchPoint } from '../../web/knitstitch/src/models/sketch/sketchPoint.js';
+import { SketchLine } from '../../web/knitstitch/src/models/sketch/sketchLine.js';
+import { SketchConstraint } from '../../web/knitstitch/src/models/sketch/sketchConstraint.js';
 
 function makeSolver() {
   return new ConstraintSolver();

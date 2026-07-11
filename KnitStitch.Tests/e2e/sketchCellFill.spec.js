@@ -20,6 +20,15 @@ async function openSketch(page) {
   await page.getByRole('button', { name: 'Sketch' }).click();
   await page.getByRole('button', { name: 'Select' }).click();
 
+  // Make sure the origin anchor at (0, 0) exists so every test shape can be
+  // drawn from a fixed reference point.
+  await page.evaluate(() => {
+    const service = window.__knitstitchSketchService;
+    if (service?.ensureOriginAnchor) {
+      service.ensureOriginAnchor();
+    }
+  });
+
   // Konva's getRelativePointerPosition() calculates pointer coordinates
   // relative to the inner .konvajs-content div (not #konva-stage itself).
   // The app centres the viewport on the origin (0,0), so the content origin is

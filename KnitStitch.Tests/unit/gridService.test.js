@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { Store } from '../../../web/knitstitch/src/state/store.js';
-import { toggleCell, clearCells, getFilledBoundingBox, getCombinedBoundingBox, updateCellSizing } from '../../../web/knitstitch/src/services/gridService.js';
+import { Store } from '../../web/knitstitch/src/state/store.js';
+import { toggleCell, clearCells, getFilledBoundingBox, getCombinedBoundingBox, updateCellSizing } from '../../web/knitstitch/src/services/gridService.js';
 
 describe('GridService', () => {
   function makeStore() {

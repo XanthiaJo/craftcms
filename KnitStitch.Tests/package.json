@@ -1,5 +1,5 @@
 {
-  "name": "knit-stitch-tests",
+  "name": "knitstitch.tests",
   "private": true,
   "type": "module",
   "scripts": {

@@ -2,18 +2,18 @@
 
 How the KnitStitch test suite runs and how to add to it.
 
-Tests live at the repository root under `tests/knit-stitch/`, not inside `web/knitstitch/`. All commands below assume you are in that directory.
+Tests live at the repository root under `KnitStitch.Tests/`, not inside `web/knitstitch/`. All commands below assume you are in that directory.
 
 ```bash
-cd tests/knit-stitch
+cd KnitStitch.Tests
 ```
 
 ## Quick start
 
 | Suite | Command | Files | Count |
 | --- | --- | --- | --- |
-| Unit | `npx vitest run` | `tests/knit-stitch/unit/**/*.test.js` | 67 tests across 12 files |
-| E2E | `npx playwright test` | `tests/knit-stitch/e2e/**/*.spec.js` | 19 tests across 2 files |
+| Unit | `npx vitest run` | `KnitStitch.Tests/unit/**/*.test.js` | 67 tests across 12 files |
+| E2E | `npx playwright test` | `KnitStitch.Tests/e2e/**/*.spec.js` | 19 tests across 2 files |
 
 ## Unit tests (Vitest)
 
@@ -31,7 +31,7 @@ For watch mode during development:
 npx vitest
 ```
 
-Vitest reads `vitest.config.js` in this directory. That config uses Node environment and only includes `unit/**/*.test.js`. The `package.json` in `tests/knit-stitch/` declares `"type": "module"` so Node loads Vite's ESM build (avoiding the CJS deprecation warning).
+Vitest reads `vitest.config.js` in this directory. That config uses Node environment and only includes `unit/**/*.test.js`. The `package.json` in `KnitStitch.Tests/` declares `"type": "module"` so Node loads Vite's ESM build (avoiding the CJS deprecation warning).
 
 ### What to unit test
 
@@ -51,7 +51,7 @@ Avoid unit tests for:
 
 ### Creating a unit test
 
-Create a file under `tests/knit-stitch/unit/` ending in `.test.js`. Import the module under test from `../../../web/knitstitch/src/...`.
+Create a file under `KnitStitch.Tests/unit/` ending in `.test.js`. Import the module under test from `../../web/knitstitch/src/...`.
 
 Example pattern from `equalConstraint.test.js`:
 
@@ -113,11 +113,11 @@ ddev start
 npx playwright test
 ```
 
-If you need to point at a different host, set the `BASE_URL` environment variable or edit `use.baseURL` in `tests/knit-stitch/playwright.config.js`.
+If you need to point at a different host, set the `BASE_URL` environment variable or edit `use.baseURL` in `KnitStitch.Tests/playwright.config.js`.
 
 ### Creating an E2E test
 
-Create a file under `tests/knit-stitch/e2e/` ending in `.spec.js` and import from `@playwright/test`.
+Create a file under `KnitStitch.Tests/e2e/` ending in `.spec.js` and import from `@playwright/test`.
 
 Reusable helpers in `sketchConstraints.spec.js`:
 
@@ -152,7 +152,7 @@ Konva’s `getRelativePointerPosition()` computes coordinates relative to the in
 
 | Symptom | Likely cause |
 | --- | --- |
-| `No test files found` when running Vitest | You are in `web/knitstitch/` instead of `tests/knit-stitch/`. |
+| `No test files found` when running Vitest | You are in `web/knitstitch/` instead of `KnitStitch.Tests/`. |
 | `Process from config.webServer was not able to start` | Playwright is trying to auto-start a Vite server that has no fixture. Start DDEV or adjust `baseURL` and `webServer`. |
 | `Error establishing a database connection` in E2E | DDEV is up but the Craft database is not reachable/imported. |
 | Canvas clicks miss the intended point | Coordinates are screen-relative instead of content-div-relative. Use the `box` returned by `openSketch()`. |

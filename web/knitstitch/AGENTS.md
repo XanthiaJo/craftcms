@@ -36,7 +36,7 @@ Primary source layout:
 - [src/state/store.js](</E:/Coding Projects/craftcms/web/knitstitch/src/state/store.js>) - reactive store (sparse filledCells, gauge, zoom/pan, sketch state)
 - [src/state/storePersistence.js](</E:/Coding Projects/craftcms/web/knitstitch/src/state/storePersistence.js>) - localStorage persistence with legacy migration
 - [src/utils/geometry.js](</E:/Coding Projects/craftcms/web/knitstitch/src/utils/geometry.js>) - pure geometry helpers (distance, nearestPoint, applyAngleSnap)
-- [tests/knit-stitch/](</E:/Coding Projects/craftcms/tests/knit-stitch/>) - Vitest and Playwright coverage (at repo root, not inside `web/knitstitch/`)
+- [KnitStitch.Tests/](</E:/Coding Projects/craftcms/KnitStitch.Tests/>) - Vitest and Playwright coverage (at repo root, not inside `web/knitstitch/`)
 - [docs/](</E:/Coding Projects/craftcms/web/knitstitch/docs/>) - human-level docs: architecture overview, project map, roadmap, testing guide
 - [docs/agents/](</E:/Coding Projects/craftcms/web/knitstitch/docs/agents/>) - agent-level docs: low-level architecture, import/export maps, detailed roadmap
 
@@ -124,7 +124,7 @@ Each colour family has its own selection highlight instead of a single site-wide
 
 ## Testing Rules
 
-Tests live at the repository root under `tests/knit-stitch/`, not inside `web/knitstitch/`.
+Tests live at the repository root under `KnitStitch.Tests/`, not inside `web/knitstitch/`.
 
 ### E2E-First Testing Approach
 
@@ -161,13 +161,13 @@ This is a UI/interaction-based system where the real test is whether constraints
 
 Unit tests (Vitest):
 ```bash
-cd tests/knit-stitch
+cd KnitStitch.Tests
 npx vitest run
 ```
 
 E2E tests (Playwright):
 ```bash
-cd tests/knit-stitch
+cd KnitStitch.Tests
 npx playwright test
 ```
 

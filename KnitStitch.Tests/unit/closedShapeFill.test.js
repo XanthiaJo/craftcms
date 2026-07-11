@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   computeFilledCellsFromSketch,
   findClosedPolygons,
-} from '../../../web/knitstitch/src/services/sketch/fill/closedShapeFill.js';
+} from '../../web/knitstitch/src/services/sketch/fill/closedShapeFill.js';
 
 function line(sx, sy, ex, ey, isConstruction = false) {
   return { start: { x: sx, y: sy }, end: { x: ex, y: ey }, isConstruction };

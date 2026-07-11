@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { Store } from '../../../web/knitstitch/src/state/store.js';
-import { StorePersistence } from '../../../web/knitstitch/src/state/storePersistence.js';
-import { SketchService, SketchTool } from '../../../web/knitstitch/src/services/sketch/sketchService.js';
+import { Store } from '../../web/knitstitch/src/state/store.js';
+import { StorePersistence } from '../../web/knitstitch/src/state/storePersistence.js';
+import { SketchService, SketchTool } from '../../web/knitstitch/src/services/sketch/sketchService.js';
 
 describe('StorePersistence', () => {
   let originalLocalStorage;
