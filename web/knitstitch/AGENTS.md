@@ -57,7 +57,7 @@ The current direction is:
 - `dimensionTool.js` owns the dimension lifecycle (placement, edit overlay, driven-value application)
 - `constraintTool.js` owns the constraint creation workflow (line selection, feasibility check, commit)
 - pure geometry helpers (`distance`, `nearestPoint`, `applyAngleSnap`) live in `src/utils/geometry.js`
-- colour triplets and renderer colour constants live in `src/services/sketch/styleOptions.js`; use `getColorTriplet()` to resolve a stroke hex to its triplet
+- colour triplets and renderer colour constants live in `src/services/sketch/render/styleOptions.js`; use `getColorTriplet()` to resolve a stroke hex to its triplet
 
 ## Sketch Interaction Model
 
@@ -112,7 +112,7 @@ Sketch stroke colours are defined as triplets `{ stroke, fill, select }`:
 - `fill` — the point fill colour (same as stroke for most)
 - `select` — a darker shade used for selection highlight of lines and points
 
-Each colour family has its own selection highlight instead of a single site-wide gold. The default colour is Gold, matching the site's `--primary` / `--primary-dark` values. See `src/services/sketch/styleOptions.js`.
+Each colour family has its own selection highlight instead of a single site-wide gold. The default colour is Gold, matching the site's `--primary` / `--primary-dark` values. See `src/services/sketch/render/styleOptions.js`.
 
 ## Rendering Notes
 

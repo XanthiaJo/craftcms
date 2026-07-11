@@ -240,7 +240,7 @@ Each template needs:
 
 | Phase | Action | Notes |
 |---|---|---|
-| 1 — Anchor tool | Extract `_onAnchorClick`/`_convertToAnchor` into `src/services/sketch/anchorTool.js`; compose in `SketchService` | Includes `onAnchorMouseMove` for snap candidate |
+| 1 — Anchor tool | Extract `_onAnchorClick`/`_convertToAnchor` into `src/services/sketch/tools/anchorTool.js`; compose in `SketchService` | Includes `onAnchorMouseMove` for snap candidate |
 | 2 — Selection service | Extract selection state and select/clear methods into `src/services/sketch/selectionService.js` | `deleteSelected` stays but delegates clearing |
 | 3 — Sketch cleanup | Extract `_removeOrphanPoint` into a pure `sketchCleanup.js` function | Also a home for `deleteSketchSelection` |
 | 4 — Remove sub-tool proxies | Add getters (`dimTool`, `constraintTool`, `lineTool`, `anchorTool`); call sub-tools directly from `sketchLayer.js` and tests | Remove one-line proxies |

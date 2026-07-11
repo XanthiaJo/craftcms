@@ -57,7 +57,7 @@ Example pattern from `equalConstraint.test.js`:
 
 ```js
 import { describe, it, expect } from 'vitest';
-import { ConstraintSolver } from '../../../web/knitstitch/src/services/sketch/constraintSolver.js';
+import { ConstraintSolver } from '../../../web/knitstitch/src/services/sketch/solver/constraintSolver.js';
 import { SketchPoint } from '../../../web/knitstitch/src/models/sketch/sketchPoint.js';
 import { SketchLine } from '../../../web/knitstitch/src/models/sketch/sketchLine.js';
 ```

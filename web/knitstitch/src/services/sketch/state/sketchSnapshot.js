@@ -1,7 +1,7 @@
-import { SketchPoint } from '../../models/sketch/sketchPoint.js';
-import { SketchLine } from '../../models/sketch/sketchLine.js';
-import { SketchDimension } from '../../models/sketch/sketchDimension.js';
-import { SketchConstraint } from '../../models/sketch/sketchConstraint.js';
+import { SketchPoint } from '../../../models/sketch/sketchPoint.js';
+import { SketchLine } from '../../../models/sketch/sketchLine.js';
+import { SketchDimension } from '../../../models/sketch/sketchDimension.js';
+import { SketchConstraint } from '../../../models/sketch/sketchConstraint.js';
 import { flushSketchArrays, rebuildSketchObjects } from './sketchStateHelpers.js';
 
 /**

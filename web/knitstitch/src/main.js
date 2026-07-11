@@ -5,7 +5,7 @@ import { Store } from './state/store.js';
 import { StorePersistence } from './state/storePersistence.js';
 import { SketchService } from './services/sketch/sketchService.js';
 import { setupMainUi } from './ui/mainUi.js';
-import { computeFilledCellsFromSketch } from './services/sketch/closedShapeFill.js';
+import { computeFilledCellsFromSketch } from './services/sketch/fill/closedShapeFill.js';
 
 const store = new Store();
 const persistence = new StorePersistence(store);

@@ -1,4 +1,4 @@
-import { buildSketchObjects } from './buildSketchObjects.js';
+import { buildSketchObjects } from '../render/buildSketchObjects.js';
 
 let cursorMessageTimeout = null;
 

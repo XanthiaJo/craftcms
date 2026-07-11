@@ -5,7 +5,7 @@ import {
   WITNESS_COLOR,
   LABEL_BG_COLOR,
   LABEL_STROKE_COLOR,
-} from '../services/sketch/styleOptions.js';
+} from '../services/sketch/render/styleOptions.js';
 
 /**
  * Renders dimension entities (witness lines, dimension line, arrowheads,

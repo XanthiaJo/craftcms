@@ -1,12 +1,12 @@
-import { SketchLine } from '../../models/sketch/sketchLine.js';
-import { SketchPoint } from '../../models/sketch/sketchPoint.js';
-import { applyAngleSnap } from '../../utils/geometry.js';
-import { SNAP_ANGLE_DEG } from './constants.js';
+import { SketchLine } from '../../../models/sketch/sketchLine.js';
+import { SketchPoint } from '../../../models/sketch/sketchPoint.js';
+import { applyAngleSnap } from '../../../utils/geometry.js';
+import { SNAP_ANGLE_DEG } from '../constants.js';
 import {
   rebuildSketchObjects,
   setPreviewLine,
   setSnapCandidate,
-} from './sketchStateHelpers.js';
+} from '../state/sketchStateHelpers.js';
 
 /**
  * Owns the line-drawing workflow: first click sets the start point, second

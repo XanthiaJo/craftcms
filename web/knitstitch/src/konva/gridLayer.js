@@ -1,6 +1,6 @@
 import Konva from 'konva';
 import { toggleCell } from '../services/gridService.js';
-import { computeFilledCellsFromSketch } from '../services/sketch/closedShapeFill.js';
+import { computeFilledCellsFromSketch } from '../services/sketch/fill/closedShapeFill.js';
 
 const FILL_COLOR = '#ca9b52';
 const GRID_PADDING = 2; // extra cells rendered beyond viewport edges

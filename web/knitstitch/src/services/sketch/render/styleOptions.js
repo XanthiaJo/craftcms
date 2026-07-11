@@ -1,4 +1,4 @@
-import { SketchColorOption } from '../../models/sketch/sketchColorOption.js';
+import { SketchColorOption } from '../../../models/sketch/sketchColorOption.js';
 
 /**
  * Default and selectable appearance options for sketch strokes.

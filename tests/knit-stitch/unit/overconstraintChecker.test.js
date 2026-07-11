@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { Store } from '../../../web/knitstitch/src/state/store.js';
 import { SketchService } from '../../../web/knitstitch/src/services/sketch/sketchService.js';
-import { checkOverconstraints } from '../../../web/knitstitch/src/services/sketch/overconstraintChecker.js';
+import { checkOverconstraints } from '../../../web/knitstitch/src/services/sketch/solver/overconstraintChecker.js';
 import { SketchPoint } from '../../../web/knitstitch/src/models/sketch/sketchPoint.js';
 import { SketchLine } from '../../../web/knitstitch/src/models/sketch/sketchLine.js';
 import { SketchDimension } from '../../../web/knitstitch/src/models/sketch/sketchDimension.js';

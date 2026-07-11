@@ -1,6 +1,6 @@
 // Store.js - Central reactive state (replaces ViewModelBase)
 
-import { DEFAULT_STROKE_COLOR, DEFAULT_STROKE_THICKNESS } from '../services/sketch/styleOptions.js';
+import { DEFAULT_STROKE_COLOR, DEFAULT_STROKE_THICKNESS } from '../services/sketch/render/styleOptions.js';
 
 class Store {
   constructor() {

@@ -1,8 +1,8 @@
-import { SketchDimension } from '../../models/sketch/sketchDimension.js';
+import { SketchDimension } from '../../../models/sketch/sketchDimension.js';
 import {
   rebuildSketchObjects,
   setSnapCandidate,
-} from './sketchStateHelpers.js';
+} from '../state/sketchStateHelpers.js';
 
 /**
  * Owns the full dimension lifecycle: click-to-place, edit overlay, and

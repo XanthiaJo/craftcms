@@ -1,14 +1,14 @@
-import { STROKE_COLOR_OPTIONS } from './styleOptions.js';
-import { ConstraintSolver } from './constraintSolver.js';
-import { GlobalConstraintSolver } from './globalConstraintSolver.js';
-import { DimensionTool } from './dimensionTool.js';
-import { ConstraintTool } from './constraintTool.js';
-import { LineTool } from './lineTool.js';
-import { TemplateTool } from './templateTool.js';
-import { HistoryManager } from './historyManager.js';
-import { checkOverconstraints } from './overconstraintChecker.js';
+import { STROKE_COLOR_OPTIONS } from './render/styleOptions.js';
+import { ConstraintSolver } from './solver/constraintSolver.js';
+import { GlobalConstraintSolver } from './solver/globalConstraintSolver.js';
+import { DimensionTool } from './tools/dimensionTool.js';
+import { ConstraintTool } from './tools/constraintTool.js';
+import { LineTool } from './tools/lineTool.js';
+import { TemplateTool } from './templates/templateTool.js';
+import { HistoryManager } from './state/historyManager.js';
+import { checkOverconstraints } from './solver/overconstraintChecker.js';
 import { nearestPoint } from '../../utils/geometry.js';
-import { restoreSketchSnapshot } from './sketchSnapshot.js';
+import { restoreSketchSnapshot } from './state/sketchSnapshot.js';
 import {
   ConstraintSubMode,
   SNAP_RADIUS,
@@ -16,7 +16,9 @@ import {
   SketchTool,
 } from './constants.js';
 import { SketchPoint } from '../../models/sketch/sketchPoint.js';
-import { deleteSketchSelection } from './deleteSketchSelection.js';
+import { AnchorTool } from './tools/anchorTool.js';
+import { removeOrphanPoint } from './state/sketchCleanup.js';
+import { deleteSketchSelection } from './state/deleteSketchSelection.js';
 import {
   assignConstraintIds as assignSketchConstraintIds,
   clearSelection as clearSketchSelection,
@@ -33,7 +35,7 @@ import {
   setPreviewLine as setSketchPreviewLine,
   setSnapCandidate as setSketchSnapCandidate,
   syncSketchStateToStore,
-} from './sketchStateHelpers.js';
+} from './state/sketchStateHelpers.js';
 
 export { ConstraintSubMode, SketchObjectKind, SketchTool } from './constants.js';
 
@@ -56,6 +58,7 @@ export class SketchService {
     this._constraintTool = new ConstraintTool(this);
     this._lineTool = new LineTool(this);
     this._templateTool = new TemplateTool(this);
+    this._anchorTool = new AnchorTool(this);
     this._history = new HistoryManager(this);
 
     this.strokeColorOptions = STROKE_COLOR_OPTIONS;
@@ -170,7 +173,7 @@ export class SketchService {
         this._constraintTool.onConstraintClick(position, modifiers);
         break;
       case SketchTool.Anchor:
-        this._onAnchorClick(position, modifiers);
+        this._anchorTool.onClick(position, modifiers);
         break;
     }
   }
@@ -201,7 +204,7 @@ export class SketchService {
       return;
     }
     if (this.activeTool === SketchTool.Anchor) {
-      this._convertToAnchor(pt);
+      this._anchorTool.convertToAnchor(pt);
       return;
     }
     this.onCanvasClick(position ?? { x: pt.x, y: pt.y }, modifiers);
@@ -224,7 +227,7 @@ export class SketchService {
         this._setSnapCandidate(null);
         break;
       case SketchTool.Anchor:
-        this._setSnapCandidate(this._findNearestPoint(position, modifiers.snapEnabled !== false));
+        this._anchorTool.onMouseMove(position, modifiers);
         break;
     }
   }
@@ -397,53 +400,9 @@ export class SketchService {
     return nearestPoint(this.store.state.sketch.points, position, snapRadius, excludePoint);
   }
 
-  /**
-   * Anchor tool: click on empty canvas creates a new anchor point.
-   * If near an existing point, that point is converted instead.
-   */
-  _onAnchorClick(position, modifiers = {}) {
-    const near = this._findNearestPoint(position, modifiers.snapEnabled !== false);
-    if (near) {
-      this._convertToAnchor(near);
-    } else {
-      this._recordSnapshot('Add anchor point');
-      const sketch = this.store.state.sketch;
-      const pt = new SketchPoint(this._nextPointId++, position.x, position.y);
-      pt.isAnchor = true;
-      sketch.points.push(pt);
-      flushSketchArraysInStore(this);
-      rebuildSketchObjectsInStore(this);
-      this.exitToSelect();
-    }
-  }
-
-  /**
-   * Converts an existing point to an anchor point.
-   */
-  _convertToAnchor(pt) {
-    if (pt.isAnchor) return;
-    this._recordSnapshot('Convert point to anchor');
-    pt.isAnchor = true;
-    flushSketchArraysInStore(this);
-    rebuildSketchObjectsInStore(this);
-    this.exitToSelect();
-  }
-
   _removeOrphanPoint(point) {
-    if (point.id < 0) return;
     const sketch = this.store.state.sketch;
-    for (const line of sketch.lines) {
-      if (line.start === point || line.end === point) return;
-    }
-    for (const dim of sketch.dimensions) {
-      if (dim.a === point || dim.b === point) return;
-    }
-    for (const constraint of sketch.constraints) {
-      if (constraint?.pointA === point || constraint?.pointB === point) return;
-    }
-    const idx = sketch.points.indexOf(point);
-    if (idx >= 0) {
-      sketch.points.splice(idx, 1);
+    if (removeOrphanPoint(sketch, point)) {
       this.store.set('sketch.points', [...sketch.points]);
     }
   }

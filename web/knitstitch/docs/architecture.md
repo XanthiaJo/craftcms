@@ -183,10 +183,10 @@ The current KnitStitch solver does not compute a DOF count. It either finds a nu
 | File | Role |
 | --- | --- |
 | `src/services/sketch/sketchService.js` | Top-level coordinator: tool dispatch, selection, drag, undo/redo, solver invocation. |
-| `src/services/sketch/globalConstraintSolver.js` | Global numerical solver: gradient descent + hard dimension/coincident enforcement. |
-| `src/services/sketch/constraintSolver.js` | Local per-point solver: snap, coincident, perpendicular, midpoint, equal, dimensions. Fallback only. |
-| `src/services/sketch/constraintTool.js` | Creation workflow for perpendicular, midpoint, and equal constraints. |
-| `src/services/sketch/dimensionTool.js` | Dimension placement and driven-value confirmation. |
-| `src/services/sketch/templateTool.js` | Generates templates (sock) with points, lines, dimensions, and constraints. |
+| `src/services/sketch/solver/globalConstraintSolver.js` | Global numerical solver: gradient descent + hard dimension/coincident enforcement. |
+| `src/services/sketch/solver/constraintSolver.js` | Local per-point solver: snap, coincident, perpendicular, midpoint, equal, dimensions. Fallback only. |
+| `src/services/sketch/tools/constraintTool.js` | Creation workflow for perpendicular, midpoint, and equal constraints. |
+| `src/services/sketch/tools/dimensionTool.js` | Dimension placement and driven-value confirmation. |
+| `src/services/sketch/templates/templateTool.js` | Generates templates (sock) with points, lines, dimensions, and constraints. |
 | `src/models/sketch/sketchDimension.js` | Dimension model and rendering geometry. |
 | `src/models/sketch/sketchConstraint.js` | Constraint model. |

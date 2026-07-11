@@ -68,23 +68,23 @@ see [architecture.md](architecture.md).
 | File | Summary |
 | --- | --- |
 | `src/services/sketch/sketchService.js` | Coordinator: dispatches tools, manages selection, drag, undo/redo, lifecycle. Entry point for all sketch actions. |
-| `src/services/sketch/constraintSolver.js` | Local constraint solver: applies constraint rules when points move. Snap, coincident BFS, perpendicular, midpoint, equal, horizontal, vertical, driven dimensions. Perpendicular feasibility check via bipartite graph. |
-| `src/services/sketch/globalConstraintSolver.js` | Global gradient-descent solver orchestrator. Delegates error/gradient computation and hard-constraint propagation. |
-| `src/services/sketch/constraintErrorTerms.js` | Error functions and analytical gradients for soft constraints (Perpendicular, Coincident, Midpoint, Equal, Horizontal, Vertical). |
-| `src/services/sketch/hardConstraintPropagator.js` | Exact enforcement of hard constraints: driven dimensions, Coincident points, and Equal Length propagation. |
-| `src/services/sketch/constraintTool.js` | Owns perpendicular, midpoint, equal, horizontal, and vertical constraint creation workflows (line/point picking, validation, commit). |
-| `src/services/sketch/dimensionTool.js` | Owns dimension placement, edit overlay, and driven-value application. Converts inch display values to pixels. |
-| `src/services/sketch/lineTool.js` | Owns the line/polyline and construction-line drawing workflow (click-to-place, preview, angle snap). |
-| `src/services/sketch/templateTool.js` | Generates predefined templates (sock) as sketch points/lines/dimensions/constraints from inch measurements. |
-| `src/services/sketch/sockMeasurements.js` | Pure functions: gauge + body measurements → stitch/row counts, inch outline, section dimensions. Based on the Zoom Yummy sock pattern. |
-| `src/services/sketch/closedShapeFill.js` | Detects closed loops in non-construction sketch lines and computes which grid cells are 50%+ inside for fill rendering. Returns sparse cell keys. |
-| `src/services/sketch/historyManager.js` | Action-based undo/redo stack for sketch state. |
-| `src/services/sketch/sketchSnapshot.js` | Captures and restores full sketch state for undo/redo. |
-| `src/services/sketch/deleteSketchSelection.js` | Removes selected sketch items and dependent geometry (cascades to constraints/dims). |
-| `src/services/sketch/buildSketchObjects.js` | Builds the sidebar object list from sketch state, including lines, points, anchors, dimensions, and constraints. |
-| `src/services/sketch/sketchStateHelpers.js` | Shared helpers: store sync, selection, cursor messages, constraint ID assignment. |
+| `src/services/sketch/solver/constraintSolver.js` | Local constraint solver: applies constraint rules when points move. Snap, coincident BFS, perpendicular, midpoint, equal, horizontal, vertical, driven dimensions. Perpendicular feasibility check via bipartite graph. |
+| `src/services/sketch/solver/globalConstraintSolver.js` | Global gradient-descent solver orchestrator. Delegates error/gradient computation and hard-constraint propagation. |
+| `src/services/sketch/solver/constraintErrorTerms.js` | Error functions and analytical gradients for soft constraints (Perpendicular, Coincident, Midpoint, Equal, Horizontal, Vertical). |
+| `src/services/sketch/solver/hardConstraintPropagator.js` | Exact enforcement of hard constraints: driven dimensions, Coincident points, and Equal Length propagation. |
+| `src/services/sketch/tools/constraintTool.js` | Owns perpendicular, midpoint, equal, horizontal, and vertical constraint creation workflows (line/point picking, validation, commit). |
+| `src/services/sketch/tools/dimensionTool.js` | Owns dimension placement, edit overlay, and driven-value application. Converts inch display values to pixels. |
+| `src/services/sketch/tools/lineTool.js` | Owns the line/polyline and construction-line drawing workflow (click-to-place, preview, angle snap). |
+| `src/services/sketch/templates/templateTool.js` | Generates predefined templates (sock) as sketch points/lines/dimensions/constraints from inch measurements. |
+| `src/services/sketch/templates/sockMeasurements.js` | Pure functions: gauge + body measurements → stitch/row counts, inch outline, section dimensions. Based on the Zoom Yummy sock pattern. |
+| `src/services/sketch/fill/closedShapeFill.js` | Detects closed loops in non-construction sketch lines and computes which grid cells are 50%+ inside for fill rendering. Returns sparse cell keys. |
+| `src/services/sketch/state/historyManager.js` | Action-based undo/redo stack for sketch state. |
+| `src/services/sketch/state/sketchSnapshot.js` | Captures and restores full sketch state for undo/redo. |
+| `src/services/sketch/state/deleteSketchSelection.js` | Removes selected sketch items and dependent geometry (cascades to constraints/dims). |
+| `src/services/sketch/render/buildSketchObjects.js` | Builds the sidebar object list from sketch state, including lines, points, anchors, dimensions, and constraints. |
+| `src/services/sketch/state/sketchStateHelpers.js` | Shared helpers: store sync, selection, cursor messages, constraint ID assignment. |
 | `src/services/sketch/constants.js` | Shared constants: SketchTool, ConstraintSubMode, SketchObjectKind, snap radius/angle. |
-| `src/services/sketch/styleOptions.js` | Default stroke colour triplets, thickness defaults, renderer colour constants, slider limits. |
+| `src/services/sketch/render/styleOptions.js` | Default stroke colour triplets, thickness defaults, renderer colour constants, slider limits. |
 
 ## State
 

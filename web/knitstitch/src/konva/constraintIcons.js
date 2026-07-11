@@ -1,5 +1,5 @@
 import Konva from 'konva';
-import { SELECTION_COLOR, ACCENT_COLOR } from '../services/sketch/styleOptions.js';
+import { SELECTION_COLOR, ACCENT_COLOR } from '../services/sketch/render/styleOptions.js';
 
 /**
  * Constraint icon renderers.

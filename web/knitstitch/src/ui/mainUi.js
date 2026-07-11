@@ -2,7 +2,7 @@ import { GaugeSettings } from '../models/gaugeSettings.js';
 import { PatternDimensions } from '../models/patternDimensions.js';
 import { FinishedSizeCalculator } from '../services/finishedSizeCalculator.js';
 import { updateCellSizing, getCombinedBoundingBox, clearManualCellsOutsideSketch } from '../services/gridService.js';
-import { computeFilledCellsFromSketch } from '../services/sketch/closedShapeFill.js';
+import { computeFilledCellsFromSketch } from '../services/sketch/fill/closedShapeFill.js';
 import {
   ZOOM_STEP,
   fitToView,
@@ -10,7 +10,7 @@ import {
   zoomAt,
   zoomCentered,
 } from '../services/zoomService.js';
-import { computeSockCounts, buildSockOutlineInInches } from '../services/sketch/sockMeasurements.js';
+import { computeSockCounts, buildSockOutlineInInches } from '../services/sketch/templates/sockMeasurements.js';
 import { SketchTool } from '../services/sketch/sketchService.js';
 
 function getElement(documentObj, id) {

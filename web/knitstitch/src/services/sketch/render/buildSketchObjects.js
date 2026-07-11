@@ -1,4 +1,4 @@
-import { SketchObjectKind } from './constants.js';
+import { SketchObjectKind } from '../constants.js';
 
 export function buildSketchObjects(sketch, { findSharedPoint }) {
   const objects = [];

@@ -1,8 +1,8 @@
 // ConstraintSolver.js - Port of ConstraintSolver.cs
 // TODO: Port perpendicular and midpoint solver logic verbatim
 
-import { SketchConstraint } from '../../models/sketch/sketchConstraint.js';
-import { nearestPoint } from '../../utils/geometry.js';
+import { SketchConstraint } from '../../../models/sketch/sketchConstraint.js';
+import { nearestPoint } from '../../../utils/geometry.js';
 
 const EPSILON = 0.000001;
 const DEFAULT_SNAP_RADIUS = 10.0;

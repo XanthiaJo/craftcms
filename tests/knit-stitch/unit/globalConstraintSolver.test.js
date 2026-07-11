@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { GlobalConstraintSolver } from '../../../web/knitstitch/src/services/sketch/globalConstraintSolver.js';
+import { GlobalConstraintSolver } from '../../../web/knitstitch/src/services/sketch/solver/globalConstraintSolver.js';
 import { SketchPoint } from '../../../web/knitstitch/src/models/sketch/sketchPoint.js';
 import { SketchLine } from '../../../web/knitstitch/src/models/sketch/sketchLine.js';
 import { SketchDimension } from '../../../web/knitstitch/src/models/sketch/sketchDimension.js';

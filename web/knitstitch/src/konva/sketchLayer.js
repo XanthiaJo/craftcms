@@ -5,7 +5,7 @@ import {
   SELECTION_COLOR,
   PREVIEW_COLOR,
   getColorTriplet,
-} from '../services/sketch/styleOptions.js';
+} from '../services/sketch/render/styleOptions.js';
 import { SketchOverlay } from './sketchOverlay.js';
 import { renderConstraintIcons } from './constraintIcons.js';
 import { renderDimensions } from './dimensionRenderer.js';

@@ -1,4 +1,4 @@
-import { ERROR_COLOR } from '../services/sketch/styleOptions.js';
+import { ERROR_COLOR } from '../services/sketch/render/styleOptions.js';
 
 /**
  * Manages the floating DOM overlays for the sketch canvas: the dimension
