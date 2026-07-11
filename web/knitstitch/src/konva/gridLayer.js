@@ -213,6 +213,29 @@ export class GridLayer {
     ctx.lineWidth = 0.5;
     ctx.stroke();
 
+    // Draw the crosshair (origin column and row) with a bolder line
+    const originCol = -minCol;
+    const originRow = -minRow;
+    if (originCol >= 0 && originCol <= cols) {
+      const x = originCol * cellW + 0.5;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, h);
+      ctx.strokeStyle = '#9a9a9a';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+    if (originRow >= 0 && originRow <= rows) {
+      const y = originRow * cellH + 0.5;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(w, y);
+      ctx.strokeStyle = '#9a9a9a';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+
     this._imageNode.width(w);
     this._imageNode.height(h);
     this._imageNode.x(offsetX);

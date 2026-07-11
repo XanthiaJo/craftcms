@@ -10,6 +10,7 @@
  */
 export function removeOrphanPoint(sketch, point) {
   if (point.id < 0) return false;
+  if (point.isOrigin) return false;
 
   for (const line of sketch.lines) {
     if (line.start === point || line.end === point) return false;

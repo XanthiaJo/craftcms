@@ -79,6 +79,7 @@ export class SketchService {
 
     const anchor = new SketchPoint(this._nextPointId++, 0, 0);
     anchor.isAnchor = true;
+    anchor.isOrigin = true;
     sketch.points.push(anchor);
     this.store.set('sketch.points', [...sketch.points]);
     this._seedIdCountersFromSketch();

@@ -5,6 +5,7 @@ export class SketchPoint {
     this.y = y;
     this.isSelected = false;
     this.isAnchor = false;
+    this.isOrigin = false;
   }
 
   get dotX() {
