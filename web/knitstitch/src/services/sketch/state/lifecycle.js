@@ -1,5 +1,6 @@
 import { SketchPoint } from '../../../models/sketch/sketchPoint.js';
 import { restoreSketchSnapshot } from './sketchSnapshot.js';
+import { SketchTool } from '../constants.js';
 
 export function ensureOriginAnchor(service, ) {
     const sketch = service.store.state.sketch;
@@ -76,4 +77,9 @@ export function cancelCurrentLine(service, ) {
 }
 export function recordSnapshot(service, description) {
     service._history.record(description);
+}
+export function exitToSelect(service) {
+    service.cancelCurrentLine();
+    service.clearSelection();
+    service.store.set('sketch.activeTool', SketchTool.Select);
 }

@@ -1,21 +1,16 @@
 import { STROKE_COLOR_OPTIONS } from './render/styleOptions.js';
 import { ConstraintSolver } from './solver/constraintSolver.js';
 import { GlobalConstraintSolver } from './solver/globalConstraintSolver.js';
-import { DimensionTool } from './tools/dimensionTool.js';
-import { ConstraintTool } from './tools/constraintTool.js';
-import { LineTool } from './tools/lineTool.js';
-import { TemplateTool } from './templates/templateTool.js';
+import { ToolRegistry } from './tools/toolRegistry.js';
 import { HistoryManager } from './state/historyManager.js';
 import { checkOverconstraints } from './solver/overconstraintChecker.js';
 import { nearestPoint, applyAngleSnap, findSharedPoint, findLinesForPoint } from '../../utils/geometry.js';
 import { ConstraintSubMode, SNAP_RADIUS, SNAP_ANGLE_DEG, SketchObjectKind, SketchTool } from './constants.js';
-import { AnchorTool } from './tools/anchorTool.js';
 import { removeOrphanPoint } from './state/sketchCleanup.js';
 import { syncSketchStateToStore, rebuildSketchObjects, flushSketchArrays, setPreviewLine, setSnapCandidate } from './state/sketchStoreSync.js';
 import { nextId, seedIdCountersFromSketch, assignConstraintIds } from './state/sketchIdManager.js';
-import { onCanvasClick, onLineClick, onPointClick, onCanvasMouseMove, onRightMouseDown, onCanvasMouseDown, exitToSelect } from './interactions/pointerHandlers.js';
 import { startDrag, onCanvasMouseUp, onSelectMouseMove } from './interactions/dragHandler.js';
-import { ensureOriginAnchor, undo, clear, cancelCurrentLine, recordSnapshot } from './state/lifecycle.js';
+import { ensureOriginAnchor, undo, clear, cancelCurrentLine, recordSnapshot, exitToSelect } from './state/lifecycle.js';
 import { clearSelection, selectPoint, selectLine, selectDimension, selectConstraint, selectObjectByRef } from './state/sketchSelection.js';
 import { deleteSelected, getHasSelection } from './state/selection.js';
 import { getIsActive, setIsActive, getActiveTool, setActiveTool, getConstraintSubMode, setConstraintSubMode, getStrokeColor, setStrokeColor, getStrokeThickness, setStrokeThickness, getPendingStart, setPendingStart, getTemplates } from './state/properties.js';
@@ -38,11 +33,7 @@ export class SketchService {
     this._constraintSolver = new ConstraintSolver();
     this._globalConstraintSolver = new GlobalConstraintSolver();
     this._useGlobalSolver = true; // Set to true to use global solver
-    this._dimensionTool = new DimensionTool(this);
-    this._constraintTool = new ConstraintTool(this);
-    this._lineTool = new LineTool(this);
-    this._templateTool = new TemplateTool(this);
-    this._anchorTool = new AnchorTool(this);
+    this._toolRegistry = new ToolRegistry(this);
     this._history = new HistoryManager(this);
 
     this.strokeColorOptions = STROKE_COLOR_OPTIONS;
@@ -51,28 +42,49 @@ export class SketchService {
     seedIdCountersFromSketch(this);
   }
 
+  // Tool accessors — the registry owns the tool instances.
+  get _lineTool() {
+    return this._toolRegistry.getTool(SketchTool.Line);
+  }
+
+  get _dimensionTool() {
+    return this._toolRegistry.getTool(SketchTool.Dimension);
+  }
+
+  get _constraintTool() {
+    return this._toolRegistry.getTool(SketchTool.Constraint);
+  }
+
+  get _anchorTool() {
+    return this._toolRegistry.getTool(SketchTool.Anchor);
+  }
+
+  get _templateTool() {
+    return this._toolRegistry.templateTool;
+  }
+
   onCanvasClick(position, modifiers = {}) {
-    return onCanvasClick(this, position, modifiers);
+    return this._toolRegistry.onCanvasClick(position, modifiers);
   }
 
   onLineClick(line, position, modifiers = {}) {
-    return onLineClick(this, line, position, modifiers);
+    return this._toolRegistry.onLineClick(line, position, modifiers);
   }
 
   onPointClick(pt, position, modifiers = {}) {
-    return onPointClick(this, pt, position, modifiers);
+    return this._toolRegistry.onPointClick(pt, position, modifiers);
   }
 
   onCanvasMouseMove(position, modifiers = {}) {
-    return onCanvasMouseMove(this, position, modifiers);
+    return this._toolRegistry.onCanvasMouseMove(position, modifiers);
   }
 
   onRightMouseDown() {
-    return onRightMouseDown(this);
+    return this._toolRegistry.onRightMouseDown();
   }
 
   onCanvasMouseDown(position, modifiers = {}) {
-    return onCanvasMouseDown(this, position, modifiers);
+    return this._toolRegistry.onCanvasMouseDown(position, modifiers);
   }
 
   exitToSelect() {
