@@ -259,10 +259,6 @@ export class SketchService {
     setSnapCandidate(this, point);
   }
 
-  _recordSnapshot(description) {
-    recordSnapshot(this, description);
-  }
-
   _syncToStore() {
     syncSketchStateToStore(this.store);
   }

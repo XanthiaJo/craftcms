@@ -92,5 +92,5 @@ _Last updated: 2026-07-06_
 
 ## Architecture
 
-- [ ] Slim `sketchService.js` into a thin coordinator with a tool registry
+- [x] Slim `sketchService.js` into a thin coordinator with a tool registry
 - [ ] Split `mainUi.js` into focused panel controllers
