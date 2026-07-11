@@ -174,15 +174,16 @@ function cleanCommitDescription(string $subject, string $body): string|array|nul
 
     if ($hasBullets) {
         $bullets = [];
-        foreach ($lines as $line) {
-            $trimmed = trim($line);
-            if ($trimmed === '' || preg_match('/^(Signed-off-by:|Co-authored-by:|Reviewed-by:|Acked-by:)/i', $trimmed)) {
-                continue;
+        $currentBullet = null;
+
+        $processCurrentBullet = function () use (&$bullets, &$currentBullet, $subject) {
+            if ($currentBullet === null) {
+                return;
             }
-            $trimmed = preg_replace('/^[-*]\s+/', '', $trimmed);
-            $trimmed = trim(preg_replace('/\s+/', ' ', $trimmed) ?? '');
+            $trimmed = trim(preg_replace('/\s+/', ' ', $currentBullet) ?? '');
             if ($trimmed === '') {
-                continue;
+                $currentBullet = null;
+                return;
             }
             if (preg_match('/^(?:[a-z]+(?:\([^)]+\))?:\s*|BREAKING CHANGE:?\s*)/i', $trimmed, $match)) {
                 $summary = trim(substr($trimmed, strlen($match[0])));
@@ -195,11 +196,33 @@ function cleanCommitDescription(string $subject, string $body): string|array|nul
             if ($summaryPrefix !== '' && strncasecmp($trimmed, $summaryPrefix, strlen($summaryPrefix)) === 0) {
                 $trimmed = trim(substr($trimmed, strlen($summaryPrefix)));
             }
-            if ($trimmed === '') {
+            if ($trimmed !== '') {
+                $bullets[] = $trimmed;
+            }
+            $currentBullet = null;
+        };
+
+        foreach ($lines as $line) {
+            $trimmed = trim($line);
+            if ($trimmed === '' || preg_match('/^(Signed-off-by:|Co-authored-by:|Reviewed-by:|Acked-by:)/i', $trimmed)) {
+                $processCurrentBullet();
                 continue;
             }
-            $bullets[] = $trimmed;
+            if (preg_match('/^[-*]\s+/', $line)) {
+                // New bullet
+                $processCurrentBullet();
+                $currentBullet = preg_replace('/^[-*]\s+/', '', $trimmed);
+            } elseif ($currentBullet !== null && preg_match('/^\s+/', $line)) {
+                // Continuation of the current bullet
+                $currentBullet .= ' ' . $trimmed;
+            } else {
+                // Standalone line with no preceding bullet
+                $processCurrentBullet();
+                $currentBullet = $trimmed;
+            }
         }
+        $processCurrentBullet();
+
         return $bullets ?: null;
     }
 
