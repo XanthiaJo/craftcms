@@ -9,6 +9,8 @@
 git commit
 ```
 
+- Do not commit before being asked to do so.
+
 ## Commit Message Format
 
 ```
