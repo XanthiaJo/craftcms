@@ -5,6 +5,8 @@
 // then sum term errors and combine term gradients without knowing the original
 // constraint types.
 
+import { findSharedPoint, otherPoint, lineLength } from '../../../utils/geometry.js';
+
 export const EPSILON = 1e-9;
 
 /**
@@ -74,7 +76,44 @@ export function buildErrorTerms(constraints) {
         break;
       }
       case 'Midpoint': {
-        if (!c.pointA || !c.lineA) continue;
+        if (!c.lineA) continue;
+
+        // Line-line midpoint: midpoints of both lines must coincide.
+        if (!c.pointA && c.lineB) {
+          if (c.lineA === c.lineB) continue;
+          const lineA = c.lineA;
+          const lineB = c.lineB;
+          terms.push({
+            kind: 'MidpointLineLine',
+            lineA,
+            lineB,
+            error() {
+              const ax = (this.lineA.start.x + this.lineA.end.x) / 2;
+              const ay = (this.lineA.start.y + this.lineA.end.y) / 2;
+              const bx = (this.lineB.start.x + this.lineB.end.x) / 2;
+              const by = (this.lineB.start.y + this.lineB.end.y) / 2;
+              const dx = ax - bx;
+              const dy = ay - by;
+              return dx * dx + dy * dy;
+            },
+            gradient(grads) {
+              const ax = (this.lineA.start.x + this.lineA.end.x) / 2;
+              const ay = (this.lineA.start.y + this.lineA.end.y) / 2;
+              const bx = (this.lineB.start.x + this.lineB.end.x) / 2;
+              const by = (this.lineB.start.y + this.lineB.end.y) / 2;
+              const dx = ax - bx;
+              const dy = ay - by;
+              acc(grads, this.lineA.start, dx, dy);
+              acc(grads, this.lineA.end, dx, dy);
+              acc(grads, this.lineB.start, -dx, -dy);
+              acc(grads, this.lineB.end, -dx, -dy);
+            },
+          });
+          break;
+        }
+
+        // Point-line midpoint: point sits at the midpoint of the line.
+        if (!c.pointA) continue;
         if (c.lineA.start === c.pointA || c.lineA.end === c.pointA) continue;
         const point = c.pointA;
         const line = c.lineA;
@@ -205,24 +244,4 @@ function acc(grads, point, gx, gy) {
   } else {
     grads.set(point, { x: gx, y: gy });
   }
-}
-
-function lineLength(line) {
-  const dx = line.end.x - line.start.x;
-  const dy = line.end.y - line.start.y;
-  return Math.sqrt(dx * dx + dy * dy);
-}
-
-function findSharedPoint(lineA, lineB) {
-  if (!lineA || !lineB) return null;
-  if (lineA.start === lineB.start || lineA.start === lineB.end) return lineA.start;
-  if (lineA.end === lineB.start || lineA.end === lineB.end) return lineA.end;
-  return null;
-}
-
-function otherPoint(line, point) {
-  if (!line) return null;
-  if (line.start === point) return line.end;
-  if (line.end === point) return line.start;
-  return null;
 }

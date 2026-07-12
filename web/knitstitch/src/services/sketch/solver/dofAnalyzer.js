@@ -23,6 +23,8 @@
 // classes (union-find) before parameter enumeration. Anchored points are
 // excluded from the parameter list (they have 0 DOF).
 
+import { findSharedPoint, otherPoint, lineLength } from '../../../utils/geometry.js';
+
 const EPS = 1e-9;
 
 /**
@@ -194,15 +196,46 @@ function buildPerpendicularRows(c, paramIndex, find, nParams) {
 }
 
 /**
- * Midpoint: f = point - (line.start + line.end) / 2 = 0
+ * Midpoint (point-line): f = point - (line.start + line.end) / 2 = 0
  * Two rows: one for x, one for y.
  *
  * Gradient w.r.t. point:     (1, 0) for x-row, (0, 1) for y-row
  * Gradient w.r.t. line.start: (-0.5, 0) for x-row, (0, -0.5) for y-row
  * Gradient w.r.t. line.end:   (-0.5, 0) for x-row, (0, -0.5) for y-row
+ *
+ * Midpoint (line-line): f = mid(lineA) - mid(lineB) = 0
+ * Two rows: one for x, one for y.
+ *
+ * Gradient w.r.t. lineA.start: (0.5, 0) for x-row, (0, 0.5) for y-row
+ * Gradient w.r.t. lineA.end:   (0.5, 0) for x-row, (0, 0.5) for y-row
+ * Gradient w.r.t. lineB.start: (-0.5, 0) for x-row, (0, -0.5) for y-row
+ * Gradient w.r.t. lineB.end:   (-0.5, 0) for x-row, (0, -0.5) for y-row
  */
 function buildMidpointRows(c, paramIndex, find, nParams) {
-  if (!c.pointA || !c.lineA) return [];
+  if (!c.lineA) return [];
+
+  // Line-line midpoint
+  if (!c.pointA && c.lineB) {
+    if (c.lineA === c.lineB) return [];
+    const rowX = new Float64Array(nParams);
+    const rowY = new Float64Array(nParams);
+    let hasEntry = false;
+
+    hasEntry = addToRow(rowX, c.lineA.start, paramIndex, find, 0.5, 0) || hasEntry;
+    hasEntry = addToRow(rowX, c.lineA.end, paramIndex, find, 0.5, 0) || hasEntry;
+    hasEntry = addToRow(rowX, c.lineB.start, paramIndex, find, -0.5, 0) || hasEntry;
+    hasEntry = addToRow(rowX, c.lineB.end, paramIndex, find, -0.5, 0) || hasEntry;
+    hasEntry = addToRow(rowY, c.lineA.start, paramIndex, find, 0, 0.5) || hasEntry;
+    hasEntry = addToRow(rowY, c.lineA.end, paramIndex, find, 0, 0.5) || hasEntry;
+    hasEntry = addToRow(rowY, c.lineB.start, paramIndex, find, 0, -0.5) || hasEntry;
+    hasEntry = addToRow(rowY, c.lineB.end, paramIndex, find, 0, -0.5) || hasEntry;
+
+    if (!hasEntry) return [new Float64Array(nParams)];
+    return [rowX, rowY];
+  }
+
+  // Point-line midpoint
+  if (!c.pointA) return [];
   const point = c.pointA;
   const line = c.lineA;
 
@@ -337,26 +370,6 @@ function addToRow(row, point, paramIndex, find, gx, gy) {
   row[idx.x] += gx;
   row[idx.y] += gy;
   return true;
-}
-
-function lineLength(line) {
-  const dx = line.end.x - line.start.x;
-  const dy = line.end.y - line.start.y;
-  return Math.sqrt(dx * dx + dy * dy);
-}
-
-function findSharedPoint(lineA, lineB) {
-  if (!lineA || !lineB) return null;
-  if (lineA.start === lineB.start || lineA.start === lineB.end) return lineA.start;
-  if (lineA.end === lineB.start || lineA.end === lineB.end) return lineA.end;
-  return null;
-}
-
-function otherPoint(line, point) {
-  if (!line) return null;
-  if (line.start === point) return line.end;
-  if (line.end === point) return line.start;
-  return null;
 }
 
 /**
