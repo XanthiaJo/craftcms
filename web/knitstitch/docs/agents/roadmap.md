@@ -37,7 +37,8 @@ _Last updated: 2026-07-12_
 |---|---|---|
 | Coincident | Shipped | Distance between points |
 | Perpendicular | Shipped | Dot product of line vectors |
-| Midpoint | Shipped | Distance from point to line midpoint |
+| Midpoint (point-line) | Shipped | Distance from point to line midpoint |
+| Midpoint (line-line) | Shipped | Distance between the two line midpoints |
 | Equal Length | Shipped | Difference in line lengths |
 | Driven Dimensions | Shipped | Hard constraints applied after optimization |
 
@@ -47,7 +48,8 @@ _Last updated: 2026-07-12_
 Error Functions:
 - Perpendicular: error = dx1*dx2 + dy1*dy2  (dot product = 0 at 90°)
 - Coincident:    error = distance(point1, point2)  (distance = 0 when coincident)
-- Midpoint:      error = distance(point, midpoint(line))
+- Midpoint:      error = distance(point, midpoint(line))  [point-line]
+                 error = distance(midpoint(lineA), midpoint(lineB))  [line-line]
 - Equal Length:  error = length(line1) - length(line2)
 
 Optimization Loop:

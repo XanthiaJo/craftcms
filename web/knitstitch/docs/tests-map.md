@@ -21,7 +21,7 @@ npx playwright test     # e2e tests
 | `finishedSizeCalculator.test.js` | Finished size calculation from gauge and pattern dimensions. |
 | `globalConstraintSolver.test.js` | Global solver: perpendicular, coincident, midpoint, equal, driven dimensions, BFS propagation. |
 | `gridService.test.js` | Preview cell rebuild, toggle, grid fitting, and cell sizing. |
-| `midpointConstraint.test.js` | Midpoint constraint creation, solver enforcement, and endpoint/midpoint dragging. |
+| `midpointConstraint.test.js` | Midpoint constraint creation (point-line and line-line), solver enforcement, anchor handling, and endpoint/midpoint dragging. |
 | `overconstraintChecker.test.js` | Over-constraint detection and error reporting. |
 | `selectionSync.test.js` | Selection state sync between models and store. |
 | `store.test.js` | Store get/set/subscribe behaviour. |
@@ -37,13 +37,14 @@ npx playwright test     # e2e tests
 | `sketchConstraintsDimensions.spec.js` | Driven dimensions, edit/cancel, label selection, object panel. |
 | `sketchConstraintsEqual.spec.js` | Equal length constraints and interactions with Horizontal on a shared line. |
 | `sketchConstraintsPerpendicular.spec.js` | Perpendicular creation, dragging, sock template, impossible-combination rejection. |
+| `sketchConstraintsMidpoint.spec.js` | Point-line and line-line midpoint creation, midpoint maintenance on drag. |
 | `sketchCellFill.spec.js` | Cell fill updates when dragging points, negative coordinate fill verification. |
 
 ## Planned coverage
 
 | Area | Priority |
 | --- | --- |
-| Midpoint and equal-length constraint creation E2E | High |
+| Equal-length constraint creation E2E | High |
 | Zoom/pan coordinate transforms | Medium |
 | `sockMeasurements.js` unit tests | Medium |
 | Measurement-driven template generation | Medium |

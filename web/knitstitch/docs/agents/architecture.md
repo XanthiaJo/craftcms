@@ -39,7 +39,10 @@ Two points occupy the same location. Coincident points propagate like a connecte
 
 ### Midpoint
 
-A point is constrained to the midpoint of a line. The point must not be an endpoint of that line.
+Two forms:
+
+1. **Point-line**: a point is constrained to the midpoint of a line. The point must not be an endpoint of that line.
+2. **Line-line**: two lines must share the same midpoint (they cross at their midpoints). The solver translates the second line so its midpoint coincides with the first. Anchor endpoints are respected — if one line is anchored, the other moves.
 
 ### Equal
 

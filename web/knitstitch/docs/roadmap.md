@@ -24,6 +24,8 @@ _Last updated: 2026-07-12_
 - [ ] Symmetric/mirror constraint
 - [ ] Collinear points constraint
 - [ ] Tangent constraint (for future curves)
+- [ ] Dimension between lines, points or mixed
+- [x] Midpoint of a line constraint (point-on-midpoint and line-line midpoint)
 
 ---
 
@@ -41,6 +43,7 @@ _Last updated: 2026-07-12_
 - [x] Construction lines
 - [ ] Visual indicator for under/over-constrained points
 - [ ] Hot keys for tools
+- [x] Drag lines, not just points
 
 ---
 
@@ -82,7 +85,8 @@ _Last updated: 2026-07-12_
 - [x] E2E Playwright tests for sketch constraints and interactions
 - [x] Unit tests for pure geometry, state, and solver helpers
 - [x] DDEV-based E2E setup
-- [ ] Midpoint and equal-length constraint creation E2E tests
+- [x] Midpoint constraint creation E2E tests
+- [ ] Equal-length constraint creation E2E tests
 - [ ] Zoom/pan unit and E2E tests
 - [ ] `sockMeasurements.js` unit tests
 - [ ] Measurement-driven template generation tests
