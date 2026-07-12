@@ -76,10 +76,20 @@ function renderPerpendicularIcon(group, constraint, service) {
 function renderMidpointIcon(group, constraint, service) {
   const line = constraint.lineA;
   const point = constraint.pointA;
-  if (!line || !point) return;
+  const lineB = constraint.lineB;
 
-  const midX = (line.start.x + line.end.x) / 2;
-  const midY = (line.start.y + line.end.y) / 2;
+  let midX, midY;
+  if (!point && line && lineB) {
+    // Line-line midpoint: icon at the shared midpoint.
+    midX = ((line.start.x + line.end.x) / 2 + (lineB.start.x + lineB.end.x) / 2) / 2;
+    midY = ((line.start.y + line.end.y) / 2 + (lineB.start.y + lineB.end.y) / 2) / 2;
+  } else if (line && point) {
+    midX = (line.start.x + line.end.x) / 2;
+    midY = (line.start.y + line.end.y) / 2;
+  } else {
+    return;
+  }
+
   const color = iconColor(constraint);
   const iconSize = 6;
 

@@ -9,6 +9,7 @@ const REF_IDS = {
   sketchClearBtn: 'sketch-clear',
   sketchDeleteBtn: 'sketch-delete',
   sketchObjectList: 'sketch-object-list',
+  sketchCopyObjectsBtn: 'sketch-copy-objects',
   sketchConstraintStatus: 'sketch-constraint-status',
   toolLineBtn: 'tool-line',
   toolConstructionLineBtn: 'tool-construction-line',
@@ -124,6 +125,31 @@ export function setupSketchPanel({ store, sketchService, documentObj = globalThi
     const rawRefId = row.dataset.refId;
     if (!refType || rawRefId === '') return;
     sketchService.selectObjectByRef(refType, Number(rawRefId), event.ctrlKey);
+  });
+
+  bindIfPresent(refs.sketchCopyObjectsBtn, 'click', async () => {
+    const sketch = store.state.sketch;
+    const data = {
+      points: sketch.points.map((p) => ({ id: p.id, x: p.x, y: p.y, isAnchor: p.isAnchor, isSelected: p.isSelected })),
+      lines: sketch.lines.map((l) => ({ id: l.id, startId: l.start?.id, endId: l.end?.id, isSelected: l.isSelected })),
+      dimensions: sketch.dimensions.map((d) => ({ id: d.id, aId: d.a?.id, bId: d.b?.id, value: d.value, drivenValue: d.drivenValue, kind: d.kind })),
+      constraints: sketch.constraints.map((c) => ({ id: c.id, type: c.type, pointAId: c.pointA?.id, pointBId: c.pointB?.id, lineAId: c.lineA?.id, lineBId: c.lineB?.id })),
+      objects: sketch.objects.map((o) => ({ kind: o.kind, refType: o.refType, refId: o.refId, label: o.label, isSelected: o.isSelected })),
+    };
+    const text = JSON.stringify(data, null, 2);
+    try {
+      await navigator.clipboard.writeText(text);
+      if (refs.sketchCopyObjectsBtn) refs.sketchCopyObjectsBtn.textContent = 'Copied!';
+      setTimeout(() => {
+        if (refs.sketchCopyObjectsBtn) refs.sketchCopyObjectsBtn.textContent = 'Copy objects';
+      }, 1500);
+    } catch (err) {
+      console.error('Failed to copy sketch objects:', err);
+      if (refs.sketchCopyObjectsBtn) refs.sketchCopyObjectsBtn.textContent = 'Copy failed';
+      setTimeout(() => {
+        if (refs.sketchCopyObjectsBtn) refs.sketchCopyObjectsBtn.textContent = 'Copy objects';
+      }, 1500);
+    }
   });
 
   bindIfPresent(refs.toolLineBtn, 'click', () => {

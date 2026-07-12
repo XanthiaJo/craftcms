@@ -2,26 +2,56 @@ import { expect, test } from '@playwright/test';
 import { openSketch, clickStage, dragStage, screenshotStep } from './helpers/sketchHelpers.js';
 
 test.describe('Sketch constraints — anchor behavior', () => {
-  test('origin anchor cannot be dragged', async ({ page }) => {
+  test('origin anchor stays fixed while points and lines can be dragged', async ({ page }) => {
     const box = await openSketch(page);
 
-    // Draw a line from the origin anchor to (80,0).
+    await page.getByRole('button', { name: 'Select' }).click();
+
+    // Draw an L-shape anchored at the origin: (0,0) -> (80,0) -> (80,80).
+    await page.getByRole('button', { name: 'Line' }).click();
     await clickStage(page, box, { x: 0, y: 0 });
     await clickStage(page, box, { x: 80, y: 0 });
+    await clickStage(page, box, { x: 80, y: 80 });
 
-    // Try to drag the origin point away.
-    await page.getByRole('button', { name: 'Select' }).click();
+    // 1. Origin anchor cannot be dragged.
     await dragStage(page, box, { x: 0, y: 0 }, { x: 50, y: 50 });
-
     const origin = await page.evaluate(() => {
       const points = window.__knitstitchStore?.state?.sketch?.points ?? [];
       const anchor = points.find((p) => p.isAnchor);
       return anchor ? { x: anchor.x, y: anchor.y } : null;
     });
-
     expect(origin).not.toBeNull();
     expect(origin.x).toBeCloseTo(0, 1);
     expect(origin.y).toBeCloseTo(0, 1);
+
+    // 2. A free point can be dragged.
+    await dragStage(page, box, { x: 80, y: 80 }, { x: 100, y: 100 });
+    const draggedPoint = await page.evaluate(() => {
+      const points = window.__knitstitchStore?.state?.sketch?.points ?? [];
+      return points.find((p) => p.id === 2);
+    });
+    expect(draggedPoint).toBeDefined();
+    expect(draggedPoint.x).toBeGreaterThan(80);
+    expect(draggedPoint.y).toBeGreaterThan(80);
+
+    // 3. A line can be dragged by clicking on its body.
+    // Click the midpoint of the vertical line and drag it right.
+    const before = await page.evaluate(() => {
+      const line = window.__knitstitchStore?.state?.sketch?.lines?.find((l) => l.id === 1);
+      return line ? { start: { x: l.start.x, y: l.start.y }, end: { x: l.end.x, y: l.end.y } } : null;
+    });
+    expect(before).not.toBeNull();
+
+    await dragStage(page, box, { x: 80, y: 40 }, { x: 100, y: 40 });
+    const after = await page.evaluate(() => {
+      const line = window.__knitstitchStore?.state?.sketch?.lines?.find((l) => l.id === 1);
+      return line ? { start: { x: l.start.x, y: l.start.y }, end: { x: l.end.x, y: l.end.y } } : null;
+    });
+    expect(after).not.toBeNull();
+
+    // Both endpoints of the dragged line should have shifted right.
+    expect(after.start.x).toBeGreaterThan(before.start.x);
+    expect(after.end.x).toBeGreaterThan(before.end.x);
   });
 
   test('Horizontal constraint does not move anchored endpoint', async ({ page }) => {

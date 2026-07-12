@@ -66,8 +66,10 @@ export class ConstraintTool {
       return;
     }
 
-    // In midpoint mode the second pick is a point, not a line.
-    showCursorMessage(this.service, 'Select a point for the midpoint', position);
+    // Second line pick → line-line midpoint (lines cross at their midpoints).
+    const firstLine = this.service._constraintPendingLine;
+    this.service._constraintPendingLine = null;
+    this._tryCreateMidpointLineLineConstraint(firstLine, line, position);
   }
 
   _onLinePairConstraintClick(line, subMode, position = null) {
@@ -222,6 +224,53 @@ export class ConstraintTool {
     return true;
   }
 
+  _tryCreateMidpointLineLineConstraint(firstLine, secondLine, position = null) {
+    if (!firstLine || !secondLine) return false;
+    if (firstLine === secondLine) {
+      this.service.clearSelection();
+      showCursorMessage(this.service, 'Cannot constrain a line to itself', position);
+      return false;
+    }
+
+    const existing = this._findMidpointLineLineConstraint(firstLine, secondLine);
+    if (existing) {
+      this.service.selectConstraint(existing);
+      return true;
+    }
+
+    const overcheck = wouldOverconstrain(this.store.state.sketch, {
+      type: 'Midpoint',
+      lineA: firstLine,
+      lineB: secondLine,
+    });
+    if (overcheck.wouldOverconstrain) {
+      this.service.clearSelection();
+      showCursorMessage(this.service, 'Over-constrained: this would remove too many degrees of freedom', position);
+      return false;
+    }
+
+    this.service._recordSnapshot('Add midpoint constraint');
+    const constraint = new SketchConstraint(
+      'Midpoint',
+      null,
+      null,
+      firstLine,
+      secondLine,
+      this.service._nextConstraintId++
+    );
+    this.store.state.sketch.constraints.push(constraint);
+    assignConstraintIds(this.service);
+    this.service._constraintSolver.enforceMidpointConstraint(
+      this.store.state.sketch, constraint
+    );
+    this.service._reconvergeConstraints();
+    for (const dim of this.store.state.sketch.dimensions) dim.recompute();
+    this.service.selectConstraint(constraint);
+    flushSketchArrays(this.service);
+    rebuildSketchObjects(this.service);
+    return true;
+  }
+
   _findPerpendicularConstraint(lineA, lineB) {
     return this.store.state.sketch.constraints.find((constraint) => {
       if (constraint?.type !== 'Perpendicular') return false;
@@ -353,6 +402,17 @@ export class ConstraintTool {
     return this.store.state.sketch.constraints.find((constraint) => {
       if (constraint?.type !== 'Midpoint') return false;
       return constraint.lineA === line && constraint.pointA === point;
+    }) ?? null;
+  }
+
+  _findMidpointLineLineConstraint(lineA, lineB) {
+    return this.store.state.sketch.constraints.find((constraint) => {
+      if (constraint?.type !== 'Midpoint') return false;
+      if (constraint.pointA) return false;
+      return (
+        (constraint.lineA === lineA && constraint.lineB === lineB)
+        || (constraint.lineA === lineB && constraint.lineB === lineA)
+      );
     }) ?? null;
   }
 }

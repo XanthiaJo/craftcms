@@ -74,11 +74,19 @@ export function buildSketchObjects(sketch, { findSharedPoint }) {
         : `Perpendicular L${constraint.lineA.id + 1} & L${constraint.lineB.id + 1}`;
       kind = SketchObjectKind.Perpendicular;
     } else if (constraint?.type === 'Midpoint') {
-      const pt = constraint.pointA;
-      const line = constraint.lineA;
-      label = pt && line
-        ? `Midpoint P${pt.id + 1} on L${line.id + 1}  @ (${pt.x.toFixed(0)},${pt.y.toFixed(0)})`
-        : `Midpoint ${constraint.description}`;
+      if (constraint.lineA && constraint.lineB && !constraint.pointA) {
+        const a = constraint.lineA;
+        const b = constraint.lineB;
+        const mx = ((a.start.x + a.end.x) / 2 + (b.start.x + b.end.x) / 2) / 2;
+        const my = ((a.start.y + a.end.y) / 2 + (b.start.y + b.end.y) / 2) / 2;
+        label = `Midpoint L${a.id + 1} & L${b.id + 1}  @ (${mx.toFixed(0)},${my.toFixed(0)})`;
+      } else {
+        const pt = constraint.pointA;
+        const line = constraint.lineA;
+        label = pt && line
+          ? `Midpoint P${pt.id + 1} on L${line.id + 1}  @ (${pt.x.toFixed(0)},${pt.y.toFixed(0)})`
+          : `Midpoint ${constraint.description}`;
+      }
       kind = SketchObjectKind.Midpoint;
     } else if (constraint?.type === 'Equal') {
       const a = constraint.lineA;
