@@ -21,7 +21,7 @@ git commit
 
 - The **type** is mandatory and determines the version bump.
 - The **scope** is optional but encouraged for clarity (e.g. `css`,  `deploy`).
-  - Avoid using just `cms` or `knitstitch` as this is too broad.
+  - Avoid using just `cms` as this is too broad.
 - The **description** should be lowercase, imperative, and concise.
 - The **body** is optional but encouraged unless it causes duplication of the description.
   - Bullet points are preferred.

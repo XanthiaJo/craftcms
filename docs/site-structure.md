@@ -1,11 +1,6 @@
 ﻿# Site Structure
 
-This repository has two page systems:
-
-- the main Craft CMS site
-- the KnitStitch app at `/knitstitch`
-
-This document covers the Craft CMS site.
+This repository is the main Craft CMS site.
 
 ## Shared Page Shell
 
@@ -22,7 +17,7 @@ If you create a new page template, it should follow that pattern unless there is
 
 ### Base Layout
 
-All standard pages (except homepage and knitstitch) should extend the base layout template:
+All standard pages (except the homepage) should extend the base layout template:
 
 - Base layout: `templates/_layouts/base.twig`
 - Provides shared HTML structure: DOCTYPE, head, body, site header/footer
@@ -139,15 +134,6 @@ Pages that extend the base layout:
   - shared header and footer
   - shared page subheader
   - generated changelog fragment from `scripts/GenerateBuildInfo.php`
-
-### KnitStitch
-
-- Template: `templates/knitstitch.twig`
-- Purpose: separate app view for the KnitStitch editor
-- Uses:
-  - shared site header and footer
-  - shared page subheader
-  - KnitStitch-specific app shell and JS bundle
 
 ## Content Model
 
@@ -291,7 +277,6 @@ Use these files as the first place to look when behavior changes:
 
 - `templates/posts.twig` - archive layout, filter UI, archive card rendering, year extraction
 - `templates/_entries/post.twig` - single post rendering, post meta, taxonomy links, gallery output
-- `templates/knitstitch.twig` - Craft template wrapper for the KnitStitch page
 - `config/project/entryTypes/post--d7835db0-9bc7-4ee6-8ad8-acd09625daf0.yaml` - source-of-truth field layout for posts
 - `config/project/fields/featuredImage--29579835-63db-4481-b347-52f1852e0eb9.yaml` - featured image field config
 - `config/project/fields/instructions--53cdc25e-21c1-4998-a258-79e3ec30f36c.yaml` - instructions matrix field config

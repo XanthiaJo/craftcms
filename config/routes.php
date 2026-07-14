@@ -10,5 +10,4 @@
  */
 
 return [
-    'knit-stitch' => ['template' => 'knitstitch'],
 ];

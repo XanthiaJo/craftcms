@@ -20,7 +20,7 @@ Sewn pieces from fashion fabric and quilting cotton alike. Some follow commercia
 
 ### Tools & software
 
-Software I have built because I needed it — including [KnitStitch Grid](#knitstitch-grid), a browser-based stitch chart editor for knitting and crochet. Development on these tools is documented alongside the other project work rather than in a separate engineering blog.
+Software I have built because I needed it. Development on these tools is documented alongside the other project work rather than in a separate engineering blog.
 
 ## How the site is built
 
@@ -28,22 +28,10 @@ The front end is Craft CMS with Twig templates. Content modelling — sections, 
 
 Most of the development has been done with AI coding tools in the loop. The agent notes that shape how those sessions run are in `AGENTS.md`. The site is hosted on a VPS and deploys automatically when commits land on the main branch via a GitHub webhook.
 
-## KnitStitch Grid
-
-A browser-based grid editor for charting stitch patterns. Lives at `/knitstitch` on the site and has its own source tree under `web/knitstitch/`.
-
-```bash
-# from web/knitstitch/
-npm install
-npm run dev
-npm run build
-npm test
-```
-
 ## Repository layout
 
 - `templates/` — Twig templates and shared partials
-- `web/` — public CSS/JS assets and the KnitStitch subproject
+- `web/` — public CSS/JS assets
 - `config/project/` — Craft project config (sections, fields, entry types, volumes)
 - `scripts/` — recovery and content-management helpers
 - `docs/` — site structure notes, CSS guidelines, and content recovery history

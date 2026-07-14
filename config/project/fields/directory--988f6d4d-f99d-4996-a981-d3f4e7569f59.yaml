@@ -27,10 +27,10 @@ settings:
       __assoc__:
         -
           - label
-          - /knit-stitch
+          - KnitStitch
         -
           - value
-          - knit-stitch
+          - https://www.knitstitch.misssponto.me.uk
         -
           - icon
           - hat-winter
