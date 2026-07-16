@@ -23,7 +23,7 @@
       "@php -r \"file_exists('.env') || copy('.env.example.dev', '.env');\""
     ],
     "build-info": [
-      "@php scripts/GenerateBuildInfo.php --root=. --output=web/js/buildInfo.js --format=js",
+      "@php scripts/GenerateBuildInfo.php --root=. --output=templates/_generated/build-info.twig --format=twiginfo",
       "@php scripts/GenerateBuildInfo.php --root=. --output=templates/_generated/change-log.twig --format=twig"
     ],
     "build-changelog": "@php scripts/GenerateBuildInfo.php --root=. --output=templates/_generated/change-log.twig --format=twig",
