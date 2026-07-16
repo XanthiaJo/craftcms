@@ -59,5 +59,5 @@ test('sidebar partial still supports both raw HTML and plain text sections', () 
   assert.match(template, /section\.html is defined and section\.html/);
   assert.match(template, /section\.html\|raw/);
   assert.match(template, /section\.text/);
-  assert.match(template, /panel--sticky/);
+  assert.match(template, /container-section--headed/);
 });

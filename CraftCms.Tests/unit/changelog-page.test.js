@@ -22,7 +22,7 @@ test('changelog page template renders the generated build history fragment', () 
   assert.match(generated, /Build Snapshot/);
   assert.match(generated, /Change Types/);
   assert.match(generated, /aria-label="Change log sections"/);
-  assert.match(generated, /href="#feature-changes"/);
+  assert.match(generated, /href="#feature-changes-v\d+"/);
   assert.match(generated, /<ul class="list">/);
   assert.match(generated, /<h4>Add reusable colour pairs to archive cards<\/h4>/);
   assert.match(generated, /<span class="caption">/);
