@@ -40,7 +40,7 @@ test('site CSS encodes the archive typography and panel layout rules', () => {
   assert.match(siteCss, /--font-heading:\s*"Playfair Display",\s*serif;/);
   assert.match(siteCss, /--font-brand:\s*"Dancing Script",\s*cursive;/);
   assert.match(siteCss, /\.chip\s*\{[\s\S]*display:\s*inline-block;/);
-  assert.match(siteCss, /--color-pair-gold-bg:\s*#efe9da;/);
+  assert.match(siteCss, /--color-pair-gold-bg:\s*#e8eede;/);
   assert.match(siteCss, /--color-pair-sand-bg:\s*#f3efe6;/);
   assert.match(siteCss, /--color-pair-sage-bg:\s*#edf2ea;/);
   assert.match(siteCss, /--color-pair-olive-bg:\s*#e7eee2;/);
@@ -82,7 +82,7 @@ test('template and CSS still advertise the visible project archive chrome', () =
 test('style guide shows every reusable colour pair', () => {
   assert.match(styleGuide, /set colourPairs = \[/);
   assert.match(styleGuide, /color-pair-gold/);
-  assert.match(styleGuide, /Muted Gold/);
+  assert.match(styleGuide, /Muted Khaki/);
   assert.match(styleGuide, /color-pair-sand/);
   assert.match(styleGuide, /Muted Sand/);
   assert.match(styleGuide, /color-pair-sage/);

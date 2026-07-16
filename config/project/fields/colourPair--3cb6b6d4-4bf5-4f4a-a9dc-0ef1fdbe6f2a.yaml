@@ -7,7 +7,7 @@ settings:
   options:
     -
       default: '1'
-      label: 'Muted Gold'
+      label: 'Muted Khaki'
       value: gold
     -
       default: ''

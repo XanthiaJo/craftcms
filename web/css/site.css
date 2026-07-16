@@ -7,14 +7,14 @@
     --body: #333333;
     --body-light: #8a8a8a;
     --body-dark: #111111;
-    --primary: #ca9b52;
-    --primary-light: #e4c78f;
-    --primary-dark: #8b5d1f;
-    --secondary: #f7f4ef;
-    --secondary-light: #fbf9f5;
-    --secondary-dark: #e8e2d8;
+    --primary: #8a9a5b;
+    --primary-light: #b5c18e;
+    --primary-dark: #5a6b3d;
+    --secondary: #f4f6f0;
+    --secondary-light: #f9faf6;
+    --secondary-dark: #dde2d4;
     --tertiary: #ffffff;
-    --tertiary-dark: #f2eee8;
+    --tertiary-dark: #eef1ea;
     --border: var(--secondary-dark);
 
     /* Brand colors */
@@ -26,7 +26,7 @@
     --gitlab-hover-border: #f7c6a5;
 
     /* Color pairs */
-    --color-pair-gold-bg: #efe9da;
+    --color-pair-gold-bg: #e8eede;
     --color-pair-gold-text: var(--primary-dark);
     --color-pair-sand-bg: #f3efe6;
     --color-pair-sand-text: #7a6447;
@@ -62,7 +62,7 @@
     /* Shadows */
     --shadow-sm: 0 1px 0 rgba(17, 17, 17, 0.03);
     --shadow-md: 0 5px 12px rgba(17, 17, 17, 0.08);
-    --shadow-lg: 0 14px 28px rgba(26, 19, 9, 0.12);
+    --shadow-lg: 0 14px 28px rgba(15, 25, 10, 0.12);
 
     /* Typography */
     --font-body: "Open Sans", sans-serif;
@@ -90,7 +90,7 @@ html {
 }
 
 [id] {
-    scroll-margin-top: 80px;
+    scroll-margin-top: 120px;
 }
 
 body {
@@ -291,13 +291,52 @@ td {
 }
 
 /* ==========================================================================
+   4b. Global Bar (shared between sites)
+   ========================================================================== */
+.global-bar {
+    background: var(--body-dark);
+    position: sticky;
+    top: 0;
+    z-index: 110;
+}
+
+.global-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    min-height: 36px;
+}
+
+.global-bar-link {
+    color: var(--secondary);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    opacity: 0.7;
+    transition: opacity 140ms ease, color 140ms ease;
+}
+
+.global-bar-link:hover {
+    opacity: 1;
+    color: var(--primary-light);
+}
+
+.global-bar-link.active {
+    opacity: 1;
+    color: var(--primary);
+}
+
+/* ==========================================================================
    5. Site Header & Navigation
    ========================================================================== */
 .site-header {
     background: var(--tertiary);
     border-bottom: 1px solid var(--border);
     position: sticky;
-    top: 0;
+    top: 36px;
     z-index: 100;
 }
 
@@ -468,7 +507,7 @@ td {
    6. Page Sub-header
    ========================================================================== */
 .page-subheader {
-    padding: 24px 0 14px;
+    padding: 32px 0 14px;
     margin-bottom: 14px;
 }
 
@@ -549,7 +588,7 @@ td {
 
 .posts-panel {
     position: sticky;
-    top: 96px;
+    top: 109px;
 }
 
 /* ==========================================================================
@@ -925,7 +964,7 @@ select:focus {
 
 .container--sticky {
     position: sticky;
-    top: 96px;
+    top: 109px;
 }
 
 .sidebar {
@@ -934,7 +973,7 @@ select:focus {
 
 .sidebar--sticky {
     position: sticky;
-    top: 96px;
+    top: 109px;
 }
 
 .container-sections {
@@ -998,6 +1037,58 @@ select:focus {
 .filter-row input {
     margin: 0;
     accent-color: var(--primary);
+}
+
+/* ==========================================================================
+   17b. Change Log Tabs
+   ========================================================================== */
+.changelog-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.changelog-tablist {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--border);
+}
+
+.changelog-tab {
+    padding: 10px 24px;
+    border: 1px solid transparent;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    background: transparent;
+    color: var(--body-light);
+    font-family: var(--font-body);
+    font-size: var(--type-h5);
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 140ms ease, background 140ms ease, border-color 140ms ease;
+}
+
+.changelog-tab:hover {
+    color: var(--primary);
+    background: var(--secondary-light);
+}
+
+.changelog-tab.active {
+    color: var(--primary-dark);
+    background: var(--secondary-light);
+    border-color: var(--border);
+    margin-bottom: -2px;
+}
+
+.changelog-tabpanel {
+    display: none;
+    padding-top: 18px;
+}
+
+.changelog-tabpanel.active {
+    display: block;
 }
 
 /* ==========================================================================
@@ -1077,7 +1168,7 @@ select:focus {
     }
 
     .page-subheader {
-        padding-top: 24px;
+        padding-top: 28px;
     }
 
     .page-subheader-inner {
