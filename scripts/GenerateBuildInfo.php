@@ -360,6 +360,7 @@ foreach (preg_split('/\x1e/', implode("\n", $logOutput)) ?: [] as $record) {
     $group = getChangelogGroup($subject);
     $changeGroups[$group][] = [
         'version' => formatVersion($resolvedVersion, $revision),
+        'majorVersion' => $resolvedVersion[0],
         'sha' => substr($sha, 0, 7),
         'date' => $date,
         'subject' => humanizeCommitSubject($subject),
@@ -416,67 +417,100 @@ JS;
         'other' => 'ink',
     ];
 
-    $content = '';
-    $content .= "<div class=\"container-sections\">\n";
-    $content .= "  <section class=\"panel panel--padded\">\n";
-    $content .= "    <h2>Build Snapshot</h2>\n";
-    $content .= "    <div class=\"container-actions\">\n";
-    $content .= '      <span class="chip color-pair-ink">Version ' . escapeHtml($displayVersion) . "</span>\n";
-    $content .= '      <span class="chip color-pair-stone">' . escapeHtml((string)$commitCount) . " commits</span>\n";
-    $content .= "    </div>\n";
-    $content .= "    <p class=\"body\">Generated from conventional commits and git tags during the site build.</p>\n";
-    $content .= "  </section>\n";
-
-    $content .= "  <section class=\"panel panel--padded\">\n";
-    $content .= "    <h2>Change Types</h2>\n";
-    $content .= "    <nav class=\"container-actions\" aria-label=\"Change log sections\">\n";
-    foreach ($groupLabels as $groupKey => $groupLabel) {
-        $items = $changeGroups[$groupKey] ?? [];
-        if (!$items) {
-            continue;
+    // Determine which major versions exist in the change groups
+    $majorVersions = [];
+    foreach ($changeGroups as $items) {
+        foreach ($items as $item) {
+            $majorVersions[$item['majorVersion']] = true;
         }
-        $sectionId = $groupKey . '-changes';
-        $chipColor = $groupChips[$groupKey] ?? 'ink';
-        $content .= '      <a class="chip color-pair-' . escapeHtml($chipColor) . '" href="#' . escapeHtml($sectionId) . '">' . escapeHtml($groupLabel) . "</a>\n";
     }
-    $content .= "    </nav>\n";
-    $content .= "  </section>\n";
+    ksort($majorVersions);
+    $majorVersions = array_keys($majorVersions);
+    if (empty($majorVersions)) {
+        $majorVersions = [1];
+    }
+    $currentMajor = end($majorVersions);
 
-    foreach ($groupLabels as $groupKey => $groupLabel) {
-        $items = $changeGroups[$groupKey] ?? [];
-        if (!$items) {
-            continue;
-        }
-        $sectionId = $groupKey . '-changes';
+    $content = '';
+    $content .= "<div class=\"changelog-tabs\" data-changelog-tabs>\n";
+    $content .= "  <div class=\"changelog-tablist\" role=\"tablist\">\n";
+    foreach ($majorVersions as $mv) {
+        $tabId = 'changelog-v' . $mv;
+        $panelId = 'changelog-panel-v' . $mv;
+        $isActive = ($mv === $currentMajor) ? ' active' : '';
+        $content .= '    <button class="changelog-tab' . $isActive . '" role="tab" data-tab="' . escapeHtml($tabId) . '" data-panel="' . escapeHtml($panelId) . '" aria-controls="' . escapeHtml($panelId) . '" aria-selected="' . ($mv === $currentMajor ? 'true' : 'false') . '">v' . escapeHtml((string)$mv) . "</button>\n";
+    }
+    $content .= "  </div>\n";
 
-        $content .= '  <section class="panel panel--padded" id="' . escapeHtml($sectionId) . "\">\n";
-        $content .= '    <h3>' . escapeHtml($groupLabel) . "</h3>\n";
-        $content .= "    <ul class=\"list\">\n";
-        foreach (array_reverse($items) as $item) {
-            $chipColor = $groupChips[$groupKey] ?? 'ink';
-            $content .= "      <li>\n";
-            $content .= "        <div class=\"container-content\">\n";
-            $content .= "          <div class=\"container-actions\">\n";
-            $content .= '          <span class="chip color-pair-' . escapeHtml($chipColor) . '">' . escapeHtml($groupLabel) . "</span>\n";
-            $content .= '            <span class="caption">' . escapeHtml($item['version']) . ' - ' . escapeHtml($item['sha']) . ' - ' . escapeHtml($item['date']) . "</span>\n";
-            $content .= "          </div>\n";
-            $content .= '          <h4>' . escapeHtml(escapeTwigText($item['subject'])) . "</h4>\n";
-            if (!empty($item['description'])) {
-                $content .= "          <ul>\n";
-                if (is_array($item['description'])) {
-                    foreach ($item['description'] as $bullet) {
-                        $content .= '            <li>' . escapeHtml(escapeTwigText($bullet)) . "</li>\n";
-                    }
-                } else {
-                    $content .= '            <li>' . escapeHtml(escapeTwigText($item['description'])) . "</li>\n";
-                }
-                $content .= "          </ul>\n";
+    foreach ($majorVersions as $mv) {
+        $panelId = 'changelog-panel-v' . $mv;
+        $isActive = ($mv === $currentMajor) ? ' active' : '';
+        $content .= '  <div class="changelog-tabpanel' . $isActive . '" id="' . escapeHtml($panelId) . '" role="tabpanel">\n';
+        $content .= "    <div class=\"container-sections\">\n";
+        $content .= "      <section class=\"panel panel--padded\">\n";
+        $content .= "        <h2>Build Snapshot</h2>\n";
+        $content .= "        <div class=\"container-actions\">\n";
+        $content .= '          <span class="chip color-pair-ink">Version ' . escapeHtml($displayVersion) . "</span>\n";
+        $content .= '          <span class="chip color-pair-stone">' . escapeHtml((string)$commitCount) . " commits</span>\n";
+        $content .= "        </div>\n";
+        $content .= "        <p class=\"body\">Generated from conventional commits and git tags during the site build.</p>\n";
+        $content .= "      </section>\n";
+
+        // Build Change Types nav for this major version
+        $content .= "      <section class=\"panel panel--padded\">\n";
+        $content .= "        <h2>Change Types</h2>\n";
+        $content .= "        <nav class=\"container-actions\" aria-label=\"Change log sections\">\n";
+        foreach ($groupLabels as $groupKey => $groupLabel) {
+            $items = array_filter($changeGroups[$groupKey] ?? [], fn($i) => $i['majorVersion'] === $mv);
+            if (!$items) {
+                continue;
             }
-            $content .= "        </div>\n";
-            $content .= "      </li>\n";
+            $sectionId = $groupKey . '-changes-v' . $mv;
+            $chipColor = $groupChips[$groupKey] ?? 'ink';
+            $content .= '          <a class="chip color-pair-' . escapeHtml($chipColor) . '" href="#' . escapeHtml($sectionId) . '">' . escapeHtml($groupLabel) . "</a>\n";
         }
-        $content .= "    </ul>\n";
-        $content .= "  </section>\n";
+        $content .= "        </nav>\n";
+        $content .= "      </section>\n";
+
+        foreach ($groupLabels as $groupKey => $groupLabel) {
+            $items = array_filter($changeGroups[$groupKey] ?? [], fn($i) => $i['majorVersion'] === $mv);
+            if (!$items) {
+                continue;
+            }
+            $sectionId = $groupKey . '-changes-v' . $mv;
+
+            $content .= '      <section class="panel panel--padded" id="' . escapeHtml($sectionId) . "\">\n";
+            $content .= '        <h3>' . escapeHtml($groupLabel) . "</h3>\n";
+            $content .= "        <ul class=\"list\">\n";
+            foreach (array_reverse($items) as $item) {
+                $chipColor = $groupChips[$groupKey] ?? 'ink';
+                $content .= "          <li>\n";
+                $content .= "            <div class=\"container-content\">\n";
+                $content .= "              <div class=\"container-actions\">\n";
+                $content .= '              <span class="chip color-pair-' . escapeHtml($chipColor) . '">' . escapeHtml($groupLabel) . "</span>\n";
+                $content .= '                <span class="caption">' . escapeHtml($item['version']) . ' - ' . escapeHtml($item['sha']) . ' - ' . escapeHtml($item['date']) . "</span>\n";
+                $content .= "              </div>\n";
+                $content .= '              <h4>' . escapeHtml(escapeTwigText($item['subject'])) . "</h4>\n";
+                if (!empty($item['description'])) {
+                    $content .= "              <ul>\n";
+                    if (is_array($item['description'])) {
+                        foreach ($item['description'] as $bullet) {
+                            $content .= '                <li>' . escapeHtml(escapeTwigText($bullet)) . "</li>\n";
+                        }
+                    } else {
+                        $content .= '                <li>' . escapeHtml(escapeTwigText($item['description'])) . "</li>\n";
+                    }
+                    $content .= "              </ul>\n";
+                }
+                $content .= "            </div>\n";
+                $content .= "          </li>\n";
+            }
+            $content .= "        </ul>\n";
+            $content .= "      </section>\n";
+        }
+
+        $content .= "    </div>\n";
+        $content .= "  </div>\n";
     }
 
     $content .= "</div>\n";
