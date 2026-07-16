@@ -1,14 +1,145 @@
 <div class="changelog-tabs" data-changelog-tabs>
   <div class="changelog-tablist" role="tablist">
-    <button class="changelog-tab" role="tab" data-tab="changelog-v1" data-panel="changelog-panel-v1" aria-controls="changelog-panel-v1" aria-selected="false">v1</button>
     <button class="changelog-tab active" role="tab" data-tab="changelog-v2" data-panel="changelog-panel-v2" aria-controls="changelog-panel-v2" aria-selected="true">v2</button>
+    <button class="changelog-tab" role="tab" data-tab="changelog-v1" data-panel="changelog-panel-v1" aria-controls="changelog-panel-v1" aria-selected="false">v1</button>
   </div>
-  <div class="changelog-tabpanel" id="changelog-panel-v1" role="tabpanel">\n    <div class="container-sections">
+  <div class="changelog-tabpanel active" id="changelog-panel-v2" role="tabpanel">
+    <div class="container-sections">
       <section class="panel panel--padded">
         <h2>Build Snapshot</h2>
         <div class="container-actions">
-          <span class="chip color-pair-ink">Version v2.0.0</span>
-          <span class="chip color-pair-stone">176 commits</span>
+          <span class="chip color-pair-ink">Version v2.3.1.1</span>
+          <span class="chip color-pair-stone">181 commits</span>
+        </div>
+        <p class="body">Generated from conventional commits and git tags during the site build.</p>
+      </section>
+      <section class="panel panel--padded">
+        <h2>Change Types</h2>
+        <nav class="container-actions" aria-label="Change log sections">
+          <a class="chip color-pair-rose" href="#breaking-changes-v2">Breaking changes</a>
+          <a class="chip color-pair-gold" href="#feature-changes-v2">Features</a>
+          <a class="chip color-pair-sage" href="#fix-changes-v2">Fixes</a>
+          <a class="chip color-pair-olive" href="#chore-changes-v2">Maintenance</a>
+        </nav>
+      </section>
+      <section class="panel panel--padded" id="breaking-changes-v2">
+        <h3>Breaking changes</h3>
+        <ul class="list">
+          <li>
+            <div class="container-content">
+              <div class="container-actions">
+              <span class="chip color-pair-rose">Breaking changes</span>
+                <span class="caption">v2.0.0 - 
+531996 - 2026-07-14</span>
+              </div>
+              <h4>Refactor(site)!: remove KnitStitch app from CraftCMS</h4>
+              <ul>
+                <li>delete web/knitstitch source, KnitStitch.Tests, templates/knitstitch.twig, web/dist</li>
+                <li>remove KnitStitch CSS section from site.css</li>
+                <li>remove knit-stitch route from config/routes.php</li>
+                <li>remove KnitStitch build step from webhook.php</li>
+                <li>remove KnitStitch projects from playwright.config.js and package.json</li>
+                <li>update nav dropdown field to point to www.knitstitch.misssponto.me.uk</li>
+                <li>update AGENTS.md, README.md, and docs to remove KnitStitch references</li>
+                <li>add placeholder README at web/knitstitch/ with new repo URL</li>
+                <li>KnitStitch app moved to standalone repo, no longer served from CraftCMS.</li>
+              </ul>
+            </div>
+          </li>
+        </ul>
+      </section>
+      <section class="panel panel--padded" id="feature-changes-v2">
+        <h3>Features</h3>
+        <ul class="list">
+          <li>
+            <div class="container-content">
+              <div class="container-actions">
+              <span class="chip color-pair-gold">Features</span>
+                <span class="caption">v2.3.0 - 
+b9969f - 2026-07-16</span>
+              </div>
+              <h4>Add v1/v2 tabbed interface for change log</h4>
+              <ul>
+                <li>split GenerateBuildInfo twig output by major version into tab panels</li>
+                <li>add changelog tab CSS styles</li>
+                <li>add tab toggle JavaScript to change-log page template</li>
+                <li>add global bar include to change-log page</li>
+                <li>regenerate change-log.twig</li>
+              </ul>
+            </div>
+          </li>
+          <li>
+            <div class="container-content">
+              <div class="container-actions">
+              <span class="chip color-pair-gold">Features</span>
+                <span class="caption">v2.2.0 - 
+9a526c - 2026-07-16</span>
+              </div>
+              <h4>Add sticky global bar and fix sticky sidebar offsets</h4>
+              <ul>
+                <li>include global-bar.twig in base layout</li>
+                <li>fix sticky top values from 96px to 109px to match header height</li>
+                <li>increase page-subheader top padding for better spacing</li>
+                <li>update scroll-margin-top for anchor links</li>
+              </ul>
+            </div>
+          </li>
+          <li>
+            <div class="container-content">
+              <div class="container-actions">
+              <span class="chip color-pair-gold">Features</span>
+                <span class="caption">v2.1.0 - 
+9fbe8b - 2026-07-16</span>
+              </div>
+              <h4>Rebrand colours from brown/gold to khaki/muted green</h4>
+              <ul>
+                <li>update primary, secondary, tertiary, shadow design tokens in site.css</li>
+                <li>rename colour pair label from Muted Gold to Muted Khaki in config and style guide</li>
+                <li>update test assertions to match new hex values and label</li>
+              </ul>
+            </div>
+          </li>
+        </ul>
+      </section>
+      <section class="panel panel--padded" id="fix-changes-v2">
+        <h3>Fixes</h3>
+        <ul class="list">
+          <li>
+            <div class="container-content">
+              <div class="container-actions">
+              <span class="chip color-pair-sage">Fixes</span>
+                <span class="caption">v2.3.1 - 
+d14b16 - 2026-07-16</span>
+              </div>
+              <h4>Rename global bar label from Miss Sponto to Structured Chaos</h4>
+            </div>
+          </li>
+        </ul>
+      </section>
+      <section class="panel panel--padded" id="chore-changes-v2">
+        <h3>Maintenance</h3>
+        <ul class="list">
+          <li>
+            <div class="container-content">
+              <div class="container-actions">
+              <span class="chip color-pair-olive">Maintenance</span>
+                <span class="caption">v2.3.1.1 - 
+c91005 - 2026-07-16</span>
+              </div>
+              <h4>Remove KnitStitch folders from workspace config</h4>
+            </div>
+          </li>
+        </ul>
+      </section>
+    </div>
+  </div>
+  <div class="changelog-tabpanel" id="changelog-panel-v1" role="tabpanel">
+    <div class="container-sections">
+      <section class="panel panel--padded">
+        <h2>Build Snapshot</h2>
+        <div class="container-actions">
+          <span class="chip color-pair-ink">Version v2.3.1.1</span>
+          <span class="chip color-pair-stone">181 commits</span>
         </div>
         <p class="body">Generated from conventional commits and git tags during the site build.</p>
       </section>
@@ -2366,49 +2497,6 @@ a1164e - 2026-05-31</span>
                 <span class="caption">v1.0.0.1 - e66b92c - 2026-05-31</span>
               </div>
               <h4>Initial commit</h4>
-            </div>
-          </li>
-        </ul>
-      </section>
-    </div>
-  </div>
-  <div class="changelog-tabpanel active" id="changelog-panel-v2" role="tabpanel">\n    <div class="container-sections">
-      <section class="panel panel--padded">
-        <h2>Build Snapshot</h2>
-        <div class="container-actions">
-          <span class="chip color-pair-ink">Version v2.0.0</span>
-          <span class="chip color-pair-stone">176 commits</span>
-        </div>
-        <p class="body">Generated from conventional commits and git tags during the site build.</p>
-      </section>
-      <section class="panel panel--padded">
-        <h2>Change Types</h2>
-        <nav class="container-actions" aria-label="Change log sections">
-          <a class="chip color-pair-rose" href="#breaking-changes-v2">Breaking changes</a>
-        </nav>
-      </section>
-      <section class="panel panel--padded" id="breaking-changes-v2">
-        <h3>Breaking changes</h3>
-        <ul class="list">
-          <li>
-            <div class="container-content">
-              <div class="container-actions">
-              <span class="chip color-pair-rose">Breaking changes</span>
-                <span class="caption">v2.0.0 - 
-531996 - 2026-07-14</span>
-              </div>
-              <h4>Refactor(site)!: remove KnitStitch app from CraftCMS</h4>
-              <ul>
-                <li>delete web/knitstitch source, KnitStitch.Tests, templates/knitstitch.twig, web/dist</li>
-                <li>remove KnitStitch CSS section from site.css</li>
-                <li>remove knit-stitch route from config/routes.php</li>
-                <li>remove KnitStitch build step from webhook.php</li>
-                <li>remove KnitStitch projects from playwright.config.js and package.json</li>
-                <li>update nav dropdown field to point to www.knitstitch.misssponto.me.uk</li>
-                <li>update AGENTS.md, README.md, and docs to remove KnitStitch references</li>
-                <li>add placeholder README at web/knitstitch/ with new repo URL</li>
-                <li>KnitStitch app moved to standalone repo, no longer served from CraftCMS.</li>
-              </ul>
             </div>
           </li>
         </ul>

@@ -431,6 +431,9 @@ JS;
     }
     $currentMajor = end($majorVersions);
 
+    // Render tabs newest major first so the current version is the first tab.
+    $majorVersions = array_reverse($majorVersions);
+
     $content = '';
     $content .= "<div class=\"changelog-tabs\" data-changelog-tabs>\n";
     $content .= "  <div class=\"changelog-tablist\" role=\"tablist\">\n";
@@ -445,7 +448,7 @@ JS;
     foreach ($majorVersions as $mv) {
         $panelId = 'changelog-panel-v' . $mv;
         $isActive = ($mv === $currentMajor) ? ' active' : '';
-        $content .= '  <div class="changelog-tabpanel' . $isActive . '" id="' . escapeHtml($panelId) . '" role="tabpanel">\n';
+        $content .= '  <div class="changelog-tabpanel' . $isActive . '" id="' . escapeHtml($panelId) . '" role="tabpanel">' . "\n";
         $content .= "    <div class=\"container-sections\">\n";
         $content .= "      <section class=\"panel panel--padded\">\n";
         $content .= "        <h2>Build Snapshot</h2>\n";
